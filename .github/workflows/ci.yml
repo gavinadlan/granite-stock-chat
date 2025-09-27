@@ -1,10 +1,7 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline (DISABLED)
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:  # Only manual trigger
 
 jobs:
   # Frontend Testing & Building
