@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Simple S3 bucket for Stock Market Chat Frontend'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues: [staging, production]
+    Description: Environment name
+
+Resources:
+  # S3 Bucket for hosting static files
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${Environment}-stock-market-chat-frontend'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+  # S3 Bucket Policy
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub '${FrontendBucket}/*'
+
+Outputs:
+  BucketName:
+    Description: 'S3 Bucket Name'
+    Value: !Ref FrontendBucket
+
+  BucketWebsiteURL:
+    Description: 'S3 Bucket Website URL'
+    Value: !GetAtt FrontendBucket.WebsiteURL

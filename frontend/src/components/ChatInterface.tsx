@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Bot, User, TrendingUp, TrendingDown, BarChart3, Newspaper } from 'lucide-react';
+import { Send, Bot, TrendingUp, BarChart3, Newspaper } from 'lucide-react';
 import { stockMarketAPI, ChatMessage } from '@/services/stockMarketAPI';
 import { MessageBubble } from './MessageBubble';
 import { StockCard } from './StockCard';

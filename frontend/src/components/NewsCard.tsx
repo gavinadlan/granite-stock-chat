@@ -8,27 +8,6 @@ interface NewsCardProps {
 }
 
 export function NewsCard({ newsItem }: NewsCardProps) {
-  const getSentimentColor = (sentiment?: string) => {
-    switch (sentiment) {
-      case 'positive':
-        return 'bg-green-100 text-green-800';
-      case 'negative':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-slate-100 text-slate-800';
-    }
-  };
-
-  const getSentimentIcon = (sentiment?: string) => {
-    switch (sentiment) {
-      case 'positive':
-        return '📈';
-      case 'negative':
-        return '📉';
-      default:
-        return '📰';
-    }
-  };
 
   return (
     <Card className="w-full max-w-md">
@@ -38,11 +17,9 @@ export function NewsCard({ newsItem }: NewsCardProps) {
             <Newspaper className="h-4 w-4 text-slate-600" />
             <span className="text-sm font-semibold line-clamp-2">{newsItem.title}</span>
           </div>
-          {newsItem.sentiment && (
-            <Badge className={`text-xs ${getSentimentColor(newsItem.sentiment)}`}>
-              {getSentimentIcon(newsItem.sentiment)}
-            </Badge>
-          )}
+          <Badge variant="secondary" className="text-xs">
+            News
+          </Badge>
         </CardTitle>
       </CardHeader>
       

@@ -65,19 +65,118 @@ export interface ChatMessage {
 
 class StockMarketAPI {
   private formatSymbol(symbol: string): string {
-    // Indonesian stocks need .JK suffix
-    const indonesianStocks = ['BBCA', 'BBRI', 'BMRI', 'BNGA', 'BBNI', 'TLKM', 'ASII', 'UNVR', 'INDF', 'ICBP'];
-    if (indonesianStocks.includes(symbol.toUpperCase()) && !symbol.includes('.')) {
-      return `${symbol.toUpperCase()}.JK`;
+    const cleanSymbol = symbol.toUpperCase().trim();
+    
+    // If already has exchange suffix, return as is
+    if (cleanSymbol.includes('.')) {
+      return cleanSymbol;
     }
-    return symbol.toUpperCase();
+    
+    // Smart detection for Indonesian stocks
+    // Indonesian stocks typically have 4 characters and follow certain patterns
+    const isIndonesianStock = this.detectIndonesianStock(cleanSymbol);
+    
+    if (isIndonesianStock) {
+      return `${cleanSymbol}.JK`;
+    }
+    
+    return cleanSymbol;
+  }
+
+  private detectIndonesianStock(symbol: string): boolean {
+    // Indonesian stocks typically have 4 characters
+    if (symbol.length !== 4) {
+      return false;
+    }
+    
+    // Common Indonesian stock patterns
+    const indonesianPatterns = [
+      // Banking patterns (BB, BM, BN, etc.)
+      /^BB[A-Z]{2}$/,  // BBCA, BBRI, BMRI, BNGA, BBNI
+      /^BC[A-Z]{2}$/,  // BCA variants
+      /^BR[A-Z]{2}$/,  // BRI variants
+      /^MA[A-Z]{2}$/,  // MANDIRI variants
+      /^BN[A-Z]{2}$/,  // BNI variants
+      /^CI[A-Z]{2}$/,  // CIMB variants
+      
+      // Telco patterns
+      /^TL[A-Z]{2}$/,  // TLKM
+      /^IS[A-Z]{2}$/,  // ISAT
+      /^EX[A-Z]{2}$/,  // EXCL
+      /^FR[A-Z]{2}$/,  // FREN
+      
+      // Consumer patterns
+      /^UN[A-Z]{2}$/,  // UNVR
+      /^IN[A-Z]{2}$/,  // INDF, INCO, INTP
+      /^IC[A-Z]{2}$/,  // ICBP
+      /^WI[A-Z]{2}$/,  // WIKA
+      /^AD[A-Z]{2}$/,  // ADHI, ADRO
+      /^JS[A-Z]{2}$/,  // JSMR
+      /^PG[A-Z]{2}$/,  // PGAS
+      /^AN[A-Z]{2}$/,  // ANTM
+      /^AS[A-Z]{2}$/,  // ASII
+      /^SM[A-Z]{2}$/,  // SMGR
+      /^KL[A-Z]{2}$/,  // KLBF
+      /^GG[A-Z]{2}$/,  // GGRM
+      /^CP[A-Z]{2}$/,  // CPIN
+      /^TK[A-Z]{2}$/,  // TKIM
+      /^HM[A-Z]{2}$/,  // HMSP
+      /^AU[A-Z]{2}$/,  // AUTO
+      /^CD[A-Z]{2}$/,  // CDIA
+      /^BU[A-Z]{2}$/,  // BUKA
+    ];
+    
+    // Check if symbol matches any Indonesian pattern
+    return indonesianPatterns.some(pattern => pattern.test(symbol));
   }
 
   async getStockPrice(symbol: string): Promise<StockPrice | null> {
-    const formattedSymbol = this.formatSymbol(symbol);
+    const cleanSymbol = symbol.toUpperCase().trim();
+    console.log(`🎯 Starting stock price search for: ${symbol} (cleaned: ${cleanSymbol})`);
+    
+    // Universal approach: try all possible formats
+    const formatsToTry = this.generateAllFormats(cleanSymbol);
+    console.log(`📋 Will try these formats:`, formatsToTry);
+    
+    for (const format of formatsToTry) {
+      console.log(`🔄 Trying format: ${format}`);
+      const result = await this.tryStockPriceAPIs(format);
+      if (result) {
+        console.log(`✅ Found stock data for ${format}`);
+        return result;
+      }
+      console.log(`❌ No data found for ${format}`);
+    }
+    
+    console.error('❌ All stock price APIs failed for symbol:', symbol);
+    return null;
+  }
+
+  private generateAllFormats(symbol: string): string[] {
+    const formats = [symbol]; // Original format
+    
+    // If it's a 4-character symbol without exchange suffix
+    if (symbol.length === 4 && !symbol.includes('.')) {
+      // Add common exchange suffixes
+      formats.push(`${symbol}.JK`);  // Indonesia
+      formats.push(`${symbol}.TO`);  // Toronto
+      formats.push(`${symbol}.L`);   // London
+      formats.push(`${symbol}.HK`);  // Hong Kong
+      formats.push(`${symbol}.SG`);  // Singapore
+      formats.push(`${symbol}.AX`);  // Australia
+      formats.push(`${symbol}.T`);   // Tokyo
+      formats.push(`${symbol}.DE`);  // Germany
+      formats.push(`${symbol}.PA`);  // Paris
+      formats.push(`${symbol}.MC`);  // Madrid
+    }
+    
+    return formats;
+  }
+
+  private async tryStockPriceAPIs(symbol: string): Promise<StockPrice | null> {
     // Try AWS Lambda first
     try {
-      const awsData = await awsLambdaService.getStockPrice(formattedSymbol);
+      const awsData = await awsLambdaService.getStockPrice(symbol);
       if (awsData) {
         return this.convertAWSToStockPrice(awsData);
       }
@@ -87,7 +186,7 @@ class StockMarketAPI {
 
     // Fallback to Yahoo Finance
     try {
-      const yahooData = await yahooFinanceService.getStockPrice(formattedSymbol);
+      const yahooData = await yahooFinanceService.getStockPrice(symbol);
       if (yahooData) {
         return yahooData;
       }
@@ -97,7 +196,7 @@ class StockMarketAPI {
 
     // Fallback to Alpha Vantage
     try {
-      const alphaData = await this.getAlphaVantageStockPrice(formattedSymbol);
+      const alphaData = await this.getAlphaVantageStockPrice(symbol);
       if (alphaData) {
         return alphaData;
       }
@@ -105,8 +204,6 @@ class StockMarketAPI {
       console.warn('Alpha Vantage stock price failed:', error);
     }
 
-    // No fallback - return null if all APIs fail
-    console.error('All stock price APIs failed for symbol:', symbol);
     return null;
   }
 

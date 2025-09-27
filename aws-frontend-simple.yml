@@ -1,4 +1,4 @@
-# AWS CloudFormation template for frontend deployment
+# AWS CloudFormation template for frontend deployment (Simplified)
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'S3 bucket and CloudFront distribution for Stock Market Chat Frontend'
 
@@ -8,14 +8,6 @@ Parameters:
     Default: staging
     AllowedValues: [staging, production]
     Description: Environment name
-  
-  DomainName:
-    Type: String
-    Description: Domain name for the application
-    Default: ''
-
-Conditions:
-  HasDomain: !Not [!Equals [!Ref DomainName, ""]]
 
 Resources:
   # S3 Bucket for hosting static files
@@ -31,12 +23,6 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
-      CorsConfiguration:
-        CorsRules:
-          - AllowedHeaders: ['*']
-            AllowedMethods: [GET, HEAD]
-            AllowedOrigins: ['*']
-            MaxAge: 3600
 
   # S3 Bucket Policy
   FrontendBucketPolicy:
@@ -51,7 +37,7 @@ Resources:
             Action: 's3:GetObject'
             Resource: !Sub '${FrontendBucket}/*'
 
-  # CloudFront Origin Access Identity (simpler approach)
+  # CloudFront Origin Access Identity
   OriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
     Properties:
@@ -92,7 +78,6 @@ Resources:
         ViewerCertificate:
           CloudFrontDefaultCertificate: true
 
-  # Outputs
 Outputs:
   BucketName:
     Description: 'S3 Bucket Name'

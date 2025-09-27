@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Marquee, MarqueeItem } from "@/components/ui/marquee"
-import { ArrowRight, BarChart3, Brain, Newspaper, TrendingUp, Users, Zap, Menu, X } from "lucide-react"
+import { ArrowRight, BarChart3, Brain, Newspaper, TrendingUp, Zap, Menu, X } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useState } from "react"
 

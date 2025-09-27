@@ -51,11 +51,14 @@ class AWSLambdaService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = import.meta.env?.VITE_AWS_API_URL || 'http://localhost:3001';
+    this.baseUrl = import.meta.env?.VITE_AWS_API_URL || 'https://qgh9r6vaol.execute-api.us-east-1.amazonaws.com';
   }
 
   async getStockPrice(symbol: string): Promise<AWSStockPrice | null> {
     try {
+      console.log(`🔍 Trying AWS Lambda for symbol: ${symbol}`);
+      console.log(`🌐 API URL: ${this.baseUrl}/dev/stock-price`);
+      
       const response = await fetch(`${this.baseUrl}/dev/stock-price`, {
         method: 'POST',
         headers: {
@@ -64,14 +67,21 @@ class AWSLambdaService {
         body: JSON.stringify({ symbol }),
       });
 
+      console.log(`📡 Response status: ${response.status}`);
+      console.log(`📡 Response ok: ${response.ok}`);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ HTTP error! status: ${response.status}, body: ${errorText}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log(`✅ AWS Lambda success for ${symbol}:`, data);
+      
       return data;
     } catch (error) {
-      console.error('AWS Lambda stock price error:', error);
+      console.error('❌ AWS Lambda stock price error:', error);
       return null;
     }
   }
