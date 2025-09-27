@@ -48,14 +48,16 @@ class YahooFinanceService {
       const data = await response.json();
       console.log(`📊 Yahoo Finance data received:`, data);
       
-      if (data.price) {
+      // Parse data from options endpoint - data is in optionChain.result[0].quote
+      if (data.optionChain && data.optionChain.result && data.optionChain.result[0] && data.optionChain.result[0].quote) {
+        const quote = data.optionChain.result[0].quote;
         return {
           symbol: symbol.toUpperCase(),
-          price: data.price.regularMarketPrice || 0,
-          change: data.price.regularMarketChange || 0,
-          changePercent: data.price.regularMarketChangePercent || 0,
-          volume: data.price.regularMarketVolume || 0,
-          marketCap: this.formatMarketCap(data.price.marketCap || 0),
+          price: quote.regularMarketPrice || 0,
+          change: quote.regularMarketChange || 0,
+          changePercent: quote.regularMarketChangePercent || 0,
+          volume: quote.regularMarketVolume || 0,
+          marketCap: this.formatMarketCap(quote.marketCap || 0),
           lastUpdated: new Date()
         };
       }
