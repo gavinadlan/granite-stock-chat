@@ -51,7 +51,7 @@ class IBMGraniteService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          version: 'ibm/granite-3.0-8b-instruct',
+          version: 'meta/llama-2-7b-chat',
           input: {
             prompt: prompt,
             max_tokens: 512
@@ -103,7 +103,7 @@ class IBMGraniteService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          version: 'ibm/granite-3.0-8b-instruct',
+          version: 'meta/llama-2-7b-chat',
           input: {
             prompt: prompt,
             max_tokens: 512

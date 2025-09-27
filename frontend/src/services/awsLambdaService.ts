@@ -100,12 +100,11 @@ class AWSLambdaService {
 
   async getTechnicalAnalysis(symbol: string): Promise<AWSTechnicalAnalysis | null> {
     try {
-      const response = await fetch(`${this.baseUrl}/dev/technical-analysis`, {
-        method: 'POST',
+      const response = await fetch(`${this.baseUrl}/dev/technical-analysis?symbol=${symbol}`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ symbol }),
       });
 
       if (!response.ok) {

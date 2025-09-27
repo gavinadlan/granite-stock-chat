@@ -64,10 +64,20 @@ export interface ChatMessage {
 }
 
 class StockMarketAPI {
+  private formatSymbol(symbol: string): string {
+    // Indonesian stocks need .JK suffix
+    const indonesianStocks = ['BBCA', 'BBRI', 'BMRI', 'BNGA', 'BBNI', 'TLKM', 'ASII', 'UNVR', 'INDF', 'ICBP'];
+    if (indonesianStocks.includes(symbol.toUpperCase()) && !symbol.includes('.')) {
+      return `${symbol.toUpperCase()}.JK`;
+    }
+    return symbol.toUpperCase();
+  }
+
   async getStockPrice(symbol: string): Promise<StockPrice | null> {
+    const formattedSymbol = this.formatSymbol(symbol);
     // Try AWS Lambda first
     try {
-      const awsData = await awsLambdaService.getStockPrice(symbol);
+      const awsData = await awsLambdaService.getStockPrice(formattedSymbol);
       if (awsData) {
         return this.convertAWSToStockPrice(awsData);
       }
@@ -77,7 +87,7 @@ class StockMarketAPI {
 
     // Fallback to Yahoo Finance
     try {
-      const yahooData = await yahooFinanceService.getStockPrice(symbol);
+      const yahooData = await yahooFinanceService.getStockPrice(formattedSymbol);
       if (yahooData) {
         return yahooData;
       }
@@ -87,7 +97,7 @@ class StockMarketAPI {
 
     // Fallback to Alpha Vantage
     try {
-      const alphaData = await this.getAlphaVantageStockPrice(symbol);
+      const alphaData = await this.getAlphaVantageStockPrice(formattedSymbol);
       if (alphaData) {
         return alphaData;
       }
@@ -101,9 +111,10 @@ class StockMarketAPI {
   }
 
   async getStockPrediction(symbol: string, timeframe: string = '1 week'): Promise<Prediction | null> {
+    const formattedSymbol = this.formatSymbol(symbol);
     // Try AWS Lambda first
     try {
-      const awsData = await awsLambdaService.getAIPrediction(symbol, timeframe);
+      const awsData = await awsLambdaService.getAIPrediction(formattedSymbol, timeframe);
       if (awsData) {
         return awsData;
       }
@@ -113,7 +124,7 @@ class StockMarketAPI {
 
     // Fallback to IBM Granite
     try {
-      const graniteData = await ibmGraniteService.getPrediction(symbol, timeframe);
+      const graniteData = await ibmGraniteService.getPrediction(formattedSymbol, timeframe);
       if (graniteData) {
         return graniteData;
       }
@@ -127,9 +138,10 @@ class StockMarketAPI {
   }
 
   async getTechnicalAnalysis(symbol: string): Promise<TechnicalAnalysis | null> {
+    const formattedSymbol = this.formatSymbol(symbol);
     // Try AWS Lambda first
     try {
-      const awsData = await awsLambdaService.getTechnicalAnalysis(symbol);
+      const awsData = await awsLambdaService.getTechnicalAnalysis(formattedSymbol);
       if (awsData) {
         return awsData;
       }
@@ -139,7 +151,7 @@ class StockMarketAPI {
 
     // Fallback to IBM Granite
     try {
-      const graniteData = await ibmGraniteService.getTechnicalAnalysis(symbol);
+      const graniteData = await ibmGraniteService.getTechnicalAnalysis(formattedSymbol);
       if (graniteData) {
         return graniteData;
       }
@@ -153,9 +165,10 @@ class StockMarketAPI {
   }
 
   async getMarketNews(symbol: string): Promise<NewsItem[]> {
+    const formattedSymbol = this.formatSymbol(symbol);
     // Try AWS Lambda first
     try {
-      const awsData = await awsLambdaService.getMarketNews(symbol);
+      const awsData = await awsLambdaService.getMarketNews(formattedSymbol);
       if (awsData && awsData.length > 0) {
         return awsData;
       }
@@ -165,7 +178,7 @@ class StockMarketAPI {
 
     // Fallback to News API
     try {
-      const newsData = await this.getNewsAPIData(symbol);
+      const newsData = await this.getNewsAPIData(formattedSymbol);
       if (newsData && newsData.length > 0) {
         return newsData;
       }
