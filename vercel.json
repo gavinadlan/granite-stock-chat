@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "name": "granite-stock-chat",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/dist/$1"
+    }
+  ],
+  "env": {
+    "VITE_AWS_API_URL": "@vite_aws_api_url",
+    "VITE_RAPIDAPI_KEY": "@vite_rapidapi_key",
+    "VITE_REPLICATE_API_KEY": "@vite_replicate_api_key",
+    "VITE_ALPHA_VANTAGE_API_KEY": "@vite_alpha_vantage_api_key",
+    "VITE_NEWS_API_KEY": "@vite_news_api_key"
+  }
+}
