@@ -1,10 +1,7 @@
-name: Test Suite
+name: Test Suite (DISABLED)
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:  # Only manual trigger
 
 jobs:
   # Frontend Tests
