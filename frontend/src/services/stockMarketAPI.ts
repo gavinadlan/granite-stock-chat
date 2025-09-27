@@ -9,6 +9,7 @@ export interface StockPrice {
   changePercent: number;
   volume: number;
   marketCap: string | null;
+  currency: string;
   lastUpdated: Date;
 }
 
@@ -438,13 +439,16 @@ class StockMarketAPI {
       
       if (data['Global Quote']) {
         const quote = data['Global Quote'];
+        const symbol = quote['01. symbol'];
+        const currency = this.detectCurrency(symbol);
         return {
-          symbol: quote['01. symbol'],
+          symbol: symbol,
           price: parseFloat(quote['05. price']),
           change: parseFloat(quote['09. change']),
           changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
           volume: parseInt(quote['06. volume']),
           marketCap: null,
+          currency: currency,
           lastUpdated: new Date()
         };
       }
@@ -484,6 +488,51 @@ class StockMarketAPI {
     }
   }
 
+  private detectCurrency(symbol: string): string {
+    // Indonesian stocks
+    if (symbol.endsWith('.JK')) {
+      return 'IDR';
+    }
+    // Canadian stocks
+    if (symbol.endsWith('.TO')) {
+      return 'CAD';
+    }
+    // British stocks
+    if (symbol.endsWith('.L')) {
+      return 'GBP';
+    }
+    // Hong Kong stocks
+    if (symbol.endsWith('.HK')) {
+      return 'HKD';
+    }
+    // Singapore stocks
+    if (symbol.endsWith('.SG')) {
+      return 'SGD';
+    }
+    // Australian stocks
+    if (symbol.endsWith('.AX')) {
+      return 'AUD';
+    }
+    // Japanese stocks
+    if (symbol.endsWith('.T')) {
+      return 'JPY';
+    }
+    // German stocks
+    if (symbol.endsWith('.DE')) {
+      return 'EUR';
+    }
+    // French stocks
+    if (symbol.endsWith('.PA')) {
+      return 'EUR';
+    }
+    // Spanish stocks
+    if (symbol.endsWith('.MC')) {
+      return 'EUR';
+    }
+    // Default to USD for US stocks
+    return 'USD';
+  }
+
   private convertAWSToStockPrice(awsData: any): StockPrice {
     return {
       symbol: awsData.symbol,
@@ -492,6 +541,7 @@ class StockMarketAPI {
       changePercent: awsData.changePercent,
       volume: awsData.volume,
       marketCap: awsData.marketCap,
+      currency: awsData.currency || 'USD', // Default to USD if not provided
       lastUpdated: new Date(awsData.lastUpdated)
     };
   }

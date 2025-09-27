@@ -6,6 +6,7 @@ export interface AWSStockPrice {
   changePercent: number;
   volume: number;
   marketCap: string | null;
+  currency: string;
   lastUpdated: Date;
 }
 

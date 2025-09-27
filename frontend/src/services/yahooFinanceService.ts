@@ -6,6 +6,7 @@ export interface YahooStockData {
   changePercent: number;
   volume: number;
   marketCap: string | null;
+  currency: string;
   lastUpdated: Date;
 }
 
@@ -53,13 +54,17 @@ class YahooFinanceService {
       if (data.optionChain && data.optionChain.result && data.optionChain.result[0] && data.optionChain.result[0].quote) {
         const quote = data.optionChain.result[0].quote;
         console.log(`🔍 Yahoo Finance parsing - Input symbol: ${symbol}, API symbol: ${quote.symbol}`);
+        const finalSymbol = quote.symbol || symbol.toUpperCase();
+        const currency = this.detectCurrency(finalSymbol);
+        console.log(`💰 Detected currency: ${currency} for symbol: ${finalSymbol}`);
         return {
-          symbol: quote.symbol || symbol.toUpperCase(), // Use API symbol if available
+          symbol: finalSymbol, // Use API symbol if available
           price: quote.regularMarketPrice || 0,
           change: quote.regularMarketChange || 0,
           changePercent: quote.regularMarketChangePercent || 0,
           volume: quote.regularMarketVolume || 0,
           marketCap: this.formatMarketCap(quote.marketCap || 0),
+          currency: currency,
           lastUpdated: new Date()
         };
       }
@@ -69,6 +74,51 @@ class YahooFinanceService {
       console.error('Yahoo Finance API error:', error);
       return null;
     }
+  }
+
+  private detectCurrency(symbol: string): string {
+    // Indonesian stocks
+    if (symbol.endsWith('.JK')) {
+      return 'IDR';
+    }
+    // Canadian stocks
+    if (symbol.endsWith('.TO')) {
+      return 'CAD';
+    }
+    // British stocks
+    if (symbol.endsWith('.L')) {
+      return 'GBP';
+    }
+    // Hong Kong stocks
+    if (symbol.endsWith('.HK')) {
+      return 'HKD';
+    }
+    // Singapore stocks
+    if (symbol.endsWith('.SG')) {
+      return 'SGD';
+    }
+    // Australian stocks
+    if (symbol.endsWith('.AX')) {
+      return 'AUD';
+    }
+    // Japanese stocks
+    if (symbol.endsWith('.T')) {
+      return 'JPY';
+    }
+    // German stocks
+    if (symbol.endsWith('.DE')) {
+      return 'EUR';
+    }
+    // French stocks
+    if (symbol.endsWith('.PA')) {
+      return 'EUR';
+    }
+    // Spanish stocks
+    if (symbol.endsWith('.MC')) {
+      return 'EUR';
+    }
+    // Default to USD for US stocks
+    return 'USD';
   }
 
   private formatMarketCap(marketCap: number): string {

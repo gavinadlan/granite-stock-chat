@@ -29,7 +29,7 @@ export function StockCard({ stockPrice }: StockCardProps) {
         <div className="flex items-center space-x-2">
           <DollarSign className="h-5 w-5 text-slate-600" />
           <span className="text-2xl font-bold text-slate-900">
-            ${stockPrice.price.toFixed(2)}
+            {stockPrice.currency === 'IDR' ? 'Rp' : stockPrice.currency === 'EUR' ? '€' : stockPrice.currency === 'GBP' ? '£' : stockPrice.currency === 'JPY' ? '¥' : '$'}{stockPrice.price.toFixed(2)}
           </span>
         </div>
 
@@ -41,7 +41,7 @@ export function StockCard({ stockPrice }: StockCardProps) {
             <TrendingDown className={`h-4 w-4 ${changeColor}`} />
           )}
           <span className={`font-semibold ${changeColor}`}>
-            {isPositive ? '+' : ''}{stockPrice.change.toFixed(2)}
+            {isPositive ? '+' : ''}{stockPrice.currency === 'IDR' ? 'Rp' : stockPrice.currency === 'EUR' ? '€' : stockPrice.currency === 'GBP' ? '£' : stockPrice.currency === 'JPY' ? '¥' : '$'}{stockPrice.change.toFixed(2)}
           </span>
           <span className={`text-sm ${changeColor}`}>
             ({isPositive ? '+' : ''}{stockPrice.changePercent.toFixed(2)}%)
