@@ -14,7 +14,7 @@ class YahooFinanceService {
   private baseUrl = 'https://yahoo-finance-real-time1.p.rapidapi.com';
 
   constructor() {
-    this.apiKey = import.meta.env?.VITE_RAPIDAPI_KEY || 'c273c5d8b13a44b5a857e67545b90ee1';
+    this.apiKey = import.meta.env?.VITE_RAPIDAPI_KEY || '024887c011msh588fd1cec974e2bp16266djsn1b16f80bcfe9';
     console.log('🔑 Yahoo Finance API Key loaded:', this.apiKey ? '✅ Present' : '❌ Missing');
   }
 
@@ -26,9 +26,9 @@ class YahooFinanceService {
 
     try {
       console.log(`🔍 Yahoo Finance API call for: ${symbol}`);
-      console.log(`🌐 URL: ${this.baseUrl}/stock/get-detail?symbol=${symbol}&lang=en-US&region=US`);
+      console.log(`🌐 URL: ${this.baseUrl}/stock/get-options?symbol=${symbol}&lang=en-US&region=US`);
       
-      const response = await fetch(`${this.baseUrl}/stock/get-detail?symbol=${symbol}&lang=en-US&region=US`, {
+      const response = await fetch(`${this.baseUrl}/stock/get-options?symbol=${symbol}&lang=en-US&region=US`, {
         method: 'GET',
         headers: {
           'X-RapidAPI-Key': this.apiKey,

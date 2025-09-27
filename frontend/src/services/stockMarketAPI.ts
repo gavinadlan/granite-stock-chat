@@ -174,19 +174,7 @@ class StockMarketAPI {
   }
 
   private async tryStockPriceAPIs(symbol: string): Promise<StockPrice | null> {
-    // Try Alpha Vantage first (most reliable - free tier)
-    try {
-      console.log(`🔄 Trying Alpha Vantage for: ${symbol}`);
-      const alphaData = await this.getAlphaVantageStockPrice(symbol);
-      if (alphaData) {
-        console.log(`✅ Alpha Vantage success for: ${symbol}`);
-        return alphaData;
-      }
-    } catch (error) {
-      console.warn('❌ Alpha Vantage stock price failed:', error);
-    }
-
-    // Try Yahoo Finance as fallback (requires subscription)
+    // Try Yahoo Finance first (now with correct API key)
     try {
       console.log(`🔄 Trying Yahoo Finance for: ${symbol}`);
       const yahooData = await yahooFinanceService.getStockPrice(symbol);
@@ -196,6 +184,18 @@ class StockMarketAPI {
       }
     } catch (error) {
       console.warn('❌ Yahoo Finance stock price failed:', error);
+    }
+
+    // Try Alpha Vantage as fallback
+    try {
+      console.log(`🔄 Trying Alpha Vantage for: ${symbol}`);
+      const alphaData = await this.getAlphaVantageStockPrice(symbol);
+      if (alphaData) {
+        console.log(`✅ Alpha Vantage success for: ${symbol}`);
+        return alphaData;
+      }
+    } catch (error) {
+      console.warn('❌ Alpha Vantage stock price failed:', error);
     }
 
     // Try AWS Lambda as final fallback
