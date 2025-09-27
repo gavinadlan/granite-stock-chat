@@ -16,6 +16,7 @@ class YahooFinanceService {
   constructor() {
     this.apiKey = import.meta.env?.VITE_RAPIDAPI_KEY || '024887c011msh588fd1cec974e2bp16266djsn1b16f80bcfe9';
     console.log('🔑 Yahoo Finance API Key loaded:', this.apiKey ? '✅ Present' : '❌ Missing');
+    console.log('🚀 Triggering deployment with updated Yahoo Finance API');
   }
 
   async getStockPrice(symbol: string): Promise<YahooStockData | null> {
