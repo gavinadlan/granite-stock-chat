@@ -14,7 +14,7 @@ class YahooFinanceService {
   private baseUrl = 'https://yahoo-finance-real-time1.p.rapidapi.com';
 
   constructor() {
-    this.apiKey = import.meta.env?.VITE_RAPIDAPI_KEY || '';
+    this.apiKey = import.meta.env?.VITE_RAPIDAPI_KEY || 'c273c5d8b13a44b5a857e67545b90ee1';
   }
 
   async getStockPrice(symbol: string): Promise<YahooStockData | null> {
@@ -24,6 +24,9 @@ class YahooFinanceService {
     }
 
     try {
+      console.log(`🔍 Yahoo Finance API call for: ${symbol}`);
+      console.log(`🌐 URL: ${this.baseUrl}/stock/get-detail?symbol=${symbol}&lang=en-US&region=US`);
+      
       const response = await fetch(`${this.baseUrl}/stock/get-detail?symbol=${symbol}&lang=en-US&region=US`, {
         method: 'GET',
         headers: {
@@ -32,11 +35,17 @@ class YahooFinanceService {
         }
       });
 
+      console.log(`📡 Yahoo Finance response status: ${response.status}`);
+      console.log(`📡 Yahoo Finance response ok: ${response.ok}`);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Yahoo Finance HTTP error! status: ${response.status}, body: ${errorText}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log(`📊 Yahoo Finance data received:`, data);
       
       if (data.price) {
         return {
