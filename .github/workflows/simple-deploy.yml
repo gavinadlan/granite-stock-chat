@@ -1,8 +1,7 @@
-name: Simple Deploy
+name: Simple Deploy (DISABLED)
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:  # Only manual trigger
 
 jobs:
   deploy:
