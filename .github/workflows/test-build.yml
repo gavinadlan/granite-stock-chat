@@ -1,8 +1,7 @@
-name: Test Build Only
+name: Test Build Only (DISABLED)
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:  # Only manual trigger
 
 jobs:
   test-build:
