@@ -52,8 +52,9 @@ class YahooFinanceService {
       // Parse data from options endpoint - data is in optionChain.result[0].quote
       if (data.optionChain && data.optionChain.result && data.optionChain.result[0] && data.optionChain.result[0].quote) {
         const quote = data.optionChain.result[0].quote;
+        console.log(`🔍 Yahoo Finance parsing - Input symbol: ${symbol}, API symbol: ${quote.symbol}`);
         return {
-          symbol: symbol.toUpperCase(),
+          symbol: quote.symbol || symbol.toUpperCase(), // Use API symbol if available
           price: quote.regularMarketPrice || 0,
           change: quote.regularMarketChange || 0,
           changePercent: quote.regularMarketChangePercent || 0,

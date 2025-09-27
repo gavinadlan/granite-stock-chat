@@ -154,9 +154,11 @@ class StockMarketAPI {
 
   private generateAllFormats(symbol: string): string[] {
     const formats = [symbol]; // Original format
+    console.log(`🔧 generateAllFormats input: ${symbol}`);
     
     // If it's a 4-character symbol without exchange suffix
     if (symbol.length === 4 && !symbol.includes('.')) {
+      console.log(`🔧 Adding suffixes for 4-char symbol: ${symbol}`);
       // Add common exchange suffixes
       formats.push(`${symbol}.JK`);  // Indonesia
       formats.push(`${symbol}.TO`);  // Toronto
@@ -170,6 +172,17 @@ class StockMarketAPI {
       formats.push(`${symbol}.MC`);  // Madrid
     }
     
+    // If it already has a suffix, also try without suffix
+    if (symbol.includes('.')) {
+      const baseSymbol = symbol.split('.')[0];
+      console.log(`🔧 Symbol has suffix, base symbol: ${baseSymbol}`);
+      if (baseSymbol.length === 4) {
+        formats.push(baseSymbol); // Try without suffix
+        console.log(`🔧 Added base symbol: ${baseSymbol}`);
+      }
+    }
+    
+    console.log(`🔧 Final formats:`, formats);
     return formats;
   }
 
