@@ -4,6 +4,7 @@
   "description": "AWS Lambda backend for Stock Market Chatbot",
   "main": "index.js",
   "scripts": {
+    "dev": "node -r dotenv/config node_modules/.bin/serverless offline",
     "deploy": "serverless deploy",
     "deploy:dev": "serverless deploy --stage dev",
     "deploy:prod": "serverless deploy --stage prod",
@@ -17,6 +18,7 @@
     "serverless-offline": "^13.3.0"
   },
   "dependencies": {
+    "dotenv": "^17.2.2",
     "node-fetch": "^2.7.0"
   },
   "keywords": [

@@ -123,7 +123,7 @@ async function generateAIPrediction(symbol, currentPrice, timeframe) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                version: 'ibm-granite/granite-3.3-8b-instruct',
+                version: 'meta/llama-2-7b-chat',
                 input: {
                     prompt: prompt,
                     max_tokens: 512,
