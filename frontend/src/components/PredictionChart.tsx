@@ -55,19 +55,19 @@ export function PredictionChart({ prediction }: PredictionChartProps) {
         </div>
 
         {/* Confidence */}
-        <div className="flex items-center space-x-2">
-          <Target className="h-4 w-4 text-slate-600" />
-          <div className="flex-1">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Confidence</span>
-              <span className="font-semibold">{(prediction.confidence * 100).toFixed(1)}%</span>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Target className="h-4 w-4 text-slate-600" />
+              <span className="text-sm text-slate-600">Confidence</span>
             </div>
-            <div className="w-full bg-slate-200 rounded-full h-2 mt-1">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${prediction.confidence * 100}%` }}
-              />
-            </div>
+            <span className="font-semibold text-sm">{(prediction.confidence * 100).toFixed(1)}%</span>
+          </div>
+          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${Math.min(prediction.confidence * 100, 100)}%` }}
+            />
           </div>
         </div>
 

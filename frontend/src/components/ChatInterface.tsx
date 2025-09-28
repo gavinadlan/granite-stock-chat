@@ -77,7 +77,7 @@ export function ChatInterface() {
     const { stockPrice, prediction, technicalAnalysis, news } = message.data;
 
     return (
-      <div className="space-y-4 mt-4">
+      <div className="space-y-4 mt-4 px-2">
         {stockPrice && <StockCard stockPrice={stockPrice} />}
         {prediction && <PredictionChart prediction={prediction} />}
         {technicalAnalysis && <TechnicalAnalysisCard technicalAnalysis={technicalAnalysis} />}
@@ -111,9 +111,9 @@ export function ChatInterface() {
       </Card>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto space-y-4 mb-6">
+      <div className="flex-1 overflow-y-auto space-y-4 mb-6 px-2">
         {messages.map((message) => (
-          <div key={message.id}>
+          <div key={message.id} className="w-full">
             <MessageBubble message={message} />
             {renderMessageData(message)}
           </div>

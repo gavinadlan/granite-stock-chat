@@ -8,26 +8,28 @@ interface MessageBubbleProps {
 export function MessageBubble({ message }: MessageBubbleProps) {
   return (
     <div className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-4`}>
-      <div className={`flex max-w-[80%] ${message.isUser ? 'flex-row-reverse' : 'flex-row'} items-start space-x-2`}>
+      <div className={`flex max-w-[80%] ${message.isUser ? 'flex-row-reverse' : 'flex-row'} items-start ${message.isUser ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
         {/* Avatar */}
-        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-          message.isUser ? 'bg-blue-600' : 'bg-slate-600'
+        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-sm ${
+          message.isUser 
+            ? 'bg-gradient-to-br from-blue-500 to-blue-600' 
+            : 'bg-gradient-to-br from-slate-500 to-slate-600'
         }`}>
           {message.isUser ? (
-            <User className="h-4 w-4 text-white" />
+            <User className="h-5 w-5 text-white" />
           ) : (
-            <Bot className="h-4 w-4 text-white" />
+            <Bot className="h-5 w-5 text-white" />
           )}
         </div>
 
         {/* Message Content */}
-        <div className={`rounded-lg px-4 py-2 ${
+        <div className={`rounded-xl px-4 py-3 shadow-sm ${
           message.isUser 
-            ? 'bg-blue-600 text-white' 
+            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white' 
             : 'bg-white border border-slate-200 text-slate-900'
         }`}>
-          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-          <p className={`text-xs mt-1 ${
+          <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+          <p className={`text-xs mt-2 ${
             message.isUser ? 'text-blue-100' : 'text-slate-500'
           }`}>
             {message.timestamp.toLocaleTimeString()}
