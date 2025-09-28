@@ -32,7 +32,10 @@ class IBMGraniteService {
   private apiKey: string;
 
   constructor() {
-    this.apiKey = import.meta.env?.VITE_REPLICATE_API_KEY || '';
+    this.apiKey = import.meta.env?.VITE_REPLICATE_API_KEY || 'r8_DaMQj6GV5SXmXlriHPJnRf5TjwPaVSu0PPewg';
+    if (!this.apiKey) {
+      console.warn('⚠️ IBM Granite API key not found, using fallback');
+    }
   }
 
   async getPrediction(symbol: string, timeframe: string = '1 week'): Promise<GranitePrediction | null> {

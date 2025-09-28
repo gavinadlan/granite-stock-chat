@@ -129,6 +129,7 @@ class AWSLambdaService {
 
   async getTechnicalAnalysis(symbol: string): Promise<AWSTechnicalAnalysis | null> {
     try {
+      console.log(`📊 Fetching technical analysis for ${symbol} from AWS Lambda`);
       const response = await fetch(`${this.baseUrl}/dev/technical-analysis?symbol=${symbol}`, {
         method: 'GET',
         headers: {
@@ -137,11 +138,18 @@ class AWSLambdaService {
       });
 
       if (!response.ok) {
+        console.error(`❌ AWS Lambda technical analysis error: ${response.status}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      return data;
+      console.log(`✅ AWS Lambda technical analysis success for ${symbol}:`, data);
+      
+      // Ensure lastUpdated is a valid Date
+      return {
+        ...data,
+        lastUpdated: data.lastUpdated ? new Date(data.lastUpdated) : new Date()
+      };
     } catch (error) {
       console.error('AWS Lambda technical analysis error:', error);
       return null;

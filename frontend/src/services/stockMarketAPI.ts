@@ -296,35 +296,14 @@ class StockMarketAPI {
     const messageId = Date.now().toString();
     const timestamp = new Date();
 
-    // Simple keyword detection
+    // Improved keyword detection with priority order
     const lowerMessage = message.toLowerCase();
     
-    if (lowerMessage.includes('price') || lowerMessage.includes('stock')) {
+    // Check for prediction requests FIRST (highest priority)
+    if (lowerMessage.includes('predict') || lowerMessage.includes('forecast') || lowerMessage.includes('prediction')) {
       const symbol = this.extractSymbol(message);
       if (symbol) {
-        const stockPrice = await this.getStockPrice(symbol);
-        if (stockPrice) {
-          return {
-            id: messageId,
-            content: `Here's the current price for ${symbol}:`,
-            isUser: false,
-            timestamp,
-            data: { stockPrice }
-          };
-        } else {
-          return {
-            id: messageId,
-            content: `Sorry, I couldn't fetch the current price for ${symbol}. Please check if the symbol is correct and try again.`,
-            isUser: false,
-            timestamp
-          };
-        }
-      }
-    }
-
-    if (lowerMessage.includes('predict') || lowerMessage.includes('forecast')) {
-      const symbol = this.extractSymbol(message);
-      if (symbol) {
+        console.log(`🔮 Processing prediction request for: ${symbol}`);
         const prediction = await this.getStockPrediction(symbol);
         if (prediction) {
           return {
@@ -345,9 +324,36 @@ class StockMarketAPI {
       }
     }
 
+    // Check for news requests SECOND
+    if (lowerMessage.includes('news') || lowerMessage.includes('latest news')) {
+      const symbol = this.extractSymbol(message);
+      if (symbol) {
+        console.log(`📰 Processing news request for: ${symbol}`);
+        const news = await this.getMarketNews(symbol);
+        if (news && news.length > 0) {
+          return {
+            id: messageId,
+            content: `Here's the latest news for ${symbol}:`,
+            isUser: false,
+            timestamp,
+            data: { news }
+          };
+        } else {
+          return {
+            id: messageId,
+            content: `Sorry, I couldn't find any news for ${symbol}. Please check if the symbol is correct and try again.`,
+            isUser: false,
+            timestamp
+          };
+        }
+      }
+    }
+
+    // Check for technical analysis requests THIRD
     if (lowerMessage.includes('technical') || lowerMessage.includes('analysis')) {
       const symbol = this.extractSymbol(message);
       if (symbol) {
+        console.log(`📊 Processing technical analysis request for: ${symbol}`);
         const technicalAnalysis = await this.getTechnicalAnalysis(symbol);
         if (technicalAnalysis) {
           return {
@@ -368,22 +374,24 @@ class StockMarketAPI {
       }
     }
 
-    if (lowerMessage.includes('news')) {
+    // Check for price requests LAST (lowest priority)
+    if (lowerMessage.includes('price') || lowerMessage.includes('stock') || lowerMessage.includes('current')) {
       const symbol = this.extractSymbol(message);
       if (symbol) {
-        const news = await this.getMarketNews(symbol);
-        if (news && news.length > 0) {
+        console.log(`💰 Processing price request for: ${symbol}`);
+        const stockPrice = await this.getStockPrice(symbol);
+        if (stockPrice) {
           return {
             id: messageId,
-            content: `Here's the latest news for ${symbol}:`,
+            content: `Here's the current price for ${symbol}:`,
             isUser: false,
             timestamp,
-            data: { news }
+            data: { stockPrice }
           };
         } else {
           return {
             id: messageId,
-            content: `Sorry, I couldn't find any news for ${symbol}. Please check if the symbol is correct and try again.`,
+            content: `Sorry, I couldn't fetch the current price for ${symbol}. Please check if the symbol is correct and try again.`,
             isUser: false,
             timestamp
           };
@@ -444,18 +452,27 @@ class StockMarketAPI {
   }
 
   private async getNewsAPIData(symbol: string): Promise<NewsItem[]> {
-    const apiKey = import.meta.env?.VITE_NEWS_API_KEY;
+    const apiKey = import.meta.env?.VITE_NEWS_API_KEY || 'c273c5d8b13a44b5a857e67545b90ee1';
     if (!apiKey) {
-      throw new Error('News API key not found');
+      console.warn('⚠️ News API key not found, using fallback');
+      return [];
     }
 
     try {
+      console.log(`📰 Fetching news for ${symbol} using News API`);
       const response = await fetch(
         `https://newsapi.org/v2/everything?q=${symbol}&apiKey=${apiKey}&sortBy=publishedAt&pageSize=5`
       );
+      
+      if (!response.ok) {
+        console.error(`❌ News API error: ${response.status}`);
+        return [];
+      }
+      
       const data = await response.json();
       
-      if (data.articles) {
+      if (data.articles && data.articles.length > 0) {
+        console.log(`✅ Found ${data.articles.length} news articles for ${symbol}`);
         return data.articles.map((article: any) => ({
           id: article.url,
           title: article.title,
@@ -468,7 +485,7 @@ class StockMarketAPI {
       return [];
     } catch (error) {
       console.error('News API error:', error);
-      throw error;
+      return [];
     }
   }
 
