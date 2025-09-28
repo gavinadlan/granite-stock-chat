@@ -15,7 +15,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         
     - name: Install frontend dependencies
       run: |
@@ -32,7 +32,12 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: us-east-1
+        
+    - name: Verify AWS credentials
+      run: |
+        aws sts get-caller-identity
+        echo "✅ AWS credentials verified!"
         
     - name: Deploy to S3
       run: |
@@ -42,4 +47,4 @@ jobs:
     - name: Verify deployment
       run: |
         echo "✅ Deployment completed!"
-        echo "🌐 Website URL: http://staging-stock-market-chat-frontend-1758970542.s3-website-ap-southeast-2.amazonaws.com"
+        echo "🌐 Website URL: http://staging-stock-market-chat-frontend-1758970542.s3-website-us-east-1.amazonaws.com"

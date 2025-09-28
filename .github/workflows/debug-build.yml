@@ -1,0 +1,41 @@
+name: Debug Build
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  debug-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+        
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+        
+    - name: List build output
+      run: |
+        cd frontend
+        ls -la dist/
+        echo "Build completed successfully!"
+        
+    - name: Test AWS credentials (without deployment)
+      run: |
+        aws sts get-caller-identity
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: us-east-1
