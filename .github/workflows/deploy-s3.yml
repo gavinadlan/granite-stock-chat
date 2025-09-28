@@ -1,8 +1,7 @@
-name: Deploy to S3
+name: Deploy to S3 (DISABLED)
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch:  # Manual trigger only
 
 jobs:
   deploy:

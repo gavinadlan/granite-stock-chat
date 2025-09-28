@@ -1,7 +1,8 @@
-name: Simple Deploy (DISABLED)
+name: Simple Deploy
 
 on:
-  workflow_dispatch:  # Only manual trigger
+  push:
+    branches: [ main ]
 
 jobs:
   deploy:
@@ -14,26 +15,44 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
         
-    - name: Install frontend dependencies
+    - name: Install dependencies
       run: |
         cd frontend
-        npm ci
+        npm install
         
     - name: Build frontend
       run: |
         cd frontend
         npm run build
         
+    - name: List build files
+      run: |
+        cd frontend
+        ls -la dist/
+        echo "Build completed successfully!"
+        
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: us-east-1
+        
+    - name: Test AWS connection
+      run: |
+        aws sts get-caller-identity
+        echo "✅ AWS connection successful!"
         
     - name: Deploy to S3
       run: |
         cd frontend
         aws s3 sync dist/ s3://staging-stock-market-chat-frontend-1758970542 --delete
+        
+    - name: Success message
+      run: |
+        echo "🎉 Deployment completed successfully!"
+        echo "🌐 Website: http://staging-stock-market-chat-frontend-1758970542.s3-website-us-east-1.amazonaws.com"
