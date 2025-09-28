@@ -213,28 +213,38 @@ class StockMarketAPI {
 
   async getStockPrediction(symbol: string, timeframe: string = '1 week'): Promise<Prediction | null> {
     const formattedSymbol = this.formatSymbol(symbol);
+    console.log(`🔮 Getting prediction for ${symbol} (formatted: ${formattedSymbol})`);
+    
     // Try AWS Lambda first
     try {
+      console.log(`🔄 Trying AWS Lambda prediction for ${formattedSymbol}`);
       const awsData = await awsLambdaService.getAIPrediction(formattedSymbol, timeframe);
       if (awsData) {
+        console.log(`✅ AWS Lambda prediction success for ${formattedSymbol}:`, awsData);
         return awsData;
+      } else {
+        console.log(`❌ AWS Lambda prediction returned null for ${formattedSymbol}`);
       }
     } catch (error) {
-      console.warn('AWS Lambda prediction failed:', error);
+      console.warn(`❌ AWS Lambda prediction failed for ${formattedSymbol}:`, error);
     }
 
     // Fallback to IBM Granite
     try {
+      console.log(`🔄 Trying IBM Granite prediction for ${formattedSymbol}`);
       const graniteData = await ibmGraniteService.getPrediction(formattedSymbol, timeframe);
       if (graniteData) {
+        console.log(`✅ IBM Granite prediction success for ${formattedSymbol}:`, graniteData);
         return graniteData;
+      } else {
+        console.log(`❌ IBM Granite prediction returned null for ${formattedSymbol}`);
       }
     } catch (error) {
-      console.warn('IBM Granite prediction failed:', error);
+      console.warn(`❌ IBM Granite prediction failed for ${formattedSymbol}:`, error);
     }
 
     // No fallback - return null if all APIs fail
-    console.error('All prediction APIs failed for symbol:', symbol);
+    console.error(`❌ All prediction APIs failed for symbol: ${symbol}`);
     return null;
   }
 
@@ -267,28 +277,38 @@ class StockMarketAPI {
 
   async getMarketNews(symbol: string): Promise<NewsItem[]> {
     const formattedSymbol = this.formatSymbol(symbol);
+    console.log(`📰 Getting news for ${symbol} (formatted: ${formattedSymbol})`);
+    
     // Try AWS Lambda first
     try {
+      console.log(`🔄 Trying AWS Lambda news for ${formattedSymbol}`);
       const awsData = await awsLambdaService.getMarketNews(formattedSymbol);
       if (awsData && awsData.length > 0) {
+        console.log(`✅ AWS Lambda news success for ${formattedSymbol}: ${awsData.length} articles`);
         return awsData;
+      } else {
+        console.log(`❌ AWS Lambda news returned empty for ${formattedSymbol}`);
       }
     } catch (error) {
-      console.warn('AWS Lambda news failed:', error);
+      console.warn(`❌ AWS Lambda news failed for ${formattedSymbol}:`, error);
     }
 
     // Fallback to News API
     try {
+      console.log(`🔄 Trying News API for ${formattedSymbol}`);
       const newsData = await this.getNewsAPIData(formattedSymbol);
       if (newsData && newsData.length > 0) {
+        console.log(`✅ News API success for ${formattedSymbol}: ${newsData.length} articles`);
         return newsData;
+      } else {
+        console.log(`❌ News API returned empty for ${formattedSymbol}`);
       }
     } catch (error) {
-      console.warn('News API failed:', error);
+      console.warn(`❌ News API failed for ${formattedSymbol}:`, error);
     }
 
     // No fallback - return empty array if all APIs fail
-    console.error('All news APIs failed for symbol:', symbol);
+    console.error(`❌ All news APIs failed for symbol: ${symbol}`);
     return [];
   }
 
@@ -409,11 +429,24 @@ class StockMarketAPI {
   }
 
   private extractSymbol(message: string): string | null {
-    // Extract stock symbols from message
+    // Extract stock symbols from message - improved regex
+    console.log(`🔍 Extracting symbol from: "${message}"`);
+    
+    // Try to find common stock symbols (1-5 uppercase letters)
     const symbolMatch = message.match(/\b([A-Z]{1,5})\b/g);
     if (symbolMatch) {
+      console.log(`✅ Found symbols: ${symbolMatch}`);
       return symbolMatch[0];
     }
+    
+    // Fallback: look for any uppercase letters
+    const fallbackMatch = message.match(/([A-Z]+)/g);
+    if (fallbackMatch) {
+      console.log(`🔄 Fallback found: ${fallbackMatch}`);
+      return fallbackMatch[0];
+    }
+    
+    console.log(`❌ No symbol found in: "${message}"`);
     return null;
   }
 
