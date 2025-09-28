@@ -6,7 +6,7 @@
     },
     "provider": {
       "name": "aws",
-      "runtime": "nodejs18.x",
+      "runtime": "nodejs20.x",
       "region": "us-east-1",
       "stage": "dev",
       "environment": {
@@ -216,10 +216,10 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/stock-market-chatbot/dev/1758971996285-2025-09-27T11:19:56.285Z/stock-market-chatbot.zip"
+                "S3Key": "serverless/stock-market-chatbot/dev/1759053617940-2025-09-28T10:00:17.940Z/stock-market-chatbot.zip"
               },
               "Handler": "functions/stock-price.handler",
-              "Runtime": "nodejs18.x",
+              "Runtime": "nodejs20.x",
               "FunctionName": "stock-market-chatbot-dev-stockPrice",
               "MemorySize": 256,
               "Timeout": 30,
@@ -249,10 +249,10 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/stock-market-chatbot/dev/1758971996285-2025-09-27T11:19:56.285Z/stock-market-chatbot.zip"
+                "S3Key": "serverless/stock-market-chatbot/dev/1759053617940-2025-09-28T10:00:17.940Z/stock-market-chatbot.zip"
               },
               "Handler": "functions/ai-prediction.handler",
-              "Runtime": "nodejs18.x",
+              "Runtime": "nodejs20.x",
               "FunctionName": "stock-market-chatbot-dev-aiPrediction",
               "MemorySize": 512,
               "Timeout": 60,
@@ -282,10 +282,10 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/stock-market-chatbot/dev/1758971996285-2025-09-27T11:19:56.285Z/stock-market-chatbot.zip"
+                "S3Key": "serverless/stock-market-chatbot/dev/1759053617940-2025-09-28T10:00:17.940Z/stock-market-chatbot.zip"
               },
               "Handler": "functions/technical-analysis.handler",
-              "Runtime": "nodejs18.x",
+              "Runtime": "nodejs20.x",
               "FunctionName": "stock-market-chatbot-dev-technicalAnalysis",
               "MemorySize": 256,
               "Timeout": 30,
@@ -315,10 +315,10 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/stock-market-chatbot/dev/1758971996285-2025-09-27T11:19:56.285Z/stock-market-chatbot.zip"
+                "S3Key": "serverless/stock-market-chatbot/dev/1759053617940-2025-09-28T10:00:17.940Z/stock-market-chatbot.zip"
               },
               "Handler": "functions/market-news.handler",
-              "Runtime": "nodejs18.x",
+              "Runtime": "nodejs20.x",
               "FunctionName": "stock-market-chatbot-dev-marketNews",
               "MemorySize": 256,
               "Timeout": 30,
@@ -341,44 +341,44 @@
               "MarketNewsLogGroup"
             ]
           },
-          "StockPriceLambdaVersionBvZgCASAYibBETjQPVDYwXFYtaDj2QuKvub2f8r7y4": {
+          "StockPriceLambdaVersionjBE5lrqnjCsYbnE5PUIha4zPP38tClmFtQcKizP4": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "StockPriceLambdaFunction"
               },
-              "CodeSha256": "U5/LU/2q8684G9v1iXelJIqv18UgReaTPXqQng0AwH4="
+              "CodeSha256": "yuuDonluK61RGDG41Jg3TCxl5SzZhHh6mREY/tVfcbU="
             }
           },
-          "AiPredictionLambdaVersionIs674xT4HIMbgz7ehmI6UViZeSQHv5qH9B0z6JPrI": {
+          "AiPredictionLambdaVersion3ENDf5X7Jdxb7lp69LeFasvEVQ4duBiw1L7nEtNSo": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "AiPredictionLambdaFunction"
               },
-              "CodeSha256": "U5/LU/2q8684G9v1iXelJIqv18UgReaTPXqQng0AwH4="
+              "CodeSha256": "yuuDonluK61RGDG41Jg3TCxl5SzZhHh6mREY/tVfcbU="
             }
           },
-          "TechnicalAnalysisLambdaVersion7dsH5an3S1MVXqtPmllrnrwU1WCZC9j7KV6ROb9qVU": {
+          "TechnicalAnalysisLambdaVersionk8poApE6cT4sy2VdMAC8irZWJvl2w3BhiQLyC8As6o": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "TechnicalAnalysisLambdaFunction"
               },
-              "CodeSha256": "U5/LU/2q8684G9v1iXelJIqv18UgReaTPXqQng0AwH4="
+              "CodeSha256": "yuuDonluK61RGDG41Jg3TCxl5SzZhHh6mREY/tVfcbU="
             }
           },
-          "MarketNewsLambdaVersionio6PmAzvo6k4SfwtCzvvfDp4BgLckLFXGPu4Eipm02M": {
+          "MarketNewsLambdaVersionZxssZHrYQfDpyOfQ9RtKMMSqd2QSXJRZP5AEfpxEuNM": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "MarketNewsLambdaFunction"
               },
-              "CodeSha256": "U5/LU/2q8684G9v1iXelJIqv18UgReaTPXqQng0AwH4="
+              "CodeSha256": "yuuDonluK61RGDG41Jg3TCxl5SzZhHh6mREY/tVfcbU="
             }
           },
           "ApiGatewayRestApi": {
@@ -818,7 +818,7 @@
               "MarketNewsLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1758971993019": {
+          "ApiGatewayDeployment1759053614844": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -998,7 +998,7 @@
           "StockPriceLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "StockPriceLambdaVersionBvZgCASAYibBETjQPVDYwXFYtaDj2QuKvub2f8r7y4"
+              "Ref": "StockPriceLambdaVersionjBE5lrqnjCsYbnE5PUIha4zPP38tClmFtQcKizP4"
             },
             "Export": {
               "Name": "sls-stock-market-chatbot-dev-StockPriceLambdaFunctionQualifiedArn"
@@ -1007,7 +1007,7 @@
           "AiPredictionLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "AiPredictionLambdaVersionIs674xT4HIMbgz7ehmI6UViZeSQHv5qH9B0z6JPrI"
+              "Ref": "AiPredictionLambdaVersion3ENDf5X7Jdxb7lp69LeFasvEVQ4duBiw1L7nEtNSo"
             },
             "Export": {
               "Name": "sls-stock-market-chatbot-dev-AiPredictionLambdaFunctionQualifiedArn"
@@ -1016,7 +1016,7 @@
           "TechnicalAnalysisLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "TechnicalAnalysisLambdaVersion7dsH5an3S1MVXqtPmllrnrwU1WCZC9j7KV6ROb9qVU"
+              "Ref": "TechnicalAnalysisLambdaVersionk8poApE6cT4sy2VdMAC8irZWJvl2w3BhiQLyC8As6o"
             },
             "Export": {
               "Name": "sls-stock-market-chatbot-dev-TechnicalAnalysisLambdaFunctionQualifiedArn"
@@ -1025,7 +1025,7 @@
           "MarketNewsLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "MarketNewsLambdaVersionio6PmAzvo6k4SfwtCzvvfDp4BgLckLFXGPu4Eipm02M"
+              "Ref": "MarketNewsLambdaVersionZxssZHrYQfDpyOfQ9RtKMMSqd2QSXJRZP5AEfpxEuNM"
             },
             "Export": {
               "Name": "sls-stock-market-chatbot-dev-MarketNewsLambdaFunctionQualifiedArn"
@@ -1187,9 +1187,9 @@
         "name": "stock-market-chatbot-dev-stockPrice",
         "package": {},
         "memory": 256,
-        "runtime": "nodejs18.x",
+        "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "StockPriceLambdaVersionBvZgCASAYibBETjQPVDYwXFYtaDj2QuKvub2f8r7y4"
+        "versionLogicalId": "StockPriceLambdaVersionjBE5lrqnjCsYbnE5PUIha4zPP38tClmFtQcKizP4"
       },
       "aiPrediction": {
         "handler": "functions/ai-prediction.handler",
@@ -1224,9 +1224,9 @@
         "name": "stock-market-chatbot-dev-aiPrediction",
         "package": {},
         "memory": 512,
-        "runtime": "nodejs18.x",
+        "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "AiPredictionLambdaVersionIs674xT4HIMbgz7ehmI6UViZeSQHv5qH9B0z6JPrI"
+        "versionLogicalId": "AiPredictionLambdaVersion3ENDf5X7Jdxb7lp69LeFasvEVQ4duBiw1L7nEtNSo"
       },
       "technicalAnalysis": {
         "handler": "functions/technical-analysis.handler",
@@ -1261,9 +1261,9 @@
         "name": "stock-market-chatbot-dev-technicalAnalysis",
         "package": {},
         "memory": 256,
-        "runtime": "nodejs18.x",
+        "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "TechnicalAnalysisLambdaVersion7dsH5an3S1MVXqtPmllrnrwU1WCZC9j7KV6ROb9qVU"
+        "versionLogicalId": "TechnicalAnalysisLambdaVersionk8poApE6cT4sy2VdMAC8irZWJvl2w3BhiQLyC8As6o"
       },
       "marketNews": {
         "handler": "functions/market-news.handler",
@@ -1298,9 +1298,9 @@
         "name": "stock-market-chatbot-dev-marketNews",
         "package": {},
         "memory": 256,
-        "runtime": "nodejs18.x",
+        "runtime": "nodejs20.x",
         "vpc": {},
-        "versionLogicalId": "MarketNewsLambdaVersionio6PmAzvo6k4SfwtCzvvfDp4BgLckLFXGPu4Eipm02M"
+        "versionLogicalId": "MarketNewsLambdaVersionZxssZHrYQfDpyOfQ9RtKMMSqd2QSXJRZP5AEfpxEuNM"
       }
     },
     "resources": {
@@ -1346,7 +1346,7 @@
         ],
         "artifactsS3KeyDirname": "serverless/stock-market-chatbot/dev/code-artifacts",
         "artifact": "/Users/gavinadlan/Documents/code/granite-stock-chat-68dfe4c3/backend/.serverless/stock-market-chatbot.zip",
-        "artifactDirectoryName": "serverless/stock-market-chatbot/dev/1758971996285-2025-09-27T11:19:56.285Z"
+        "artifactDirectoryName": "serverless/stock-market-chatbot/dev/1759053617940-2025-09-28T10:00:17.940Z"
       },
       "resources": {
         "$ref": "$[\"service\"][\"resources\"]"
@@ -1357,7 +1357,7 @@
     "artifact": "/Users/gavinadlan/Documents/code/granite-stock-chat-68dfe4c3/backend/.serverless/stock-market-chatbot.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/stock-market-chatbot/dev/1758971996285-2025-09-27T11:19:56.285Z",
+    "artifactDirectoryName": "serverless/stock-market-chatbot/dev/1759053617940-2025-09-28T10:00:17.940Z",
     "artifact": "stock-market-chatbot.zip"
   }
 }

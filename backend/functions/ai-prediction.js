@@ -1,6 +1,8 @@
 // AWS Lambda function for AI stock predictions using IBM Granite
 const https = require('https');
 
+// fetch is available in Node.js 18+ (AWS Lambda runtime)
+
 exports.handler = async (event) => {
     console.log('AI Prediction Lambda invoked:', JSON.stringify(event, null, 2));
     
@@ -9,6 +11,7 @@ exports.handler = async (event) => {
         const { symbol, timeframe = '1 week' } = event.queryStringParameters || {};
         
         if (!symbol) {
+            console.error('No symbol provided');
             return {
                 statusCode: 400,
                 headers: {
@@ -23,11 +26,17 @@ exports.handler = async (event) => {
             };
         }
 
+        console.log(`Processing prediction for symbol: ${symbol}, timeframe: ${timeframe}`);
+
         // Get current stock price first
+        console.log('Getting stock data...');
         const stockData = await getStockData(symbol);
+        console.log('Stock data received:', stockData);
         
         // Generate AI prediction using IBM Granite
+        console.log('Generating AI prediction...');
         const prediction = await generateAIPrediction(symbol, stockData.price, timeframe);
+        console.log('Prediction generated:', prediction);
         
         return {
             statusCode: 200,
@@ -42,6 +51,7 @@ exports.handler = async (event) => {
         
     } catch (error) {
         console.error('Error in AI prediction lambda:', error);
+        console.error('Error stack:', error.stack);
         
         return {
             statusCode: 500,
@@ -53,7 +63,8 @@ exports.handler = async (event) => {
             },
             body: JSON.stringify({
                 error: 'Internal server error',
-                message: error.message
+                message: error.message,
+                stack: error.stack
             })
         };
     }
