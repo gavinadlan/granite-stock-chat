@@ -133,33 +133,26 @@ class StockMarketAPI {
 
   async getStockPrice(symbol: string): Promise<StockPrice | null> {
     const cleanSymbol = symbol.toUpperCase().trim();
-    console.log(`🎯 Starting stock price search for: ${symbol} (cleaned: ${cleanSymbol})`);
     
     // Universal approach: try all possible formats
     const formatsToTry = this.generateAllFormats(cleanSymbol);
-    console.log(`📋 Will try these formats:`, formatsToTry);
     
     for (const format of formatsToTry) {
-      console.log(`🔄 Trying format: ${format}`);
       const result = await this.tryStockPriceAPIs(format);
       if (result) {
-        console.log(`✅ Found stock data for ${format}`);
         return result;
       }
-      console.log(`❌ No data found for ${format}`);
     }
     
-    console.error('❌ All stock price APIs failed for symbol:', symbol);
+    console.error(`❌ All stock price APIs failed for symbol: ${symbol}`);
     return null;
   }
 
   private generateAllFormats(symbol: string): string[] {
     const formats = [symbol]; // Original format
-    console.log(`🔧 generateAllFormats input: ${symbol}`);
     
     // If it's a 4-character symbol without exchange suffix
     if (symbol.length === 4 && !symbol.includes('.')) {
-      console.log(`🔧 Adding suffixes for 4-char symbol: ${symbol}`);
       // Add common exchange suffixes
       formats.push(`${symbol}.JK`);  // Indonesia
       formats.push(`${symbol}.TO`);  // Toronto
@@ -176,52 +169,43 @@ class StockMarketAPI {
     // If it already has a suffix, also try without suffix
     if (symbol.includes('.')) {
       const baseSymbol = symbol.split('.')[0];
-      console.log(`🔧 Symbol has suffix, base symbol: ${baseSymbol}`);
       if (baseSymbol.length === 4) {
         formats.push(baseSymbol); // Try without suffix
-        console.log(`🔧 Added base symbol: ${baseSymbol}`);
       }
     }
     
-    console.log(`🔧 Final formats:`, formats);
     return formats;
   }
 
   private async tryStockPriceAPIs(symbol: string): Promise<StockPrice | null> {
-    // Try Yahoo Finance first (now with correct API key)
+    // Try Yahoo Finance first
     try {
-      console.log(`🔄 Trying Yahoo Finance for: ${symbol}`);
       const yahooData = await yahooFinanceService.getStockPrice(symbol);
       if (yahooData) {
-        console.log(`✅ Yahoo Finance success for: ${symbol}`);
         return yahooData;
       }
     } catch (error) {
-      console.warn('❌ Yahoo Finance stock price failed:', error);
+      console.warn(`Yahoo Finance failed for ${symbol}:`, error);
     }
 
     // Try Alpha Vantage as fallback
     try {
-      console.log(`🔄 Trying Alpha Vantage for: ${symbol}`);
       const alphaData = await this.getAlphaVantageStockPrice(symbol);
       if (alphaData) {
-        console.log(`✅ Alpha Vantage success for: ${symbol}`);
         return alphaData;
       }
     } catch (error) {
-      console.warn('❌ Alpha Vantage stock price failed:', error);
+      console.warn(`Alpha Vantage failed for ${symbol}:`, error);
     }
 
     // Try AWS Lambda as final fallback
     try {
-      console.log(`🔄 Trying AWS Lambda for: ${symbol}`);
       const awsData = await awsLambdaService.getStockPrice(symbol);
       if (awsData) {
-        console.log(`✅ AWS Lambda success for: ${symbol}`);
         return this.convertAWSToStockPrice(awsData);
       }
     } catch (error) {
-      console.warn('❌ AWS Lambda stock price failed:', error);
+      console.warn(`AWS Lambda failed for ${symbol}:`, error);
     }
 
     return null;

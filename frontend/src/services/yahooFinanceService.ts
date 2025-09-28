@@ -16,9 +16,9 @@ class YahooFinanceService {
 
   constructor() {
     this.apiKey = import.meta.env?.VITE_RAPIDAPI_KEY || '024887c011msh588fd1cec974e2bp16266djsn1b16f80bcfe9';
-    console.log('🔑 Yahoo Finance API Key loaded:', this.apiKey ? '✅ Present' : '❌ Missing');
-    console.log('🚀 Triggering deployment with updated Yahoo Finance API');
-    console.log('💰 Currency detection enabled for international stocks'); // Force build with currency fix
+    if (!this.apiKey) {
+      console.warn('⚠️ Yahoo Finance API key not found, using fallback');
+    }
   }
 
   async getStockPrice(symbol: string): Promise<YahooStockData | null> {
@@ -28,9 +28,6 @@ class YahooFinanceService {
     }
 
     try {
-      console.log(`🔍 Yahoo Finance API call for: ${symbol}`);
-      console.log(`🌐 URL: ${this.baseUrl}/stock/get-options?symbol=${symbol}&lang=en-US&region=US`);
-      
       const response = await fetch(`${this.baseUrl}/stock/get-options?symbol=${symbol}&lang=en-US&region=US`, {
         method: 'GET',
         headers: {
@@ -39,25 +36,18 @@ class YahooFinanceService {
         }
       });
 
-      console.log(`📡 Yahoo Finance response status: ${response.status}`);
-      console.log(`📡 Yahoo Finance response ok: ${response.ok}`);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`❌ Yahoo Finance HTTP error! status: ${response.status}, body: ${errorText}`);
+        console.error(`❌ Yahoo Finance API error: ${response.status}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log(`📊 Yahoo Finance data received:`, data);
       
       // Parse data from options endpoint - data is in optionChain.result[0].quote
       if (data.optionChain && data.optionChain.result && data.optionChain.result[0] && data.optionChain.result[0].quote) {
         const quote = data.optionChain.result[0].quote;
-        console.log(`🔍 Yahoo Finance parsing - Input symbol: ${symbol}, API symbol: ${quote.symbol}`);
         const finalSymbol = quote.symbol || symbol.toUpperCase();
         const currency = this.detectCurrency(finalSymbol);
-        console.log(`💰 Detected currency: ${currency} for symbol: ${finalSymbol}`);
         return {
           symbol: finalSymbol, // Use API symbol if available
           price: quote.regularMarketPrice || 0,

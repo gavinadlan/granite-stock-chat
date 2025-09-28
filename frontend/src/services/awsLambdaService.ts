@@ -89,22 +89,40 @@ class AWSLambdaService {
 
   async getAIPrediction(symbol: string, timeframe: string = '1 week'): Promise<AWSPrediction | null> {
     try {
-      const response = await fetch(`${this.baseUrl}/dev/ai-prediction`, {
-        method: 'POST',
+      console.log(`🔍 Trying AWS Lambda AI prediction for: ${symbol}`);
+      console.log(`🌐 API URL: ${this.baseUrl}/dev/ai-prediction`);
+      
+      const response = await fetch(`${this.baseUrl}/dev/ai-prediction?symbol=${symbol}&timeframe=${timeframe}`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ symbol, timeframe }),
       });
 
+      console.log(`📡 Response status: ${response.status}`);
+      console.log(`📡 Response ok: ${response.ok}`);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ HTTP error! status: ${response.status}, body: ${errorText}`);
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      return data;
+      console.log(`✅ AWS Lambda AI prediction success for ${symbol}:`, data);
+      
+      // Convert backend response format to frontend format
+      return {
+        symbol: data.symbol,
+        currentPrice: data.current,
+        predictedPrice: data.predicted,
+        confidence: data.confidence,
+        timeframe: data.timeframe,
+        reasoning: data.reasoning,
+        lastUpdated: new Date()
+      };
     } catch (error) {
-      console.error('AWS Lambda AI prediction error:', error);
+      console.error('❌ AWS Lambda AI prediction error:', error);
       return null;
     }
   }
