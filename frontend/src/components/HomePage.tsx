@@ -375,7 +375,7 @@ export default function HomePage() {
               Make informed trading decisions with advanced AI analysis.
             </p>
             <div className="flex justify-center space-x-6 text-sm text-slate-400">
-              <span>© 2024 Stock Market AI</span>
+              <span>© 2025 Stock Market AI</span>
               <span>•</span>
               <span>Powered by AI</span>
               <span>•</span>
