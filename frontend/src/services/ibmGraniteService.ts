@@ -1,4 +1,6 @@
 // IBM Granite Service via Replicate
+import { TECHNICAL_ANALYSIS_CONSTANTS } from '@/lib/constants';
+
 export interface GranitePrediction {
   symbol: string;
   currentPrice: number;
@@ -139,12 +141,12 @@ class IBMGraniteService {
 
   private extractCurrentPrice(text: string): number {
     const match = text.match(/current price[:\s]*\$?(\d+\.?\d*)/i);
-    return match ? parseFloat(match[1]) : 100;
+    return match ? parseFloat(match[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_SMA_20;
   }
 
   private extractPredictedPrice(text: string): number {
     const match = text.match(/predicted price[:\s]*\$?(\d+\.?\d*)/i);
-    return match ? parseFloat(match[1]) : 105;
+    return match ? parseFloat(match[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_SMA_50;
   }
 
   private extractConfidence(text: string): number {
@@ -164,7 +166,7 @@ class IBMGraniteService {
 
   private extractRSI(text: string): number {
     const match = text.match(/RSI[:\s]*(\d+\.?\d*)/i);
-    return match ? parseFloat(match[1]) : 50;
+    return match ? parseFloat(match[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_RSI;
   }
 
   private extractMACD(text: string): { macd: number; signal: number; histogram: number } {
@@ -173,9 +175,9 @@ class IBMGraniteService {
     const histogramMatch = text.match(/histogram[:\s]*(\d+\.?\d*)/i);
     
     return {
-      macd: macdMatch ? parseFloat(macdMatch[1]) : 0.5,
-      signal: signalMatch ? parseFloat(signalMatch[1]) : 0.3,
-      histogram: histogramMatch ? parseFloat(histogramMatch[1]) : 0.2
+      macd: macdMatch ? parseFloat(macdMatch[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_MACD,
+      signal: signalMatch ? parseFloat(signalMatch[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_SIGNAL,
+      histogram: histogramMatch ? parseFloat(histogramMatch[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_HISTOGRAM
     };
   }
 
@@ -185,20 +187,20 @@ class IBMGraniteService {
     const sma200Match = text.match(/SMA 200[:\s]*\$?(\d+\.?\d*)/i);
     
     return {
-      sma20: sma20Match ? parseFloat(sma20Match[1]) : 100,
-      sma50: sma50Match ? parseFloat(sma50Match[1]) : 98,
-      sma200: sma200Match ? parseFloat(sma200Match[1]) : 95
+      sma20: sma20Match ? parseFloat(sma20Match[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_SMA_20,
+      sma50: sma50Match ? parseFloat(sma50Match[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_SMA_50,
+      sma200: sma200Match ? parseFloat(sma200Match[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_SMA_200
     };
   }
 
   private extractSupport(text: string): number {
     const match = text.match(/support[:\s]*\$?(\d+\.?\d*)/i);
-    return match ? parseFloat(match[1]) : 95;
+    return match ? parseFloat(match[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_SUPPORT;
   }
 
   private extractResistance(text: string): number {
     const match = text.match(/resistance[:\s]*\$?(\d+\.?\d*)/i);
-    return match ? parseFloat(match[1]) : 110;
+    return match ? parseFloat(match[1]) : TECHNICAL_ANALYSIS_CONSTANTS.DEFAULT_RESISTANCE;
   }
 
   private extractTrend(text: string): string {

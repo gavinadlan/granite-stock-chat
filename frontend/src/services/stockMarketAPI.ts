@@ -1,6 +1,9 @@
 import { awsLambdaService } from './awsLambdaService';
 import { yahooFinanceService } from './yahooFinanceService';
 import { ibmGraniteService } from './ibmGraniteService';
+import { formatSymbol, generateSymbolFormats } from '@/lib/symbolUtils';
+import { detectCurrency } from '@/lib/currencyUtils';
+import { API_CONSTANTS, PREDICTION_CONSTANTS } from '@/lib/constants';
 
 export interface StockPrice {
   symbol: string;
@@ -65,77 +68,11 @@ export interface ChatMessage {
 }
 
 class StockMarketAPI {
-  private formatSymbol(symbol: string): string {
-    const cleanSymbol = symbol.toUpperCase().trim();
-    
-    // If already has exchange suffix, return as is
-    if (cleanSymbol.includes('.')) {
-      return cleanSymbol;
-    }
-    
-    // Smart detection for Indonesian stocks
-    // Indonesian stocks typically have 4 characters and follow certain patterns
-    const isIndonesianStock = this.detectIndonesianStock(cleanSymbol);
-    
-    if (isIndonesianStock) {
-      return `${cleanSymbol}.JK`;
-    }
-    
-    return cleanSymbol;
-  }
-
-  private detectIndonesianStock(symbol: string): boolean {
-    // Indonesian stocks typically have 4 characters
-    if (symbol.length !== 4) {
-      return false;
-    }
-    
-    // Common Indonesian stock patterns
-    const indonesianPatterns = [
-      // Banking patterns (BB, BM, BN, etc.)
-      /^BB[A-Z]{2}$/,  // BBCA, BBRI, BMRI, BNGA, BBNI
-      /^BC[A-Z]{2}$/,  // BCA variants
-      /^BR[A-Z]{2}$/,  // BRI variants
-      /^MA[A-Z]{2}$/,  // MANDIRI variants
-      /^BN[A-Z]{2}$/,  // BNI variants
-      /^CI[A-Z]{2}$/,  // CIMB variants
-      
-      // Telco patterns
-      /^TL[A-Z]{2}$/,  // TLKM
-      /^IS[A-Z]{2}$/,  // ISAT
-      /^EX[A-Z]{2}$/,  // EXCL
-      /^FR[A-Z]{2}$/,  // FREN
-      
-      // Consumer patterns
-      /^UN[A-Z]{2}$/,  // UNVR
-      /^IN[A-Z]{2}$/,  // INDF, INCO, INTP
-      /^IC[A-Z]{2}$/,  // ICBP
-      /^WI[A-Z]{2}$/,  // WIKA
-      /^AD[A-Z]{2}$/,  // ADHI, ADRO
-      /^JS[A-Z]{2}$/,  // JSMR
-      /^PG[A-Z]{2}$/,  // PGAS
-      /^AN[A-Z]{2}$/,  // ANTM
-      /^AS[A-Z]{2}$/,  // ASII
-      /^SM[A-Z]{2}$/,  // SMGR
-      /^KL[A-Z]{2}$/,  // KLBF
-      /^GG[A-Z]{2}$/,  // GGRM
-      /^CP[A-Z]{2}$/,  // CPIN
-      /^TK[A-Z]{2}$/,  // TKIM
-      /^HM[A-Z]{2}$/,  // HMSP
-      /^AU[A-Z]{2}$/,  // AUTO
-      /^CD[A-Z]{2}$/,  // CDIA
-      /^BU[A-Z]{2}$/,  // BUKA
-    ];
-    
-    // Check if symbol matches any Indonesian pattern
-    return indonesianPatterns.some(pattern => pattern.test(symbol));
-  }
-
   async getStockPrice(symbol: string): Promise<StockPrice | null> {
     const cleanSymbol = symbol.toUpperCase().trim();
     
     // Universal approach: try all possible formats
-    const formatsToTry = this.generateAllFormats(cleanSymbol);
+    const formatsToTry = generateSymbolFormats(cleanSymbol);
     
     for (const format of formatsToTry) {
       const result = await this.tryStockPriceAPIs(format);
@@ -146,35 +83,6 @@ class StockMarketAPI {
     
     console.error(`❌ All stock price APIs failed for symbol: ${symbol}`);
     return null;
-  }
-
-  private generateAllFormats(symbol: string): string[] {
-    const formats = [symbol]; // Original format
-    
-    // If it's a 4-character symbol without exchange suffix
-    if (symbol.length === 4 && !symbol.includes('.')) {
-      // Add common exchange suffixes
-      formats.push(`${symbol}.JK`);  // Indonesia
-      formats.push(`${symbol}.TO`);  // Toronto
-      formats.push(`${symbol}.L`);   // London
-      formats.push(`${symbol}.HK`);  // Hong Kong
-      formats.push(`${symbol}.SG`);  // Singapore
-      formats.push(`${symbol}.AX`);  // Australia
-      formats.push(`${symbol}.T`);   // Tokyo
-      formats.push(`${symbol}.DE`);  // Germany
-      formats.push(`${symbol}.PA`);  // Paris
-      formats.push(`${symbol}.MC`);  // Madrid
-    }
-    
-    // If it already has a suffix, also try without suffix
-    if (symbol.includes('.')) {
-      const baseSymbol = symbol.split('.')[0];
-      if (baseSymbol.length === 4) {
-        formats.push(baseSymbol); // Try without suffix
-      }
-    }
-    
-    return formats;
   }
 
   private async tryStockPriceAPIs(symbol: string): Promise<StockPrice | null> {
@@ -212,7 +120,7 @@ class StockMarketAPI {
   }
 
   async getStockPrediction(symbol: string, timeframe: string = '1 week'): Promise<Prediction | null> {
-    const formattedSymbol = this.formatSymbol(symbol);
+    const formattedSymbol = formatSymbol(symbol);
     console.log(`🔮 Getting prediction for ${symbol} (formatted: ${formattedSymbol})`);
     
     // Try IBM Granite first (more reliable)
@@ -234,7 +142,7 @@ class StockMarketAPI {
       console.log(`🔄 Trying AWS Lambda prediction for ${formattedSymbol}`);
       const awsData = await Promise.race([
         awsLambdaService.getAIPrediction(formattedSymbol, timeframe),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 10000)) // 10 second timeout
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), API_CONSTANTS.TIMEOUTS.DEFAULT))
       ]) as any;
       
       if (awsData) {
@@ -255,7 +163,7 @@ class StockMarketAPI {
   }
 
   async getTechnicalAnalysis(symbol: string): Promise<TechnicalAnalysis | null> {
-    const formattedSymbol = this.formatSymbol(symbol);
+    const formattedSymbol = formatSymbol(symbol);
     // Try AWS Lambda first
     try {
       const awsData = await awsLambdaService.getTechnicalAnalysis(formattedSymbol);
@@ -282,7 +190,7 @@ class StockMarketAPI {
   }
 
   async getMarketNews(symbol: string): Promise<NewsItem[]> {
-    const formattedSymbol = this.formatSymbol(symbol);
+    const formattedSymbol = formatSymbol(symbol);
     console.log(`📰 Getting news for ${symbol} (formatted: ${formattedSymbol})`);
     
     // Try AWS Lambda first
@@ -321,110 +229,24 @@ class StockMarketAPI {
   async processMessage(message: string): Promise<ChatMessage> {
     const messageId = Date.now().toString();
     const timestamp = new Date();
-
-    // Improved keyword detection with priority order
     const lowerMessage = message.toLowerCase();
     
-    // Check for prediction requests FIRST (highest priority)
-    if (lowerMessage.includes('predict') || lowerMessage.includes('forecast') || lowerMessage.includes('prediction')) {
-      const symbol = this.extractSymbol(message);
-      if (symbol) {
-        console.log(`🔮 Processing prediction request for: ${symbol}`);
-        const prediction = await this.getStockPrediction(symbol);
-        if (prediction) {
-          return {
-            id: messageId,
-            content: `Here's my AI prediction for ${symbol}:`,
-            isUser: false,
-            timestamp,
-            data: { prediction }
-          };
-        } else {
-          return {
-            id: messageId,
-            content: `Sorry, I couldn't generate a prediction for ${symbol}. Please check if the symbol is correct and try again.`,
-            isUser: false,
-            timestamp
-          };
-        }
-      }
-    }
-
-    // Check for news requests SECOND
-    if (lowerMessage.includes('news') || lowerMessage.includes('latest news')) {
-      const symbol = this.extractSymbol(message);
-      if (symbol) {
-        console.log(`📰 Processing news request for: ${symbol}`);
-        const news = await this.getMarketNews(symbol);
-        if (news && news.length > 0) {
-          return {
-            id: messageId,
-            content: `Here's the latest news for ${symbol}:`,
-            isUser: false,
-            timestamp,
-            data: { news }
-          };
-        } else {
-          return {
-            id: messageId,
-            content: `Sorry, I couldn't find any news for ${symbol}. Please check if the symbol is correct and try again.`,
-            isUser: false,
-            timestamp
-          };
-        }
-      }
-    }
-
-    // Check for technical analysis requests THIRD
-    if (lowerMessage.includes('technical') || lowerMessage.includes('analysis')) {
-      const symbol = this.extractSymbol(message);
-      if (symbol) {
-        console.log(`📊 Processing technical analysis request for: ${symbol}`);
-        const technicalAnalysis = await this.getTechnicalAnalysis(symbol);
-        if (technicalAnalysis) {
-          return {
-            id: messageId,
-            content: `Here's the technical analysis for ${symbol}:`,
-            isUser: false,
-            timestamp,
-            data: { technicalAnalysis }
-          };
-        } else {
-          return {
-            id: messageId,
-            content: `Sorry, I couldn't generate technical analysis for ${symbol}. Please check if the symbol is correct and try again.`,
-            isUser: false,
-            timestamp
-          };
-        }
-      }
-    }
-
-    // Check for price requests LAST (lowest priority)
-    if (lowerMessage.includes('price') || lowerMessage.includes('stock') || lowerMessage.includes('current')) {
-      const symbol = this.extractSymbol(message);
-      if (symbol) {
-        console.log(`💰 Processing price request for: ${symbol}`);
-        const stockPrice = await this.getStockPrice(symbol);
-        if (stockPrice) {
-          return {
-            id: messageId,
-            content: `Here's the current price for ${symbol}:`,
-            isUser: false,
-            timestamp,
-            data: { stockPrice }
-          };
-        } else {
-          return {
-            id: messageId,
-            content: `Sorry, I couldn't fetch the current price for ${symbol}. Please check if the symbol is correct and try again.`,
-            isUser: false,
-            timestamp
-          };
-        }
-      }
-    }
-
+    // Try prediction request first (highest priority)
+    const predictionResponse = await this.handlePredictionRequest(message, lowerMessage, messageId, timestamp);
+    if (predictionResponse) return predictionResponse;
+    
+    // Try news request second
+    const newsResponse = await this.handleNewsRequest(message, lowerMessage, messageId, timestamp);
+    if (newsResponse) return newsResponse;
+    
+    // Try technical analysis request third
+    const technicalResponse = await this.handleTechnicalAnalysisRequest(message, lowerMessage, messageId, timestamp);
+    if (technicalResponse) return technicalResponse;
+    
+    // Try price request last (lowest priority)
+    const priceResponse = await this.handlePriceRequest(message, lowerMessage, messageId, timestamp);
+    if (priceResponse) return priceResponse;
+    
     // Default response
     return {
       id: messageId,
@@ -432,6 +254,122 @@ class StockMarketAPI {
       isUser: false,
       timestamp
     };
+  }
+
+  private async handlePredictionRequest(message: string, lowerMessage: string, messageId: string, timestamp: Date): Promise<ChatMessage | null> {
+    if (!lowerMessage.includes('predict') && !lowerMessage.includes('forecast') && !lowerMessage.includes('prediction')) {
+      return null;
+    }
+
+    const symbol = this.extractSymbol(message);
+    if (!symbol) return null;
+
+    console.log(`🔮 Processing prediction request for: ${symbol}`);
+    const prediction = await this.getStockPrediction(symbol);
+    
+    if (prediction) {
+      return {
+        id: messageId,
+        content: `Here's my AI prediction for ${symbol}:`,
+        isUser: false,
+        timestamp,
+        data: { prediction }
+      };
+    } else {
+      return {
+        id: messageId,
+        content: `Sorry, I couldn't generate a prediction for ${symbol}. Please check if the symbol is correct and try again.`,
+        isUser: false,
+        timestamp
+      };
+    }
+  }
+
+  private async handleNewsRequest(message: string, lowerMessage: string, messageId: string, timestamp: Date): Promise<ChatMessage | null> {
+    if (!lowerMessage.includes('news') && !lowerMessage.includes('latest news')) {
+      return null;
+    }
+
+    const symbol = this.extractSymbol(message);
+    if (!symbol) return null;
+
+    console.log(`📰 Processing news request for: ${symbol}`);
+    const news = await this.getMarketNews(symbol);
+    
+    if (news && news.length > 0) {
+      return {
+        id: messageId,
+        content: `Here's the latest news for ${symbol}:`,
+        isUser: false,
+        timestamp,
+        data: { news: news.slice(0, API_CONSTANTS.MAX_DISPLAY_NEWS) }
+      };
+    } else {
+      return {
+        id: messageId,
+        content: `Sorry, I couldn't find any news for ${symbol}. Please check if the symbol is correct and try again.`,
+        isUser: false,
+        timestamp
+      };
+    }
+  }
+
+  private async handleTechnicalAnalysisRequest(message: string, lowerMessage: string, messageId: string, timestamp: Date): Promise<ChatMessage | null> {
+    if (!lowerMessage.includes('technical') && !lowerMessage.includes('analysis')) {
+      return null;
+    }
+
+    const symbol = this.extractSymbol(message);
+    if (!symbol) return null;
+
+    console.log(`📊 Processing technical analysis request for: ${symbol}`);
+    const technicalAnalysis = await this.getTechnicalAnalysis(symbol);
+    
+    if (technicalAnalysis) {
+      return {
+        id: messageId,
+        content: `Here's the technical analysis for ${symbol}:`,
+        isUser: false,
+        timestamp,
+        data: { technicalAnalysis }
+      };
+    } else {
+      return {
+        id: messageId,
+        content: `Sorry, I couldn't generate technical analysis for ${symbol}. Please check if the symbol is correct and try again.`,
+        isUser: false,
+        timestamp
+      };
+    }
+  }
+
+  private async handlePriceRequest(message: string, lowerMessage: string, messageId: string, timestamp: Date): Promise<ChatMessage | null> {
+    if (!lowerMessage.includes('price') && !lowerMessage.includes('stock') && !lowerMessage.includes('current')) {
+      return null;
+    }
+
+    const symbol = this.extractSymbol(message);
+    if (!symbol) return null;
+
+    console.log(`💰 Processing price request for: ${symbol}`);
+    const stockPrice = await this.getStockPrice(symbol);
+    
+    if (stockPrice) {
+      return {
+        id: messageId,
+        content: `Here's the current price for ${symbol}:`,
+        isUser: false,
+        timestamp,
+        data: { stockPrice }
+      };
+    } else {
+      return {
+        id: messageId,
+        content: `Sorry, I couldn't fetch the current price for ${symbol}. Please check if the symbol is correct and try again.`,
+        isUser: false,
+        timestamp
+      };
+    }
   }
 
   private extractSymbol(message: string): string | null {
@@ -471,7 +409,7 @@ class StockMarketAPI {
       if (data['Global Quote']) {
         const quote = data['Global Quote'];
         const symbol = quote['01. symbol'];
-        const currency = this.detectCurrency(symbol);
+        const currency = detectCurrency(symbol);
         return {
           symbol: symbol,
           price: parseFloat(quote['05. price']),
@@ -531,51 +469,6 @@ class StockMarketAPI {
     }
   }
 
-  private detectCurrency(symbol: string): string {
-    // Indonesian stocks
-    if (symbol.endsWith('.JK')) {
-      return 'IDR';
-    }
-    // Canadian stocks
-    if (symbol.endsWith('.TO')) {
-      return 'CAD';
-    }
-    // British stocks
-    if (symbol.endsWith('.L')) {
-      return 'GBP';
-    }
-    // Hong Kong stocks
-    if (symbol.endsWith('.HK')) {
-      return 'HKD';
-    }
-    // Singapore stocks
-    if (symbol.endsWith('.SG')) {
-      return 'SGD';
-    }
-    // Australian stocks
-    if (symbol.endsWith('.AX')) {
-      return 'AUD';
-    }
-    // Japanese stocks
-    if (symbol.endsWith('.T')) {
-      return 'JPY';
-    }
-    // German stocks
-    if (symbol.endsWith('.DE')) {
-      return 'EUR';
-    }
-    // French stocks
-    if (symbol.endsWith('.PA')) {
-      return 'EUR';
-    }
-    // Spanish stocks
-    if (symbol.endsWith('.MC')) {
-      return 'EUR';
-    }
-    // Default to USD for US stocks
-    return 'USD';
-  }
-
   private convertAWSToStockPrice(awsData: any): StockPrice {
     return {
       symbol: awsData.symbol,
@@ -590,11 +483,11 @@ class StockMarketAPI {
   }
 
   private generateMockPrediction(symbol: string, timeframe: string): Prediction {
-    const volatility = 0.05;
+    const volatility = PREDICTION_CONSTANTS.VOLATILITY;
     const randomChange = (Math.random() - 0.5) * 2 * volatility;
-    const currentPrice = 100 + Math.random() * 500; // Random current price
+    const currentPrice = PREDICTION_CONSTANTS.MIN_PRICE + Math.random() * (PREDICTION_CONSTANTS.MAX_PRICE - PREDICTION_CONSTANTS.MIN_PRICE);
     const predictedPrice = currentPrice * (1 + randomChange);
-    const confidence = Math.floor(Math.random() * 30) + 65;
+    const confidence = Math.floor(Math.random() * (PREDICTION_CONSTANTS.MAX_CONFIDENCE - PREDICTION_CONSTANTS.MIN_CONFIDENCE)) + PREDICTION_CONSTANTS.MIN_CONFIDENCE;
 
     return {
       symbol: symbol.toUpperCase(),

@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
 import { StockPrice } from '@/services/stockMarketAPI';
+import { formatPrice, formatChange } from '@/lib/currencyUtils';
 
 interface StockCardProps {
   stockPrice: StockPrice;
@@ -29,7 +30,7 @@ export function StockCard({ stockPrice }: StockCardProps) {
         <div className="flex items-center space-x-2">
           <DollarSign className="h-5 w-5 text-slate-600" />
           <span className="text-2xl font-bold text-slate-900">
-            {stockPrice.currency === 'IDR' ? 'Rp' : stockPrice.currency === 'EUR' ? '€' : stockPrice.currency === 'GBP' ? '£' : stockPrice.currency === 'JPY' ? '¥' : '$'}{stockPrice.price.toFixed(2)}
+            {formatPrice(stockPrice.price, stockPrice.currency)}
           </span>
         </div>
 
@@ -41,7 +42,7 @@ export function StockCard({ stockPrice }: StockCardProps) {
             <TrendingDown className={`h-4 w-4 ${changeColor}`} />
           )}
           <span className={`font-semibold ${changeColor}`}>
-            {isPositive ? '+' : ''}{stockPrice.currency === 'IDR' ? 'Rp' : stockPrice.currency === 'EUR' ? '€' : stockPrice.currency === 'GBP' ? '£' : stockPrice.currency === 'JPY' ? '¥' : '$'}{stockPrice.change.toFixed(2)}
+            {formatChange(stockPrice.change, stockPrice.currency)}
           </span>
           <span className={`text-sm ${changeColor}`}>
             ({isPositive ? '+' : ''}{stockPrice.changePercent.toFixed(2)}%)
@@ -61,7 +62,7 @@ export function StockCard({ stockPrice }: StockCardProps) {
             <DollarSign className="h-4 w-4 text-slate-600" />
             <div>
               <p className="text-slate-600">Market Cap</p>
-              <p className="font-semibold">{stockPrice.marketCap}</p>
+              <p className="font-semibold">{stockPrice.marketCap || 'N/A'}</p>
             </div>
           </div>
         </div>

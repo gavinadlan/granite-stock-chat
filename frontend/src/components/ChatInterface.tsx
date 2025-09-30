@@ -11,6 +11,7 @@ import { PredictionChart } from './PredictionChart';
 import { TechnicalAnalysisCard } from './TechnicalAnalysisCard';
 import { NewsCard } from './NewsCard';
 import { TypingIndicator } from './TypingIndicator';
+import { API_CONSTANTS } from '@/lib/constants';
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -85,7 +86,7 @@ export function ChatInterface() {
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-slate-700">Latest News</h4>
             <div className="grid gap-3">
-              {news.slice(0, 3).map((item, index) => (
+              {news.slice(0, API_CONSTANTS.MAX_DISPLAY_NEWS).map((item, index) => (
                 <NewsCard key={index} newsItem={item} />
               ))}
             </div>

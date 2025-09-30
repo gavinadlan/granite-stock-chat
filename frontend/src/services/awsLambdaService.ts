@@ -1,4 +1,5 @@
 // AWS Lambda Service
+
 export interface AWSStockPrice {
   symbol: string;
   price: number;
