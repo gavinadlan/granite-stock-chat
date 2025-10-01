@@ -1,5 +1,5 @@
-// Authentication service for frontend with mock fallback
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+// Authentication service for frontend
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export interface User {
   userId: string;
@@ -27,208 +27,94 @@ export interface RegisterCredentials {
 
 class AuthService {
   private baseUrl: string;
-  private useMock: boolean;
 
   constructor() {
     this.baseUrl = API_BASE_URL;
-    // Use mock service in development or when API is not available
-    this.useMock = import.meta.env.DEV || API_BASE_URL.includes('localhost');
   }
 
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-    if (this.useMock) {
-      console.log('🔧 Using mock auth service for development');
-      return await this.mockRegister(credentials);
+    const response = await fetch(`${this.baseUrl}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Registration failed');
     }
 
-    try {
-      const response = await fetch(`${this.baseUrl}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Registration failed');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Registration error:', error);
-      // Fallback to mock service if API fails
-      console.log('🔄 Falling back to mock auth service');
-      return await this.mockRegister(credentials);
-    }
+    return await response.json();
   }
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    if (this.useMock) {
-      console.log('🔧 Using mock auth service for development');
-      return await this.mockLogin(credentials);
+    const response = await fetch(`${this.baseUrl}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Login failed');
     }
 
-    try {
-      const response = await fetch(`${this.baseUrl}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Login failed');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Login error:', error);
-      // Fallback to mock service if API fails
-      console.log('🔄 Falling back to mock auth service');
-      return await this.mockLogin(credentials);
-    }
+    return await response.json();
   }
 
   async getProfile(accessToken: string): Promise<{ user: User }> {
-    if (this.useMock) {
-      return await this.mockGetProfile(accessToken);
+    const response = await fetch(`${this.baseUrl}/auth/profile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ accessToken }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to get profile');
     }
 
-    try {
-      const response = await fetch(`${this.baseUrl}/auth/profile`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ accessToken }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to get profile');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Get profile error:', error);
-      // Fallback to mock service if API fails
-      return await this.mockGetProfile(accessToken);
-    }
+    return await response.json();
   }
 
   async updateProfile(accessToken: string, name: string): Promise<{ message: string }> {
-    if (this.useMock) {
-      return await this.mockUpdateProfile(accessToken, name);
+    const response = await fetch(`${this.baseUrl}/auth/update-profile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ accessToken, name }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update profile');
     }
 
-    try {
-      const response = await fetch(`${this.baseUrl}/auth/update-profile`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ accessToken, name }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update profile');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Update profile error:', error);
-      // Fallback to mock service if API fails
-      return await this.mockUpdateProfile(accessToken, name);
-    }
+    return await response.json();
   }
 
   async verifyEmail(email: string, code: string): Promise<{ message: string }> {
-    if (this.useMock) {
-      return await this.mockVerifyEmail(email, code);
+    const response = await fetch(`${this.baseUrl}/auth/verify`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, code }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Email verification failed');
     }
 
-    try {
-      const response = await fetch(`${this.baseUrl}/auth/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, code }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Email verification failed');
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Email verification error:', error);
-      // Fallback to mock service if API fails
-      return await this.mockVerifyEmail(email, code);
-    }
-  }
-
-  // Mock methods for development
-  private async mockRegister(credentials: RegisterCredentials): Promise<AuthResponse> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser: User = {
-      userId: `user_${Date.now()}`,
-      email: credentials.email,
-      name: credentials.name
-    };
-
-    return {
-      message: 'User registered successfully',
-      accessToken: `mock_access_token_${Date.now()}`,
-      refreshToken: `mock_refresh_token_${Date.now()}`,
-      user: mockUser
-    };
-  }
-
-  private async mockLogin(credentials: LoginCredentials): Promise<AuthResponse> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser: User = {
-      userId: `user_${Date.now()}`,
-      email: credentials.email,
-      name: 'Demo User'
-    };
-
-    return {
-      message: 'Login successful',
-      accessToken: `mock_access_token_${Date.now()}`,
-      refreshToken: `mock_refresh_token_${Date.now()}`,
-      user: mockUser
-    };
-  }
-
-  private async mockGetProfile(_accessToken: string): Promise<{ user: User }> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const mockUser: User = {
-      userId: 'user_123',
-      email: 'demo@example.com',
-      name: 'Demo User'
-    };
-
-    return { user: mockUser };
-  }
-
-  private async mockUpdateProfile(_accessToken: string, _name: string): Promise<{ message: string }> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { message: 'Profile updated successfully' };
-  }
-
-  private async mockVerifyEmail(_email: string, _code: string): Promise<{ message: string }> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { message: 'Email verified successfully' };
+    return await response.json();
   }
 
   // Local storage helpers
