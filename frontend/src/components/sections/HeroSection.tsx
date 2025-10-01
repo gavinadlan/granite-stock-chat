@@ -2,12 +2,15 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, ChevronDown } from "lucide-react"
 import { Link } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
 
 interface HeroSectionProps {
   onScrollToSection: (sectionId: string) => void;
 }
 
 export function HeroSection({ onScrollToSection }: HeroSectionProps) {
+  const { isAuthenticated } = useAuth()
+
   return (
     <div id="hero" className="py-48">
       <div className="container mx-auto px-4">
@@ -25,12 +28,28 @@ export function HeroSection({ onScrollToSection }: HeroSectionProps) {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" asChild>
-              <Link to="/chat">
-                Start Chatting
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            {isAuthenticated ? (
+              <Button size="lg" asChild>
+                <Link to="/chat">
+                  Start Chatting
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button size="lg" asChild>
+                  <Link to="/register">
+                    Get Started
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button variant="outline" size="lg" asChild>
+                  <Link to="/login">
+                    Sign In
+                  </Link>
+                </Button>
+              </>
+            )}
             <Button 
               variant="outline" 
               size="lg"
