@@ -28,9 +28,9 @@ export function isIndonesianStock(symbol: string): boolean {
     ...INDONESIAN_STOCK_PATTERNS.BANKING,
     ...INDONESIAN_STOCK_PATTERNS.TELCO,
     ...INDONESIAN_STOCK_PATTERNS.CONSUMER,
-  ];
+  ] as const;
   
-  return allPatterns.includes(prefix);
+  return (allPatterns as readonly string[]).includes(prefix);
 }
 
 /**
