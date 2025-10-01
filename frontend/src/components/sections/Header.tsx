@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button"
-import { TrendingUp, Menu, X } from "lucide-react"
+import { TrendingUp, Menu, X, User, LogOut, Settings, Edit } from "lucide-react"
 import { Link } from "react-router-dom"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
+import { useAuth } from "@/hooks/useAuth"
 
 interface HeaderProps {
   onScrollToSection: (sectionId: string) => void;
@@ -9,11 +10,33 @@ interface HeaderProps {
 
 export function Header({ onScrollToSection }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const { user, isAuthenticated, logout } = useAuth()
 
   const handleScrollToSection = (sectionId: string) => {
     onScrollToSection(sectionId)
     setIsMenuOpen(false) // Close mobile menu
   }
+
+  const handleLogout = () => {
+    logout()
+    setIsProfileDropdownOpen(false)
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -55,11 +78,68 @@ export function Header({ onScrollToSection }: HeaderProps) {
             </button>
           </nav>
 
-          {/* CTA Button */}
+          {/* Auth Buttons / User Profile */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" asChild>
-              <Link to="/chat">Start Chatting</Link>
-            </Button>
+            {isAuthenticated ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="text-slate-700 font-medium">{user?.name}</span>
+                </button>
+
+                {/* Profile Dropdown */}
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-2">
+                    <div className="px-4 py-2 border-b border-slate-100">
+                      <p className="text-sm font-medium text-slate-900">{user?.name}</p>
+                      <p className="text-xs text-slate-500">{user?.email}</p>
+                    </div>
+                    
+                    <Link 
+                      to="/profile" 
+                      className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 flex items-center space-x-2"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      <Edit className="h-4 w-4" />
+                      <span>Edit Profile</span>
+                    </Link>
+                    
+                    <Link 
+                      to="/settings" 
+                      className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 flex items-center space-x-2"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                    
+                    <div className="border-t border-slate-100 mt-2 pt-2">
+                      <button 
+                        onClick={handleLogout}
+                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Button variant="outline" asChild>
+                  <Link to="/login">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link to="/register">Sign Up</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -103,11 +183,37 @@ export function Header({ onScrollToSection }: HeaderProps) {
               >
                 About
               </button>
-              <Button asChild className="mt-4">
-                <Link to="/chat" onClick={() => setIsMenuOpen(false)}>
-                  Start Chatting
-                </Link>
-              </Button>
+              
+              {/* Mobile Auth Buttons */}
+              {isAuthenticated ? (
+                <div className="mt-4 space-y-2">
+                  <div className="px-4 py-2 bg-slate-50 rounded-lg">
+                    <p className="text-sm font-medium text-slate-900">{user?.name}</p>
+                    <p className="text-xs text-slate-500">{user?.email}</p>
+                  </div>
+                  <Button asChild className="w-full">
+                    <Link to="/chat" onClick={() => setIsMenuOpen(false)}>
+                      Start Chatting
+                    </Link>
+                  </Button>
+                  <Button variant="outline" onClick={handleLogout} className="w-full">
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <div className="mt-4 space-y-2">
+                  <Button asChild className="w-full">
+                    <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                      Login
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild className="w-full">
+                    <Link to="/register" onClick={() => setIsMenuOpen(false)}>
+                      Sign Up
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </nav>
           </div>
         )}
