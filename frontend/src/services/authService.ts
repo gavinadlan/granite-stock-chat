@@ -1,5 +1,10 @@
 // Authentication service for frontend
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+// Only throw error in development mode, not during build
+if (!API_BASE_URL && import.meta.env.DEV) {
+  throw new Error('VITE_API_BASE_URL environment variable is required for development');
+}
 
 export interface User {
   userId: string;
