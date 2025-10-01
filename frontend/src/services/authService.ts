@@ -209,7 +209,7 @@ class AuthService {
     };
   }
 
-  private async mockGetProfile(accessToken: string): Promise<{ user: User }> {
+  private async mockGetProfile(_accessToken: string): Promise<{ user: User }> {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     const mockUser: User = {
@@ -221,12 +221,12 @@ class AuthService {
     return { user: mockUser };
   }
 
-  private async mockUpdateProfile(accessToken: string, name: string): Promise<{ message: string }> {
+  private async mockUpdateProfile(_accessToken: string, _name: string): Promise<{ message: string }> {
     await new Promise(resolve => setTimeout(resolve, 500));
     return { message: 'Profile updated successfully' };
   }
 
-  private async mockVerifyEmail(email: string, code: string): Promise<{ message: string }> {
+  private async mockVerifyEmail(_email: string, _code: string): Promise<{ message: string }> {
     await new Promise(resolve => setTimeout(resolve, 500));
     return { message: 'Email verified successfully' };
   }

@@ -1,5 +1,5 @@
 // Authentication context and hook
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService, User, LoginCredentials, RegisterCredentials } from '@/services/authService';
 
 interface AuthContextType {
