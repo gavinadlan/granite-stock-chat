@@ -42,7 +42,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
+        aws-region: ap-southeast-2
         
     - name: Test AWS connection
       run: |
@@ -56,15 +56,38 @@ jobs:
         
     - name: Configure S3 for SPA routing
       run: |
+        # Configure website hosting
         aws s3api put-bucket-website \
           --bucket staging-stock-market-chat-frontend-1758970542 \
           --website-configuration '{
             "IndexDocument": {"Suffix": "index.html"},
             "ErrorDocument": {"Key": "index.html"}
           }'
-        echo "✅ S3 configured for SPA routing"
+        
+        # Set bucket policy for public read access
+        aws s3api put-bucket-policy \
+          --bucket staging-stock-market-chat-frontend-1758970542 \
+          --policy '{
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::staging-stock-market-chat-frontend-1758970542/*"
+              }
+            ]
+          }'
+        
+        # Enable public access
+        aws s3api put-public-access-block \
+          --bucket staging-stock-market-chat-frontend-1758970542 \
+          --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+        
+        echo "✅ S3 configured for SPA routing with public access"
         
     - name: Success message
       run: |
         echo "🎉 Deployment completed successfully!"
-        echo "🌐 Website: http://staging-stock-market-chat-frontend-1758970542.s3-website-us-east-1.amazonaws.com"
+        echo "🌐 Website: http://staging-stock-market-chat-frontend-1758970542.s3-website-ap-southeast-2.amazonaws.com"
