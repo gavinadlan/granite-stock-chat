@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import { UserProfile } from '@/components/UserProfile';
 import { SettingsPage } from '@/components/SettingsPage';
+import '@/lib/aws-config'; // Initialize AWS Amplify
 
 function App() {
   return (

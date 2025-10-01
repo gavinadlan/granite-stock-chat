@@ -8,7 +8,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateProfile: (name: string) => Promise<void>;
 }
 
@@ -26,23 +26,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Check if user is already logged in
     const initializeAuth = async () => {
       try {
-        const accessToken = authService.getAccessToken();
-        const storedUser = authService.getUser();
-
-        if (accessToken && storedUser) {
-          // Verify token is still valid by getting profile
-          try {
-            const profileResponse = await authService.getProfile(accessToken);
-            setUser(profileResponse.user);
-          } catch (error) {
-            // Token is invalid, clear storage
-            authService.clearTokens();
-            setUser(null);
-          }
+        const isAuth = await authService.isAuthenticated();
+        if (isAuth) {
+          const profileResponse = await authService.getProfile();
+          setUser(profileResponse.user);
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
-        authService.clearTokens();
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -57,9 +47,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(true);
       const response = await authService.login(credentials);
       
-      // Store tokens and user data
-      authService.setTokens(response.accessToken, response.refreshToken);
-      authService.setUser(response.user);
+      // AWS Amplify handles token storage automatically
       setUser(response.user);
     } catch (error) {
       console.error('Login error:', error);
@@ -74,9 +62,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setIsLoading(true);
       const response = await authService.register(credentials);
       
-      // Store tokens and user data
-      authService.setTokens(response.accessToken, response.refreshToken);
-      authService.setUser(response.user);
+      // AWS Amplify handles token storage automatically
       setUser(response.user);
     } catch (error) {
       console.error('Registration error:', error);
@@ -86,23 +72,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const logout = () => {
-    authService.clearTokens();
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
   };
 
   const updateProfile = async (name: string) => {
     try {
-      const accessToken = authService.getAccessToken();
-      if (!accessToken || !user) {
+      if (!user) {
         throw new Error('Not authenticated');
       }
 
-      await authService.updateProfile(accessToken, name);
+      await authService.updateProfile(name);
       
       // Update local user data
       const updatedUser = { ...user, name };
-      authService.setUser(updatedUser);
       setUser(updatedUser);
     } catch (error) {
       console.error('Update profile error:', error);

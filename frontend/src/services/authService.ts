@@ -1,243 +1,74 @@
-// Authentication service for frontend
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+// Authentication service for frontend - Real AWS Cognito integration
+import { cognitoAuthService, CognitoUser, CognitoAuthResponse, CognitoLoginCredentials, CognitoRegisterCredentials } from './cognitoAuthService';
 
-// Use mock service if API_BASE_URL is not set or is placeholder
-const useMockService = !API_BASE_URL || API_BASE_URL.includes('placeholder') || API_BASE_URL.includes('localhost');
-
-if (!API_BASE_URL && import.meta.env.DEV) {
-  console.warn('⚠️ VITE_API_BASE_URL not set, using mock service for development');
-}
-
-export interface User {
-  userId: string;
-  email: string;
-  name: string;
-}
-
-export interface AuthResponse {
-  message: string;
-  accessToken: string;
-  refreshToken: string;
-  user: User;
-}
-
-export interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-export interface RegisterCredentials {
-  email: string;
-  password: string;
-  name: string;
-}
+// Re-export types for compatibility
+export type User = CognitoUser;
+export type AuthResponse = CognitoAuthResponse;
+export type LoginCredentials = CognitoLoginCredentials;
+export type RegisterCredentials = CognitoRegisterCredentials;
 
 class AuthService {
-  private baseUrl: string;
-
-  constructor() {
-    this.baseUrl = API_BASE_URL;
-  }
-
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-    if (useMockService) {
-      console.log('🔧 Using mock auth service');
-      return await this.mockRegister(credentials);
-    }
-
-    const response = await fetch(`${this.baseUrl}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Registration failed');
-    }
-
-    return await response.json();
+    return await cognitoAuthService.register(credentials);
   }
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    if (useMockService) {
-      console.log('🔧 Using mock auth service');
-      return await this.mockLogin(credentials);
-    }
-
-    const response = await fetch(`${this.baseUrl}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Login failed');
-    }
-
-    return await response.json();
+    return await cognitoAuthService.login(credentials);
   }
 
-  async getProfile(accessToken: string): Promise<{ user: User }> {
-    if (useMockService) {
-      return await this.mockGetProfile(accessToken);
+  async getProfile(): Promise<{ user: User }> {
+    const user = await cognitoAuthService.getCurrentUser();
+    if (!user) {
+      throw new Error('User not authenticated');
     }
-
-    const response = await fetch(`${this.baseUrl}/auth/profile`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ accessToken }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to get profile');
-    }
-
-    return await response.json();
+    return { user };
   }
 
-  async updateProfile(accessToken: string, name: string): Promise<{ message: string }> {
-    if (useMockService) {
-      return await this.mockUpdateProfile(accessToken, name);
-    }
-
-    const response = await fetch(`${this.baseUrl}/auth/update-profile`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ accessToken, name }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to update profile');
-    }
-
-    return await response.json();
+  async updateProfile(name: string): Promise<{ message: string }> {
+    return await cognitoAuthService.updateProfile(name);
   }
 
   async verifyEmail(email: string, code: string): Promise<{ message: string }> {
-    if (useMockService) {
-      return await this.mockVerifyEmail(email, code);
-    }
-
-    const response = await fetch(`${this.baseUrl}/auth/verify`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, code }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Email verification failed');
-    }
-
-    return await response.json();
+    return await cognitoAuthService.verifyEmail(email, code);
   }
 
-  // Mock methods for development
-  private async mockRegister(credentials: RegisterCredentials): Promise<AuthResponse> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser: User = {
-      userId: `user_${Date.now()}`,
-      email: credentials.email,
-      name: credentials.name
-    };
-
-    return {
-      message: 'User registered successfully',
-      accessToken: `mock_access_token_${Date.now()}`,
-      refreshToken: `mock_refresh_token_${Date.now()}`,
-      user: mockUser
-    };
+  async logout(): Promise<void> {
+    return await cognitoAuthService.logout();
   }
 
-  private async mockLogin(credentials: LoginCredentials): Promise<AuthResponse> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Extract name from email (before @) or use email as name
-    const nameFromEmail = credentials.email.split('@')[0];
-    const displayName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
-    
-    const mockUser: User = {
-      userId: `user_${Date.now()}`,
-      email: credentials.email,
-      name: displayName
-    };
-
-    return {
-      message: 'Login successful',
-      accessToken: `mock_access_token_${Date.now()}`,
-      refreshToken: `mock_refresh_token_${Date.now()}`,
-      user: mockUser
-    };
+  async isAuthenticated(): Promise<boolean> {
+    return await cognitoAuthService.isAuthenticated();
   }
 
-  private async mockGetProfile(_accessToken: string): Promise<{ user: User }> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const mockUser: User = {
-      userId: 'user_123',
-      email: 'demo@example.com',
-      name: 'Demo User'
-    };
-
-    return { user: mockUser };
+  async getAccessToken(): Promise<string | null> {
+    return await cognitoAuthService.getAccessToken();
   }
 
-  private async mockUpdateProfile(_accessToken: string, _name: string): Promise<{ message: string }> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { message: 'Profile updated successfully' };
-  }
-
-  private async mockVerifyEmail(_email: string, _code: string): Promise<{ message: string }> {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return { message: 'Email verified successfully' };
-  }
-
-  // Local storage helpers
-  setTokens(accessToken: string, refreshToken: string): void {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-  }
-
-  getAccessToken(): string | null {
-    return localStorage.getItem('accessToken');
+  // Local storage helpers (for compatibility)
+  setTokens(_accessToken: string, _refreshToken: string): void {
+    // AWS Amplify handles token storage automatically
+    console.log('Tokens are managed by AWS Amplify');
   }
 
   getRefreshToken(): string | null {
-    return localStorage.getItem('refreshToken');
+    // AWS Amplify handles refresh tokens automatically
+    return null;
   }
 
   clearTokens(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    // AWS Amplify handles token cleanup automatically
+    console.log('Tokens are managed by AWS Amplify');
   }
 
-  setUser(user: User): void {
-    localStorage.setItem('user', JSON.stringify(user));
+  setUser(_user: User): void {
+    // AWS Amplify manages user state automatically
+    console.log('User state is managed by AWS Amplify');
   }
 
   getUser(): User | null {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
-  }
-
-  isAuthenticated(): boolean {
-    return !!this.getAccessToken();
+    // This method is now async, but keeping for compatibility
+    console.warn('getUser() is now async, use await getCurrentUser() instead');
+    return null;
   }
 }
 

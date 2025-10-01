@@ -222,7 +222,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/stock-market-chatbot/dev/1759338248331-2025-10-01T17:04:08.331Z/stock-market-chatbot.zip"
+                "S3Key": "serverless/stock-market-chatbot/dev/1759340305328-2025-10-01T17:38:25.328Z/stock-market-chatbot.zip"
               },
               "Handler": "functions/stock-price.handler",
               "Runtime": "nodejs20.x",
@@ -255,7 +255,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/stock-market-chatbot/dev/1759338248331-2025-10-01T17:04:08.331Z/stock-market-chatbot.zip"
+                "S3Key": "serverless/stock-market-chatbot/dev/1759340305328-2025-10-01T17:38:25.328Z/stock-market-chatbot.zip"
               },
               "Handler": "functions/ai-prediction.handler",
               "Runtime": "nodejs20.x",
@@ -288,7 +288,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/stock-market-chatbot/dev/1759338248331-2025-10-01T17:04:08.331Z/stock-market-chatbot.zip"
+                "S3Key": "serverless/stock-market-chatbot/dev/1759340305328-2025-10-01T17:38:25.328Z/stock-market-chatbot.zip"
               },
               "Handler": "functions/technical-analysis.handler",
               "Runtime": "nodejs20.x",
@@ -321,7 +321,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/stock-market-chatbot/dev/1759338248331-2025-10-01T17:04:08.331Z/stock-market-chatbot.zip"
+                "S3Key": "serverless/stock-market-chatbot/dev/1759340305328-2025-10-01T17:38:25.328Z/stock-market-chatbot.zip"
               },
               "Handler": "functions/market-news.handler",
               "Runtime": "nodejs20.x",
@@ -354,7 +354,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/stock-market-chatbot/dev/1759338248331-2025-10-01T17:04:08.331Z/stock-market-chatbot.zip"
+                "S3Key": "serverless/stock-market-chatbot/dev/1759340305328-2025-10-01T17:38:25.328Z/stock-market-chatbot.zip"
               },
               "Handler": "functions/auth.handler",
               "Runtime": "nodejs20.x",
@@ -994,7 +994,7 @@
               "AuthLambdaPermissionApiGateway"
             ]
           },
-          "ApiGatewayDeployment1759338245261": {
+          "ApiGatewayDeployment1759340302385": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -1756,7 +1756,7 @@
         ],
         "artifactsS3KeyDirname": "serverless/stock-market-chatbot/dev/code-artifacts",
         "artifact": "/Users/gavinadlan/Documents/code/granite-stock-chat-68dfe4c3/backend/.serverless/stock-market-chatbot.zip",
-        "artifactDirectoryName": "serverless/stock-market-chatbot/dev/1759338248331-2025-10-01T17:04:08.331Z"
+        "artifactDirectoryName": "serverless/stock-market-chatbot/dev/1759340305328-2025-10-01T17:38:25.328Z"
       },
       "resources": {
         "$ref": "$[\"service\"][\"resources\"]"
@@ -1767,7 +1767,7 @@
     "artifact": "/Users/gavinadlan/Documents/code/granite-stock-chat-68dfe4c3/backend/.serverless/stock-market-chatbot.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/stock-market-chatbot/dev/1759338248331-2025-10-01T17:04:08.331Z",
+    "artifactDirectoryName": "serverless/stock-market-chatbot/dev/1759340305328-2025-10-01T17:38:25.328Z",
     "artifact": "stock-market-chatbot.zip"
   }
 }
