@@ -39,7 +39,7 @@ export default function LoginPage() {
         description: "Login successful! Welcome back.",
       });
       
-      navigate('/chat');
+      navigate('/');
     } catch (error) {
       toast({
         title: "Login Failed",

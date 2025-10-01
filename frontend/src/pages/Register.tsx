@@ -78,7 +78,7 @@ export default function RegisterPage() {
         description: "Account created successfully! Welcome to Stock Chat AI.",
       });
       
-      navigate('/chat');
+      navigate('/');
     } catch (error) {
       toast({
         title: "Registration Failed",

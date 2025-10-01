@@ -36,11 +36,11 @@ export function SettingsPage() {
         {/* Back Button */}
         <div className="mb-6">
           <Link 
-            to="/chat" 
+            to="/" 
             className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Chat
+            Back to Home
           </Link>
         </div>
 
