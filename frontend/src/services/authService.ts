@@ -1,9 +1,11 @@
 // Authentication service for frontend
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
-// Only throw error in development mode, not during build
+// Use mock service if API_BASE_URL is not set or is placeholder
+const useMockService = !API_BASE_URL || API_BASE_URL.includes('placeholder') || API_BASE_URL.includes('localhost');
+
 if (!API_BASE_URL && import.meta.env.DEV) {
-  throw new Error('VITE_API_BASE_URL environment variable is required for development');
+  console.warn('⚠️ VITE_API_BASE_URL not set, using mock service for development');
 }
 
 export interface User {
@@ -38,6 +40,11 @@ class AuthService {
   }
 
   async register(credentials: RegisterCredentials): Promise<AuthResponse> {
+    if (useMockService) {
+      console.log('🔧 Using mock auth service');
+      return await this.mockRegister(credentials);
+    }
+
     const response = await fetch(`${this.baseUrl}/auth/register`, {
       method: 'POST',
       headers: {
@@ -55,6 +62,11 @@ class AuthService {
   }
 
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
+    if (useMockService) {
+      console.log('🔧 Using mock auth service');
+      return await this.mockLogin(credentials);
+    }
+
     const response = await fetch(`${this.baseUrl}/auth/login`, {
       method: 'POST',
       headers: {
@@ -72,6 +84,10 @@ class AuthService {
   }
 
   async getProfile(accessToken: string): Promise<{ user: User }> {
+    if (useMockService) {
+      return await this.mockGetProfile(accessToken);
+    }
+
     const response = await fetch(`${this.baseUrl}/auth/profile`, {
       method: 'POST',
       headers: {
@@ -89,6 +105,10 @@ class AuthService {
   }
 
   async updateProfile(accessToken: string, name: string): Promise<{ message: string }> {
+    if (useMockService) {
+      return await this.mockUpdateProfile(accessToken, name);
+    }
+
     const response = await fetch(`${this.baseUrl}/auth/update-profile`, {
       method: 'POST',
       headers: {
@@ -106,6 +126,10 @@ class AuthService {
   }
 
   async verifyEmail(email: string, code: string): Promise<{ message: string }> {
+    if (useMockService) {
+      return await this.mockVerifyEmail(email, code);
+    }
+
     const response = await fetch(`${this.baseUrl}/auth/verify`, {
       method: 'POST',
       headers: {
@@ -120,6 +144,63 @@ class AuthService {
     }
 
     return await response.json();
+  }
+
+  // Mock methods for development
+  private async mockRegister(credentials: RegisterCredentials): Promise<AuthResponse> {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const mockUser: User = {
+      userId: `user_${Date.now()}`,
+      email: credentials.email,
+      name: credentials.name
+    };
+
+    return {
+      message: 'User registered successfully',
+      accessToken: `mock_access_token_${Date.now()}`,
+      refreshToken: `mock_refresh_token_${Date.now()}`,
+      user: mockUser
+    };
+  }
+
+  private async mockLogin(credentials: LoginCredentials): Promise<AuthResponse> {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    const mockUser: User = {
+      userId: `user_${Date.now()}`,
+      email: credentials.email,
+      name: 'Demo User'
+    };
+
+    return {
+      message: 'Login successful',
+      accessToken: `mock_access_token_${Date.now()}`,
+      refreshToken: `mock_refresh_token_${Date.now()}`,
+      user: mockUser
+    };
+  }
+
+  private async mockGetProfile(_accessToken: string): Promise<{ user: User }> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    const mockUser: User = {
+      userId: 'user_123',
+      email: 'demo@example.com',
+      name: 'Demo User'
+    };
+
+    return { user: mockUser };
+  }
+
+  private async mockUpdateProfile(_accessToken: string, _name: string): Promise<{ message: string }> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return { message: 'Profile updated successfully' };
+  }
+
+  private async mockVerifyEmail(_email: string, _code: string): Promise<{ message: string }> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return { message: 'Email verified successfully' };
   }
 
   // Local storage helpers
