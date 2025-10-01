@@ -54,6 +54,16 @@ jobs:
         cd frontend
         aws s3 sync dist/ s3://staging-stock-market-chat-frontend-1758970542 --delete
         
+    - name: Configure S3 for SPA routing
+      run: |
+        aws s3api put-bucket-website \
+          --bucket staging-stock-market-chat-frontend-1758970542 \
+          --website-configuration '{
+            "IndexDocument": {"Suffix": "index.html"},
+            "ErrorDocument": {"Key": "index.html"}
+          }'
+        echo "✅ S3 configured for SPA routing"
+        
     - name: Success message
       run: |
         echo "🎉 Deployment completed successfully!"

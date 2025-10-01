@@ -167,10 +167,14 @@ class AuthService {
   private async mockLogin(credentials: LoginCredentials): Promise<AuthResponse> {
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Extract name from email (before @) or use email as name
+    const nameFromEmail = credentials.email.split('@')[0];
+    const displayName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+    
     const mockUser: User = {
       userId: `user_${Date.now()}`,
       email: credentials.email,
-      name: 'Demo User'
+      name: displayName
     };
 
     return {
