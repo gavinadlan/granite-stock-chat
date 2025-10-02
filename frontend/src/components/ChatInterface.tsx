@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, Bot, TrendingUp, BarChart3, Newspaper } from 'lucide-react';
+import { Send, TrendingUp, BarChart3, Newspaper } from 'lucide-react';
+import StockAILogo from '@/components/image/logo.png';
 import { stockMarketAPI, ChatMessage } from '@/services/stockMarketAPI';
 import { MessageBubble } from './MessageBubble';
 import { StockCard } from './StockCard';
@@ -102,7 +103,7 @@ export function ChatInterface() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <Bot className="h-6 w-6 text-blue-600" />
+            <img src={StockAILogo} alt="Stock AI" className="h-6 w-6" />
             <span>Stock Market AI Assistant</span>
             <Badge variant="secondary" className="ml-auto">
               Live
