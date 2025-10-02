@@ -1,4 +1,4 @@
-import { Bot } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 
 export function TypingIndicator() {
   return (
@@ -6,7 +6,7 @@ export function TypingIndicator() {
       <div className="flex max-w-[80%] flex-row items-start space-x-2">
         {/* Avatar */}
         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center">
-          <Bot className="h-4 w-4 text-white" />
+          <MessageCircle className="h-4 w-4 text-white" />
         </div>
 
         {/* Typing Animation */}

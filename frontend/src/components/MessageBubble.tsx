@@ -1,4 +1,4 @@
-import { Bot, User } from 'lucide-react';
+import { User, MessageCircle } from 'lucide-react';
 import { ChatMessage } from '@/services/stockMarketAPI';
 
 interface MessageBubbleProps {
@@ -18,7 +18,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           {message.isUser ? (
             <User className="h-5 w-5 text-white" />
           ) : (
-            <Bot className="h-5 w-5 text-white" />
+            <MessageCircle className="h-5 w-5 text-white" />
           )}
         </div>
 
