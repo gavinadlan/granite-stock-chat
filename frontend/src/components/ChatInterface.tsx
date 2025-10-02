@@ -163,7 +163,7 @@ export function ChatInterface() {
               onClick={() => setInputValue("Predict TSLA stock")}
               disabled={isLoading}
             >
-              <Bot className="h-3 w-3 mr-1" />
+              <TrendingUp className="h-3 w-3 mr-1" />
               Predict TSLA
             </Button>
             <Button
