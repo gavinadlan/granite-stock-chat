@@ -54,40 +54,50 @@ jobs:
         cd frontend
         aws s3 sync dist/ s3://staging-stock-market-chat-frontend-1758970542 --delete
         
-    - name: Configure S3 for SPA routing
+    - name: Configure S3 for CloudFront
       run: |
-        # Configure website hosting
-        aws s3api put-bucket-website \
-          --bucket staging-stock-market-chat-frontend-1758970542 \
-          --website-configuration '{
-            "IndexDocument": {"Suffix": "index.html"},
-            "ErrorDocument": {"Key": "index.html"}
-          }'
-        
-        # Set bucket policy for public read access
+        # Set bucket policy for CloudFront access only
         aws s3api put-bucket-policy \
           --bucket staging-stock-market-chat-frontend-1758970542 \
           --policy '{
             "Version": "2012-10-17",
             "Statement": [
               {
-                "Sid": "PublicReadGetObject",
+                "Sid": "CloudFrontServicePrincipal",
                 "Effect": "Allow",
-                "Principal": "*",
+                "Principal": {
+                  "Service": "cloudfront.amazonaws.com"
+                },
                 "Action": "s3:GetObject",
-                "Resource": "arn:aws:s3:::staging-stock-market-chat-frontend-1758970542/*"
+                "Resource": "arn:aws:s3:::staging-stock-market-chat-frontend-1758970542/*",
+                "Condition": {
+                  "StringEquals": {
+                    "AWS:SourceArn": "arn:aws:cloudfront::1758970542:distribution/E1234567890ABCD"
+                  }
+                }
               }
             ]
           }'
         
-        # Enable public access
+        # Block public access (CloudFront will handle public access)
         aws s3api put-public-access-block \
           --bucket staging-stock-market-chat-frontend-1758970542 \
-          --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+          --public-access-block-configuration "BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"
         
-        echo "✅ S3 configured for SPA routing with public access"
+        echo "✅ S3 configured for CloudFront access"
+        
+    - name: Invalidate CloudFront Cache
+      run: |
+        # Invalidate CloudFront distribution to serve new content
+        aws cloudfront create-invalidation \
+          --distribution-id E1234567890ABCD \
+          --paths "/*"
+        
+        echo "✅ CloudFront cache invalidated"
         
     - name: Success message
       run: |
         echo "🎉 Deployment completed successfully!"
-        echo "🌐 Website: http://staging-stock-market-chat-frontend-1758970542.s3-website-ap-southeast-2.amazonaws.com"
+        echo "🌐 Website: https://stockai.gavinadlan.my.id"
+        echo "📦 S3 Bucket: staging-stock-market-chat-frontend-1758970542"
+        echo "☁️ CloudFront Distribution: E1234567890ABCD"
