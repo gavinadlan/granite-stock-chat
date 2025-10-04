@@ -1,8 +1,9 @@
 name: Simple Deploy
 
-on:
-  push:
-    branches: [ main ]
+# DISABLED - Manual upload required
+# on:
+#   push:
+#     branches: [ main ]
 
 jobs:
   deploy:
