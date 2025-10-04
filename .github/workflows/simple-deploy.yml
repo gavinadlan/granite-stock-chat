@@ -1,8 +1,9 @@
 name: Simple Deploy
 
-on:
-  push:
-    branches: [ main ]
+# DISABLED - AWS credentials issue
+# on:
+#   push:
+#     branches: [ main ]
 
 jobs:
   deploy:
