@@ -1,8 +1,8 @@
-# 🚀 Stock Market Chatbot
+# 🚀 StockAI
 
-**Web-Based Stock Market Chatbot Using AWS Lambda and IBM Granite**
+**AI-Powered Stock Market Assistant Using AWS Lambda and IBM Granite**
 
-A modern, AI-powered stock market chatbot that provides real-time stock information, predictions, and technical analysis. Built with React frontend and AWS Lambda serverless backend.
+A modern, AI-powered stock market assistant that provides real-time stock information, predictions, and technical analysis. Built with React frontend and AWS Lambda serverless backend.
 
 ## 🏗️ **Project Architecture**
 
@@ -157,7 +157,7 @@ npm run logs         # View Lambda logs
 ## 🚀 **Deployment**
 
 ### **Live Demo**
-- **Frontend**: [https://stock-market-chatbot.vercel.app](https://stock-market-chatbot.vercel.app) (Coming Soon)
+- **Frontend**: [https://stockai.gavinadlan.my.id](https://stockai.gavinadlan.my.id) ✅
 - **Backend API**: [https://api-gateway-url.amazonaws.com/dev](https://api-gateway-url.amazonaws.com/dev) (Coming Soon)
 
 ### **Frontend Deployment**
