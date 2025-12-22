@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Send, TrendingUp, BarChart3, Newspaper } from 'lucide-react';
+import { Send, TrendingUp, BarChart3, Newspaper, List, X } from 'lucide-react';
 import StockAILogo from '@/components/image/logo.png';
 import { stockMarketAPI, ChatMessage } from '@/services/stockMarketAPI';
 import { MessageBubble } from './MessageBubble';
@@ -12,6 +12,7 @@ import { PredictionChart } from './PredictionChart';
 import { TechnicalAnalysisCard } from './TechnicalAnalysisCard';
 import { NewsCard } from './NewsCard';
 import { TypingIndicator } from './TypingIndicator';
+import { StockSymbolTable } from './StockSymbolTable';
 import { API_CONSTANTS } from '@/lib/constants';
 
 export function ChatInterface() {
@@ -25,6 +26,7 @@ export function ChatInterface() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showStockTable, setShowStockTable] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -73,6 +75,16 @@ export function ChatInterface() {
     }
   };
 
+  const handleSelectSymbol = (symbol: string) => {
+    setInputValue(`What's the price of ${symbol}?`);
+    setShowStockTable(false);
+    // Focus on input after selection
+    setTimeout(() => {
+      const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+      input?.focus();
+    }, 100);
+  };
+
   const renderMessageData = (message: ChatMessage) => {
     if (!message.data) return null;
 
@@ -108,9 +120,34 @@ export function ChatInterface() {
             <Badge variant="secondary" className="ml-auto">
               Live
             </Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowStockTable(!showStockTable)}
+              className="ml-2"
+            >
+              {showStockTable ? (
+                <>
+                  <X className="h-4 w-4 mr-1" />
+                  Hide Stocks
+                </>
+              ) : (
+                <>
+                  <List className="h-4 w-4 mr-1" />
+                  Browse Stocks
+                </>
+              )}
+            </Button>
           </CardTitle>
         </CardHeader>
       </Card>
+
+      {/* Stock Symbol Table */}
+      {showStockTable && (
+        <div className="mb-6">
+          <StockSymbolTable onSelectSymbol={handleSelectSymbol} />
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-4 mb-6 px-2">
