@@ -114,30 +114,36 @@ export function ChatInterface() {
       {/* Header */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <img src={StockAILogo} alt="Stock AI" className="h-6 w-6" />
-            <span>Stock Market AI Assistant</span>
-            <Badge variant="secondary" className="ml-auto">
-              Live
-            </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowStockTable(!showStockTable)}
-              className="ml-2"
-            >
-              {showStockTable ? (
-                <>
-                  <X className="h-4 w-4 mr-1" />
-                  Hide Stocks
-                </>
-              ) : (
-                <>
-                  <List className="h-4 w-4 mr-1" />
-                  Browse Stocks
-                </>
-              )}
-            </Button>
+          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-2">
+            <div className="flex items-center space-x-2 flex-1 min-w-0">
+              <img src={StockAILogo} alt="Stock AI" className="h-6 w-6 flex-shrink-0" />
+              <span className="text-base sm:text-xl truncate">Stock Market AI Assistant</span>
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <Badge variant="secondary" className="flex-shrink-0">
+                Live
+              </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowStockTable(!showStockTable)}
+                className="flex-1 sm:flex-initial text-xs sm:text-sm"
+              >
+                {showStockTable ? (
+                  <>
+                    <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Hide</span>
+                    <span className="sm:hidden">Hide Stocks</span>
+                  </>
+                ) : (
+                  <>
+                    <List className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                    <span className="hidden sm:inline">Browse</span>
+                    <span className="sm:hidden">Browse Stocks</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
       </Card>
@@ -190,36 +196,44 @@ export function ChatInterface() {
               size="sm"
               onClick={() => setInputValue("What's the price of AAPL?")}
               disabled={isLoading}
+              className="text-xs sm:text-sm"
             >
               <TrendingUp className="h-3 w-3 mr-1" />
-              AAPL Price
+              <span className="hidden sm:inline">AAPL Price</span>
+              <span className="sm:hidden">AAPL</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setInputValue("Predict TSLA stock")}
               disabled={isLoading}
+              className="text-xs sm:text-sm"
             >
               <TrendingUp className="h-3 w-3 mr-1" />
-              Predict TSLA
+              <span className="hidden sm:inline">Predict TSLA</span>
+              <span className="sm:hidden">TSLA</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setInputValue("Technical analysis for MSFT")}
               disabled={isLoading}
+              className="text-xs sm:text-sm"
             >
               <BarChart3 className="h-3 w-3 mr-1" />
-              Analyze MSFT
+              <span className="hidden sm:inline">Analyze MSFT</span>
+              <span className="sm:hidden">MSFT</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setInputValue("News about GOOGL")}
               disabled={isLoading}
+              className="text-xs sm:text-sm"
             >
               <Newspaper className="h-3 w-3 mr-1" />
-              GOOGL News
+              <span className="hidden sm:inline">GOOGL News</span>
+              <span className="sm:hidden">GOOGL</span>
             </Button>
           </div>
         </CardContent>

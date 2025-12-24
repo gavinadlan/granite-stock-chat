@@ -104,8 +104,8 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
           </div>
         )}
 
-        {/* Table */}
-        <div className="border rounded-lg overflow-hidden">
+        {/* Desktop Table View */}
+        <div className="hidden md:block border rounded-lg overflow-hidden">
           <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
             <table className="w-full border-collapse">
               <thead className="bg-slate-100 sticky top-0">
@@ -166,6 +166,46 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-3 max-h-[500px] overflow-y-auto">
+          {filteredStocks.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No stocks found. Try a different search term.
+            </div>
+          ) : (
+            filteredStocks.map((stock) => (
+              <div
+                key={stock.symbol}
+                className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-slate-900 text-lg">{stock.symbol}</span>
+                      {stock.sector && (
+                        <Badge variant="outline" className="text-xs">
+                          {stock.sector}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-600 line-clamp-2">{stock.companyName}</p>
+                  </div>
+                </div>
+                {onSelectSymbol && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSymbolClick(stock.symbol)}
+                    className="w-full mt-3"
+                  >
+                    Select
+                  </Button>
+                )}
+              </div>
+            ))
+          )}
         </div>
 
         {/* Info */}
