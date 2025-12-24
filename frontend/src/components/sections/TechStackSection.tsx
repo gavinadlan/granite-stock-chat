@@ -29,17 +29,21 @@ const techStackItems = [
   }
 ]
 
-function TechStackItem({ logo, name, alt }: { logo: string; name: string; alt: string }) {
+function TechStackItem({ logo, name, alt, isLast }: { logo: string; name: string; alt: string; isLast?: boolean }) {
   return (
-    <div className="flex items-center space-x-3">
+    <div className={`flex items-center space-x-2 md:space-x-3 px-3 md:px-4 lg:px-6 lg:px-8 flex-shrink-0 ${isLast ? 'mr-32 md:mr-20 lg:mr-0 xl:mr-0' : 'mr-16 md:mr-16 lg:mr-16 xl:mr-16'}`}>
       <img 
         src={logo} 
         alt={alt} 
-        className="w-12 h-12 object-contain"
+        className="w-10 h-10 md:w-12 md:h-12 object-contain flex-shrink-0"
       />
-      <span className="text-slate-700 font-semibold">{name}</span>
+      <span className="text-slate-700 font-semibold text-sm md:text-base whitespace-nowrap">{name}</span>
     </div>
   )
+}
+
+function SpacerItem() {
+  return <div className="w-40 md:w-12 lg:w-8 xl:w-8 flex-shrink-0" />
 }
 
 export function TechStackSection() {
@@ -63,18 +67,28 @@ export function TechStackSection() {
                 logo={item.logo}
                 name={item.name}
                 alt={item.alt}
+                isLast={index === techStackItems.length - 1}
               />
             ))}
+            <SpacerItem />
+            {/* Extra spacer for mobile only */}
+            <div className="md:hidden w-40 flex-shrink-0" />
+            <div className="md:hidden w-40 flex-shrink-0" />
           </MarqueeItem>
           
           {/* Duplicate set for seamless loop */}
           <MarqueeItem>
+            {/* Extra spacer for mobile only */}
+            <div className="md:hidden w-40 flex-shrink-0" />
+            <div className="md:hidden w-40 flex-shrink-0" />
+            <SpacerItem />
             {techStackItems.map((item, index) => (
               <TechStackItem 
                 key={`second-${index}`}
                 logo={item.logo}
                 name={item.name}
                 alt={item.alt}
+                isLast={index === techStackItems.length - 1}
               />
             ))}
           </MarqueeItem>
