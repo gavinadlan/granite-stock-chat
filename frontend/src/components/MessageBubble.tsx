@@ -25,12 +25,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         {/* Message Content */}
         <div className={`rounded-xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm ${
           message.isUser 
-            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white' 
-            : 'bg-white border border-slate-200 text-slate-900'
+            ? 'bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white' 
+            : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100'
         }`}>
           <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed break-words">{message.content}</p>
           <p className={`text-[10px] sm:text-xs mt-1.5 sm:mt-2 ${
-            message.isUser ? 'text-blue-100' : 'text-slate-500'
+            message.isUser ? 'text-blue-100 dark:text-blue-200' : 'text-slate-500 dark:text-slate-400'
           }`}>
             {message.timestamp.toLocaleTimeString()}
           </p>

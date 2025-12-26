@@ -9,9 +9,9 @@ interface NavigationProps {
 
 export function Navigation({ children }: NavigationProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Navigation Header */}
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <nav className="bg-white dark:bg-slate-900 shadow-sm border-b dark:border-slate-700 sticky top-0 z-50">
         <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 sm:space-x-4">
@@ -29,7 +29,7 @@ export function Navigation({ children }: NavigationProps) {
             </div>
             
             <div className="flex items-center">
-              <Button variant="outline" size="sm" className="text-xs sm:text-sm" asChild>
+              <Button variant="outline" size="sm" className="text-xs sm:text-sm dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800" asChild>
                 <Link to="/">
                   <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">Back to Home</span>
