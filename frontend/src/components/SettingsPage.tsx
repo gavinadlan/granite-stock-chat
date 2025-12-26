@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Settings, Bell, Shield, Palette, ArrowLeft, LogOut, Download, Trash2, Lock } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,6 @@ const STORAGE_KEY = 'user_settings';
 
 export function SettingsPage() {
   const { logout, user } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
   
   // Load settings from localStorage
