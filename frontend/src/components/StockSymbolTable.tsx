@@ -43,11 +43,11 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full dark:bg-slate-800 dark:border-slate-700">
       <CardHeader className="p-3 sm:p-6">
         <CardTitle className="flex items-center justify-between flex-wrap gap-2">
-          <span className="text-sm sm:text-base">US Stock Symbols</span>
-          <Badge variant="secondary" className="text-[10px] sm:text-xs">{filteredStocks.length} stocks</Badge>
+          <span className="text-sm sm:text-base dark:text-white">US Stock Symbols</span>
+          <Badge variant="secondary" className="text-[10px] sm:text-xs dark:bg-slate-700 dark:text-slate-200">{filteredStocks.length} stocks</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6 pt-0">
@@ -107,21 +107,21 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
         )}
 
         {/* Desktop Table View */}
-        <div className="hidden md:block border rounded-lg overflow-hidden">
+        <div className="hidden md:block border dark:border-slate-700 rounded-lg overflow-hidden">
           <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
             <table className="w-full border-collapse">
-              <thead className="bg-slate-100 sticky top-0">
+              <thead className="bg-slate-100 dark:bg-slate-700 sticky top-0">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 border-b">
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-100 border-b dark:border-slate-600">
                     Symbol
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 border-b">
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-100 border-b dark:border-slate-600">
                     Company Name
                   </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 border-b">
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-slate-100 border-b dark:border-slate-600">
                     Sector
                   </th>
-                  <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700 border-b w-24">
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-100 border-b dark:border-slate-600 w-24">
                     Action
                   </th>
                 </tr>
@@ -129,7 +129,7 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
               <tbody>
                 {filteredStocks.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground text-sm">
+                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground dark:text-slate-400 text-sm">
                       No stocks found. Try a different search term.
                     </td>
                   </tr>
@@ -137,15 +137,15 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
                   filteredStocks.map((stock) => (
                     <tr
                       key={stock.symbol}
-                      className="border-b hover:bg-slate-50 transition-colors"
+                      className="border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <span className="font-semibold text-slate-900 text-sm">{stock.symbol}</span>
+                        <span className="font-semibold text-slate-900 dark:text-white text-sm">{stock.symbol}</span>
                       </td>
-                      <td className="px-4 py-3 text-slate-700 text-sm">{stock.companyName}</td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-200 text-sm">{stock.companyName}</td>
                       <td className="px-4 py-3">
                         {stock.sector && (
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-xs dark:border-slate-600 dark:text-slate-200">
                             {stock.sector}
                           </Badge>
                         )}
@@ -156,7 +156,7 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleSymbolClick(stock.symbol)}
-                            className="h-8 text-xs"
+                            className="h-8 text-xs dark:text-slate-200 dark:hover:bg-slate-700"
                           >
                             Select
                           </Button>
@@ -173,26 +173,26 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
         {/* Mobile Card View */}
         <div className="md:hidden space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
           {filteredStocks.length === 0 ? (
-            <div className="text-center py-6 sm:py-8 text-muted-foreground text-xs sm:text-sm">
+            <div className="text-center py-6 sm:py-8 text-muted-foreground dark:text-slate-400 text-xs sm:text-sm">
               No stocks found. Try a different search term.
             </div>
           ) : (
             filteredStocks.map((stock) => (
               <div
                 key={stock.symbol}
-                className="border rounded-lg p-3 sm:p-4 bg-white hover:bg-slate-50 transition-colors"
+                className="border dark:border-slate-700 rounded-lg p-3 sm:p-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
-                      <span className="font-semibold text-slate-900 text-base sm:text-lg">{stock.symbol}</span>
+                      <span className="font-semibold text-slate-900 dark:text-white text-base sm:text-lg">{stock.symbol}</span>
                       {stock.sector && (
-                        <Badge variant="outline" className="text-[10px] sm:text-xs">
+                        <Badge variant="outline" className="text-[10px] sm:text-xs dark:border-slate-600 dark:text-slate-200">
                           {stock.sector}
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 break-words">{stock.companyName}</p>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 line-clamp-2 break-words">{stock.companyName}</p>
                   </div>
                 </div>
                 {onSelectSymbol && (
@@ -200,7 +200,7 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => handleSymbolClick(stock.symbol)}
-                    className="w-full mt-2 sm:mt-3 text-xs sm:text-sm h-8 sm:h-9"
+                    className="w-full mt-2 sm:mt-3 text-xs sm:text-sm h-8 sm:h-9 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-700"
                   >
                     Select
                   </Button>
@@ -211,7 +211,7 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
         </div>
 
         {/* Info */}
-        <p className="text-[10px] sm:text-xs text-muted-foreground text-center pt-2">
+        <p className="text-[10px] sm:text-xs text-muted-foreground dark:text-slate-400 text-center pt-2">
           Click on a symbol or use the search to find US stocks. Total: {US_STOCKS.length} stocks available.
         </p>
       </CardContent>
