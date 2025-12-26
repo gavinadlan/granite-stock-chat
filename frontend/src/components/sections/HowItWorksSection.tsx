@@ -21,11 +21,11 @@ export function HowItWorksSection() {
     <div id="how-it-works" className="py-48">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl font-bold text-slate-900">How It Works</h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">How It Works</h2>
+          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
             Simple 3-step process to get AI-powered stock analysis
           </p>
-          <p className="text-base text-slate-500 max-w-3xl mx-auto">
+          <p className="text-base text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">
             Our intelligent chatbot processes your requests using advanced AI algorithms, 
             combining multiple data sources to provide comprehensive market insights in seconds.
           </p>
@@ -34,11 +34,11 @@ export function HowItWorksSection() {
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, index) => (
             <div key={index} className="text-center space-y-4">
-              <div className="mx-auto w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+              <div className="mx-auto w-16 h-16 bg-blue-600 dark:bg-blue-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                 {step.number}
               </div>
-              <h3 className="text-xl font-semibold">{step.title}</h3>
-              <p className="text-slate-600">
+              <h3 className="text-xl font-semibold dark:text-white">{step.title}</h3>
+              <p className="text-slate-600 dark:text-slate-300">
                 {step.description}
               </p>
             </div>

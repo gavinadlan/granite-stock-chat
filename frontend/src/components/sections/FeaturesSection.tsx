@@ -37,11 +37,11 @@ export function FeaturesSection() {
     <div id="features" className="py-48">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl font-bold text-slate-900">Powerful Features</h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Powerful Features</h2>
+          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
             Comprehensive AI-powered tools for intelligent stock market analysis
           </p>
-          <p className="text-base text-slate-500 max-w-3xl mx-auto">
+          <p className="text-base text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">
             Our advanced platform combines cutting-edge artificial intelligence with real-time market data 
             to provide you with professional-grade analysis tools that help you make smarter investment decisions.
           </p>
@@ -51,13 +51,13 @@ export function FeaturesSection() {
           {features.map((feature, index) => {
             const IconComponent = feature.icon
             return (
-              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+              <Card key={index} className="text-center hover:shadow-lg dark:hover:shadow-slate-900/50 transition-shadow dark:bg-slate-800 dark:border-slate-700">
                 <CardHeader>
-                  <div className={`mx-auto w-12 h-12 ${feature.bgColor} rounded-lg flex items-center justify-center mb-4`}>
+                  <div className={`mx-auto w-12 h-12 ${feature.bgColor} dark:opacity-80 rounded-lg flex items-center justify-center mb-4`}>
                     <IconComponent className={`h-6 w-6 ${feature.iconColor}`} />
                   </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-lg dark:text-white">{feature.title}</CardTitle>
+                  <CardDescription className="dark:text-slate-300">
                     {feature.description}
                   </CardDescription>
                 </CardHeader>

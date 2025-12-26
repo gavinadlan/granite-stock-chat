@@ -16,13 +16,13 @@ export function HeroSection({ onScrollToSection }: HeroSectionProps) {
       <div className="container mx-auto px-4">
         <div className="text-center space-y-8">
           <div className="space-y-4">
-            <Badge variant="secondary" className="text-sm">
+            <Badge variant="secondary" className="text-sm dark:bg-slate-800 dark:text-slate-200">
               AI-Powered Stock Analysis
             </Badge>
-            <h1 className="text-5xl font-bold text-slate-900">
+            <h1 className="text-5xl font-bold text-slate-900 dark:text-white">
               Stock Market AI Assistant
             </h1>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
               Get real-time stock prices, AI-powered predictions, technical analysis, and market news. Make informed trading decisions with our advanced AI chatbot.
             </p>
           </div>

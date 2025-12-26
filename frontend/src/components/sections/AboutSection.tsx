@@ -44,11 +44,11 @@ export function AboutSection() {
     <div id="about" className="py-48">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl font-bold text-slate-900">About Our Platform</h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">About Our Platform</h2>
+          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
             Built with cutting-edge technology and AI innovation
           </p>
-          <p className="text-base text-slate-500 max-w-3xl mx-auto">
+          <p className="text-base text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">
             Our Stock Market AI Assistant leverages the power of IBM Granite AI, AWS Lambda, 
             and real-time market data APIs to deliver professional-grade financial analysis 
             accessible to everyone, from beginners to experienced traders.
@@ -60,11 +60,11 @@ export function AboutSection() {
             const IconComponent = feature.icon
             return (
               <div key={index} className="text-center space-y-4">
-                <div className={`mx-auto w-16 h-16 ${feature.bgColor} rounded-full flex items-center justify-center`}>
+                <div className={`mx-auto w-16 h-16 ${feature.bgColor} dark:opacity-80 rounded-full flex items-center justify-center`}>
                   <IconComponent className={`h-8 w-8 ${feature.iconColor}`} />
                 </div>
-                <h3 className="text-lg font-semibold">{feature.title}</h3>
-                <p className="text-sm text-slate-600">
+                <h3 className="text-lg font-semibold dark:text-white">{feature.title}</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-300">
                   {feature.description}
                 </p>
               </div>
@@ -72,10 +72,10 @@ export function AboutSection() {
           })}
         </div>
 
-        <div className="bg-slate-50 rounded-lg p-8">
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-8 border dark:border-slate-700">
           <div className="text-center space-y-4">
-            <h3 className="text-2xl font-bold text-slate-900">Why Choose Our Platform?</h3>
-            <p className="text-lg text-slate-600 max-w-3xl mx-auto">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Why Choose Our Platform?</h3>
+            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
               Our Stock Market AI Assistant combines the power of artificial intelligence with real-time market data 
               to provide you with comprehensive analysis, accurate predictions, and actionable insights. 
               Whether you're a beginner investor or an experienced trader, our platform helps you make 
@@ -83,7 +83,7 @@ export function AboutSection() {
             </p>
             <div className="flex flex-wrap justify-center gap-4 mt-6">
               {badges.map((badge, index) => (
-                <Badge key={index} variant="secondary" className="text-sm">
+                <Badge key={index} variant="secondary" className="text-sm dark:bg-slate-700 dark:text-slate-200">
                   <CheckCircle className="w-4 h-4 mr-1" />
                   {badge}
                 </Badge>
