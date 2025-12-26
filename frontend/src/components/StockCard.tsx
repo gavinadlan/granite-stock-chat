@@ -12,14 +12,16 @@ export function StockCard({ stockPrice }: StockCardProps) {
   const isPositive = stockPrice.change >= 0;
   const changeIcon = isPositive ? TrendingUp : TrendingDown;
   const changeColor = isPositive ? 'text-green-600' : 'text-red-600';
+  const changeColorDark = isPositive ? 'dark:text-green-400' : 'dark:text-red-400';
   const bgColor = isPositive ? 'bg-green-50' : 'bg-red-50';
+  const bgColorDark = isPositive ? 'dark:bg-green-900/30' : 'dark:bg-red-900/30';
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <Card className="w-full max-w-md mx-auto dark:bg-slate-800 dark:border-slate-700">
       <CardHeader className="pb-2 p-4 sm:p-6">
         <CardTitle className="flex items-center justify-between">
-          <span className="text-base sm:text-lg font-semibold">{stockPrice.symbol}</span>
-          <Badge variant="secondary" className="text-[10px] sm:text-xs">
+          <span className="text-base sm:text-lg font-semibold dark:text-white">{stockPrice.symbol}</span>
+          <Badge variant="secondary" className="text-[10px] sm:text-xs dark:bg-slate-700 dark:text-slate-200">
             Live
           </Badge>
         </CardTitle>
@@ -28,23 +30,23 @@ export function StockCard({ stockPrice }: StockCardProps) {
       <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
         {/* Price */}
         <div className="flex items-center space-x-2">
-          <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-slate-600 flex-shrink-0" />
-          <span className="text-xl sm:text-2xl font-bold text-slate-900 break-all">
+          <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-slate-600 dark:text-slate-300 flex-shrink-0" />
+          <span className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white break-all">
             {formatPrice(stockPrice.price, stockPrice.currency)}
           </span>
         </div>
 
         {/* Change */}
-        <div className={`flex items-center space-x-2 ${bgColor} p-2 sm:p-2.5 rounded-lg`}>
+        <div className={`flex items-center space-x-2 ${bgColor} ${bgColorDark} p-2 sm:p-2.5 rounded-lg`}>
           {changeIcon === TrendingUp ? (
-            <TrendingUp className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${changeColor} flex-shrink-0`} />
+            <TrendingUp className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${changeColor} ${changeColorDark} flex-shrink-0`} />
           ) : (
-            <TrendingDown className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${changeColor} flex-shrink-0`} />
+            <TrendingDown className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${changeColor} ${changeColorDark} flex-shrink-0`} />
           )}
-          <span className={`font-semibold text-sm sm:text-base ${changeColor} break-all`}>
+          <span className={`font-semibold text-sm sm:text-base ${changeColor} ${changeColorDark} break-all`}>
             {formatChange(stockPrice.change, stockPrice.currency)}
           </span>
-          <span className={`text-xs sm:text-sm ${changeColor} whitespace-nowrap`}>
+          <span className={`text-xs sm:text-sm ${changeColor} ${changeColorDark} whitespace-nowrap`}>
             ({isPositive ? '+' : ''}{stockPrice.changePercent.toFixed(2)}%)
           </span>
         </div>
@@ -52,23 +54,23 @@ export function StockCard({ stockPrice }: StockCardProps) {
         {/* Additional Info */}
         <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
           <div className="flex items-start space-x-1.5 sm:space-x-2">
-            <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 flex-shrink-0 mt-0.5" />
+            <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 dark:text-slate-300 flex-shrink-0 mt-0.5" />
             <div className="min-w-0">
-              <p className="text-slate-600 text-[10px] sm:text-xs">Volume</p>
-              <p className="font-semibold text-xs sm:text-sm break-all">{stockPrice.volume.toLocaleString()}</p>
+              <p className="text-slate-600 dark:text-slate-400 text-[10px] sm:text-xs">Volume</p>
+              <p className="font-semibold text-xs sm:text-sm break-all dark:text-slate-100">{stockPrice.volume.toLocaleString()}</p>
             </div>
           </div>
           <div className="flex items-start space-x-1.5 sm:space-x-2">
-            <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 flex-shrink-0 mt-0.5" />
+            <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 dark:text-slate-300 flex-shrink-0 mt-0.5" />
             <div className="min-w-0">
-              <p className="text-slate-600 text-[10px] sm:text-xs">Market Cap</p>
-              <p className="font-semibold text-xs sm:text-sm break-all">{stockPrice.marketCap || 'N/A'}</p>
+              <p className="text-slate-600 dark:text-slate-400 text-[10px] sm:text-xs">Market Cap</p>
+              <p className="font-semibold text-xs sm:text-sm break-all dark:text-slate-100">{stockPrice.marketCap || 'N/A'}</p>
             </div>
           </div>
         </div>
 
         {/* Last Updated */}
-        <div className="text-[10px] sm:text-xs text-slate-500 pt-2 border-t">
+        <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 pt-2 border-t dark:border-slate-700">
           Last updated: {new Date(stockPrice.lastUpdated).toLocaleString()}
         </div>
       </CardContent>
