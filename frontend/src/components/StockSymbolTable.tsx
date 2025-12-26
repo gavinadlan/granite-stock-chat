@@ -44,40 +44,41 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
 
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>US Stock Symbols</span>
-          <Badge variant="secondary">{filteredStocks.length} stocks</Badge>
+      <CardHeader className="p-3 sm:p-6">
+        <CardTitle className="flex items-center justify-between flex-wrap gap-2">
+          <span className="text-sm sm:text-base">US Stock Symbols</span>
+          <Badge variant="secondary" className="text-[10px] sm:text-xs">{filteredStocks.length} stocks</Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6 pt-0">
         {/* Search Input */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search by symbol or company name..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-10"
+            className="pl-8 sm:pl-10 pr-8 sm:pr-10 text-sm sm:text-base h-9 sm:h-10"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-2.5 sm:right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </button>
           )}
         </div>
 
         {/* Sector Filters */}
         {sectors.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             <Button
               variant={selectedSector === null ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedSector(null)}
+              className="text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
             >
               All Sectors
             </Button>
@@ -87,6 +88,7 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
                 variant={selectedSector === sector ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedSector(sector || null)}
+                className="text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
               >
                 {sector}
               </Button>
@@ -96,9 +98,9 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="ml-auto"
+                className="ml-auto text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
               >
-                Clear Filters
+                Clear
               </Button>
             )}
           </div>
@@ -127,7 +129,7 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
               <tbody>
                 {filteredStocks.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">
+                    <td colSpan={4} className="px-4 py-8 text-center text-muted-foreground text-sm">
                       No stocks found. Try a different search term.
                     </td>
                   </tr>
@@ -138,9 +140,9 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
                       className="border-b hover:bg-slate-50 transition-colors"
                     >
                       <td className="px-4 py-3">
-                        <span className="font-semibold text-slate-900">{stock.symbol}</span>
+                        <span className="font-semibold text-slate-900 text-sm">{stock.symbol}</span>
                       </td>
-                      <td className="px-4 py-3 text-slate-700">{stock.companyName}</td>
+                      <td className="px-4 py-3 text-slate-700 text-sm">{stock.companyName}</td>
                       <td className="px-4 py-3">
                         {stock.sector && (
                           <Badge variant="outline" className="text-xs">
@@ -154,7 +156,7 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleSymbolClick(stock.symbol)}
-                            className="h-8"
+                            className="h-8 text-xs"
                           >
                             Select
                           </Button>
@@ -169,28 +171,28 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
         </div>
 
         {/* Mobile Card View */}
-        <div className="md:hidden space-y-3 max-h-[500px] overflow-y-auto">
+        <div className="md:hidden space-y-2 sm:space-y-3 max-h-[400px] sm:max-h-[500px] overflow-y-auto">
           {filteredStocks.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-6 sm:py-8 text-muted-foreground text-xs sm:text-sm">
               No stocks found. Try a different search term.
             </div>
           ) : (
             filteredStocks.map((stock) => (
               <div
                 key={stock.symbol}
-                className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors"
+                className="border rounded-lg p-3 sm:p-4 bg-white hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-slate-900 text-lg">{stock.symbol}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1 flex-wrap">
+                      <span className="font-semibold text-slate-900 text-base sm:text-lg">{stock.symbol}</span>
                       {stock.sector && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-[10px] sm:text-xs">
                           {stock.sector}
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-slate-600 line-clamp-2">{stock.companyName}</p>
+                    <p className="text-xs sm:text-sm text-slate-600 line-clamp-2 break-words">{stock.companyName}</p>
                   </div>
                 </div>
                 {onSelectSymbol && (
@@ -198,7 +200,7 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => handleSymbolClick(stock.symbol)}
-                    className="w-full mt-3"
+                    className="w-full mt-2 sm:mt-3 text-xs sm:text-sm h-8 sm:h-9"
                   >
                     Select
                   </Button>
@@ -209,7 +211,7 @@ export function StockSymbolTable({ onSelectSymbol }: StockSymbolTableProps) {
         </div>
 
         {/* Info */}
-        <p className="text-xs text-muted-foreground text-center">
+        <p className="text-[10px] sm:text-xs text-muted-foreground text-center pt-2">
           Click on a symbol or use the search to find US stocks. Total: {US_STOCKS.length} stocks available.
         </p>
       </CardContent>
