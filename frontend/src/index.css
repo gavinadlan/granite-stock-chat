@@ -111,3 +111,12 @@
   justify-content: flex-start;
   padding-right: 0;
 }
+
+/* Custom fade color for TechStackSection LogoLoop */
+.logoloop-techstack {
+  --logoloop-fadeColor: rgb(248 250 252);
+}
+
+.dark .logoloop-techstack {
+  --logoloop-fadeColor: rgb(30 41 59 / 0.5);
+}
