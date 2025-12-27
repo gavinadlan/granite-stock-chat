@@ -16,32 +16,13 @@ import {
   DialogTitle,
   DialogClose,
 } from '@/components/ui/dialog';
-
-interface UserSettings {
-  notifications: boolean;
-  darkMode: boolean;
-}
-
-const STORAGE_KEY = 'user_settings';
+import { loadSettings, applyDarkMode, type UserSettings } from '@/lib/darkMode';
 
 export function SettingsPage() {
   const { logout, user } = useAuth();
   const { toast } = useToast();
   
-  // Load settings from localStorage
-  const loadSettings = (): UserSettings => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch (error) {
-      console.error('Error loading settings:', error);
-    }
-    return { notifications: true, darkMode: false };
-  };
-
-  const [settings, setSettings] = useState<UserSettings>(loadSettings);
+  const [settings, setSettings] = useState<UserSettings>(loadSettings());
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -52,12 +33,7 @@ export function SettingsPage() {
 
   // Apply dark mode on mount and when settings change
   useEffect(() => {
-    const root = document.documentElement;
-    if (settings.darkMode) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    applyDarkMode(settings.darkMode);
   }, [settings.darkMode]);
 
   // Load settings on mount
@@ -77,11 +53,16 @@ export function SettingsPage() {
   const handleSettingChange = (key: keyof UserSettings, value: boolean) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
+    localStorage.setItem('user_settings', JSON.stringify(newSettings));
+    // Apply dark mode immediately when toggled
+    if (key === 'darkMode') {
+      applyDarkMode(value);
+    }
   };
 
   const handleSaveSettings = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    localStorage.setItem('user_settings', JSON.stringify(settings));
+    applyDarkMode(settings.darkMode);
     toast({
       title: "Settings Saved",
       description: "Your preferences have been saved successfully",

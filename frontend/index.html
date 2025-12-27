@@ -16,6 +16,23 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@stockai_gavinadlan" />
     <meta name="twitter:image" content="/favicon.png" />
+    
+    <script>
+      // Initialize dark mode before page render to prevent flash
+      (function() {
+        try {
+          const stored = localStorage.getItem('user_settings');
+          if (stored) {
+            const settings = JSON.parse(stored);
+            if (settings.darkMode) {
+              document.documentElement.classList.add('dark');
+            }
+          }
+        } catch (e) {
+          // Ignore errors
+        }
+      })();
+    </script>
   </head>
 
   <body>
