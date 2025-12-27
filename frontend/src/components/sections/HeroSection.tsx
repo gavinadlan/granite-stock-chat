@@ -9,7 +9,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ onScrollToSection }: HeroSectionProps) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
 
   return (
     <div id="hero" className="py-48">
@@ -28,7 +28,13 @@ export function HeroSection({ onScrollToSection }: HeroSectionProps) {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isAuthenticated ? (
+            {isLoading ? (
+              // Loading state - show skeleton buttons
+              <>
+                <div className="h-12 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
+                <div className="h-12 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
+              </>
+            ) : isAuthenticated ? (
               <Button size="lg" asChild>
                 <Link to="/chat">
                   Start Chatting

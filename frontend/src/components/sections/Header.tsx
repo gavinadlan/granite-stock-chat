@@ -13,7 +13,7 @@ export function Header({ onScrollToSection }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, isLoading, logout } = useAuth()
 
   const handleScrollToSection = (sectionId: string) => {
     onScrollToSection(sectionId)
@@ -89,7 +89,13 @@ export function Header({ onScrollToSection }: HeaderProps) {
 
           {/* Auth Buttons / User Profile */}
           <div className="hidden md:flex items-center space-x-4">
-            {isAuthenticated ? (
+            {isLoading ? (
+              // Loading state - show skeleton to prevent flash
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-full animate-pulse"></div>
+                <div className="w-20 h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div>
+              </div>
+            ) : isAuthenticated ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
@@ -194,7 +200,16 @@ export function Header({ onScrollToSection }: HeaderProps) {
               </button>
               
               {/* Mobile Auth Buttons */}
-              {isAuthenticated ? (
+              {isLoading ? (
+                // Loading state - show skeleton
+                <div className="mt-4 space-y-2">
+                  <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <div className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-2"></div>
+                    <div className="h-3 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div>
+                  </div>
+                  <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></div>
+                </div>
+              ) : isAuthenticated ? (
                 <div className="mt-4 space-y-2">
                   <div className="px-4 py-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
                     <p className="text-sm font-medium text-slate-900 dark:text-white">{user?.name}</p>
