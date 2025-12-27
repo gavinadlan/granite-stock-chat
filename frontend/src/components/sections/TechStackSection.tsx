@@ -1,4 +1,4 @@
-import { Marquee, MarqueeItem } from "@/components/ui/marquee"
+import { LogoLoop, type LogoItem } from "@/components/LogoLoop"
 
 // Import images
 import ibmGraniteLogo from "../image/ibm-granite.png"
@@ -29,24 +29,25 @@ const techStackItems = [
   }
 ]
 
-function TechStackItem({ logo, name, alt, isLast }: { logo: string; name: string; alt: string; isLast?: boolean }) {
-  return (
-    <div className={`flex items-center space-x-2 md:space-x-3 px-3 md:px-4 lg:px-6 lg:px-8 flex-shrink-0 ${isLast ? 'mr-32 md:mr-20 lg:mr-0 xl:mr-0' : 'mr-16 md:mr-16 lg:mr-16 xl:mr-16'}`}>
-      <img 
-        src={logo} 
-        alt={alt} 
-        className="w-10 h-10 md:w-12 md:h-12 object-contain flex-shrink-0"
-      />
-      <span className="text-slate-700 dark:text-slate-200 font-semibold text-sm md:text-base whitespace-nowrap">{name}</span>
-    </div>
-  )
-}
-
-function SpacerItem() {
-  return <div className="w-40 md:w-12 lg:w-8 xl:w-8 flex-shrink-0" />
-}
-
 export function TechStackSection() {
+  // Convert techStackItems to LogoLoop format with custom rendering
+  const logos: LogoItem[] = techStackItems.map((item) => ({
+    node: (
+      <div className="flex items-center space-x-2 md:space-x-3 px-3 md:px-4 lg:px-6 flex-shrink-0">
+        <img 
+          src={item.logo} 
+          alt={item.alt} 
+          className="w-10 h-10 md:w-12 md:h-12 object-contain flex-shrink-0"
+        />
+        <span className="text-slate-700 dark:text-slate-200 font-semibold text-sm md:text-base whitespace-nowrap">
+          {item.name}
+        </span>
+      </div>
+    ),
+    title: item.name,
+    ariaLabel: item.name
+  }))
+
   return (
     <div className="py-16 bg-slate-50 dark:bg-slate-800/50">
       <div className="container mx-auto px-4">
@@ -57,42 +58,19 @@ export function TechStackSection() {
           </p>
         </div>
         
-        {/* Marquee Container */}
-        <Marquee pauseOnHover speed={30}>
-          {/* First set of logos */}
-          <MarqueeItem>
-            {techStackItems.map((item, index) => (
-              <TechStackItem 
-                key={`first-${index}`}
-                logo={item.logo}
-                name={item.name}
-                alt={item.alt}
-                isLast={index === techStackItems.length - 1}
-              />
-            ))}
-            <SpacerItem />
-            {/* Extra spacer for mobile only */}
-            <div className="md:hidden w-40 flex-shrink-0" />
-            <div className="md:hidden w-40 flex-shrink-0" />
-          </MarqueeItem>
-          
-          {/* Duplicate set for seamless loop */}
-          <MarqueeItem>
-            {/* Extra spacer for mobile only */}
-            <div className="md:hidden w-40 flex-shrink-0" />
-            <div className="md:hidden w-40 flex-shrink-0" />
-            <SpacerItem />
-            {techStackItems.map((item, index) => (
-              <TechStackItem 
-                key={`second-${index}`}
-                logo={item.logo}
-                name={item.name}
-                alt={item.alt}
-                isLast={index === techStackItems.length - 1}
-              />
-            ))}
-          </MarqueeItem>
-        </Marquee>
+        {/* LogoLoop Container */}
+        <LogoLoop
+          logos={logos}
+          speed={70}
+          direction="left"
+          logoHeight={35}
+          gap={60}
+          pauseOnHover={true}
+          scaleOnHover={true}
+          fadeOut={true}
+          ariaLabel="Technology partners"
+          className="w-full logoloop-techstack"
+        />
       </div>
     </div>
   )
