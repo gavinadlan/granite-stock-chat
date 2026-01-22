@@ -60,7 +60,7 @@ class AWSLambdaService {
     try {
       console.log(`🔍 Trying AWS Lambda for symbol: ${symbol}`);
       console.log(`🌐 API URL: ${this.baseUrl}/dev/stock-price`);
-      
+
       const response = await fetch(`${this.baseUrl}/dev/stock-price`, {
         method: 'POST',
         headers: {
@@ -80,7 +80,7 @@ class AWSLambdaService {
 
       const data = await response.json();
       console.log(`✅ AWS Lambda success for ${symbol}:`, data);
-      
+
       return data;
     } catch (error) {
       console.error('❌ AWS Lambda stock price error:', error);
@@ -92,7 +92,7 @@ class AWSLambdaService {
     try {
       console.log(`🔍 Trying AWS Lambda AI prediction for: ${symbol}`);
       console.log(`🌐 API URL: ${this.baseUrl}/dev/ai-prediction`);
-      
+
       const response = await fetch(`${this.baseUrl}/dev/ai-prediction?symbol=${symbol}&timeframe=${timeframe}`, {
         method: 'GET',
         headers: {
@@ -111,7 +111,7 @@ class AWSLambdaService {
 
       const data = await response.json();
       console.log(`✅ AWS Lambda AI prediction success for ${symbol}:`, data);
-      
+
       // Convert backend response format to frontend format
       return {
         symbol: data.symbol,
@@ -145,7 +145,7 @@ class AWSLambdaService {
 
       const data = await response.json();
       console.log(`✅ AWS Lambda technical analysis success for ${symbol}:`, data);
-      
+
       // Ensure lastUpdated is a valid Date
       return {
         ...data,
@@ -159,12 +159,11 @@ class AWSLambdaService {
 
   async getMarketNews(symbol: string): Promise<AWSNewsItem[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/dev/market-news`, {
-        method: 'POST',
+      const response = await fetch(`${this.baseUrl}/dev/market-news?symbol=${symbol}`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ symbol }),
       });
 
       if (!response.ok) {
@@ -172,7 +171,18 @@ class AWSLambdaService {
       }
 
       const data = await response.json();
-      return data.news || [];
+
+      // Handle response that is directly an array (backend behavior) or wrapped object
+      const items = Array.isArray(data) ? data : (data.news || []);
+
+      return items.map((item: any) => ({
+        id: item.url || `news-${Math.random().toString(36).substr(2, 9)}`,
+        title: item.title,
+        description: item.description || '',
+        url: item.url || '#',
+        publishedAt: new Date(), // Backend only returns relative time string, so we default to now
+        source: item.source || 'Market News'
+      }));
     } catch (error) {
       console.error('AWS Lambda market news error:', error);
       return [];
