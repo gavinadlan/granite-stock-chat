@@ -14,19 +14,24 @@ StockAI adalah asisten chat pasar saham berbasis AI (IBM Granite) dengan data ha
 - **Backend**: AWS Lambda (Node.js 20), Serverless Framework v3, API Gateway, DynamoDB, Cognito, region `us-east-1`.
 - **Data**: Yahoo Finance (chart endpoint), Alpha Vantage, NewsAPI. **AI**: IBM Granite via Replicate.
 
-## Struktur (kondisi saat ini, update setelah S0-04 / S1-01)
+## Struktur
+npm workspaces monorepo (satu `package-lock.json` di root, Node 20 lihat `.nvmrc`):
 ```
 frontend/            React app (src/components, pages, services, hooks, lib)
-backend/             Lambda functions (functions/*.js) + serverless.yml
-docs/                Dokumentasi
+backend/             Lambda functions (functions/*.js, lib/) + serverless.yml
+packages/shared/     @stockai/shared: tipe bersama frontend & backend
+docs/                API.md, DEPLOYMENT.md (secrets), legacy/ (panduan lama)
+scripts/             skrip dev (legacy/ = skrip deploy lama, dihapus di S5-03)
 roadmap/             Roadmap & prompt eksekusi
 ```
-Target setelah Sprint 1: npm workspaces `frontend/`, `backend/`, `packages/shared/` (tipe & schema zod bersama).
+Target setelah Sprint 1: backend TypeScript di `backend/src/{handlers,services,providers,domain,lib}`.
 
-## Perintah
-- Frontend: `cd frontend && npm run dev | build | lint`
-- Backend: `cd backend && npm run offline` (port 3001) · `npm run deploy:dev`
-- (setelah S0-09) Test: `npm test` di masing-masing workspace
+## Perintah (jalankan dari root)
+- Install: `npm install`
+- Dev: `npm run dev:web` (Vite :5173) · `npm run dev:api` (serverless-offline :3001, butuh kredensial AWS untuk SSM)
+- Cek: `npm run lint` · `npm run typecheck` · `npm test` · `npm run build`
+- Deploy backend: `npm run deploy:dev -w backend` / `npm run deploy:prod -w backend`
+- Per workspace: `npm run <script> -w frontend|backend|@stockai/shared`
 
 ## Aturan WAJIB
 1. **Tidak ada secret di kode/frontend.** Semua API key hanya di backend, dibaca dari env yang diisi SSM Parameter Store. Jangan pernah membuat variabel `VITE_*` untuk API key pihak ketiga.

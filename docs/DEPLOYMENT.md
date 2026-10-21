@@ -103,14 +103,14 @@ cd frontend
 touch .env.local
 ```
 
-Add the API Gateway URL:
+Add the API Gateway URL and Cognito IDs (public values only, see `frontend/.env.example`):
 ```bash
-VITE_AWS_API_URL=https://abc123def4.execute-api.us-east-1.amazonaws.com/dev
-VITE_ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key
-VITE_NEWS_API_KEY=your_news_api_key
-VITE_REPLICATE_API_KEY=r8_DaMQj6GV5SXmXlriHPJnRf5TjwPaVSu0PPewg
-VITE_RAPIDAPI_KEY=024887c011msh588fd1cec974e2bp16266djsn1b16f80bcfe9
+VITE_API_URL=https://abc123def4.execute-api.us-east-1.amazonaws.com/dev
+VITE_AWS_REGION=us-east-1
+VITE_USER_POOL_ID=us-east-1_XXXXXXXXX
+VITE_USER_POOL_CLIENT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
+Never add third-party API keys to the frontend: they would be shipped to every visitor's browser.
 
 ### 6. Test Deployment
 

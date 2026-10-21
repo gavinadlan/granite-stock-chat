@@ -36,7 +36,7 @@ Untuk menggunakan IBM Granite yang sebenarnya, buat file `.env.local` di root pr
 cp env.example .env.local
 
 # Edit .env.local dan masukkan API key Anda:
-VITE_REPLICATE_API_KEY=r8_DaMQj6GV5SXmXlriHPJnRf5TjwPaVSu0PPewg
+VITE_REPLICATE_API_KEY=<YOUR_KEY>
 ```
 
 ### 🧪 **Cara Testing:**

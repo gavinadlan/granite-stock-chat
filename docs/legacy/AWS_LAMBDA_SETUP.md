@@ -76,10 +76,10 @@ npm install -g serverless
 Buat file `.env` di root project:
 ```bash
 # AWS Lambda Environment Variables
-REPLICATE_API_KEY=r8_DaMQj6GV5SXmXlriHPJnRf5TjwPaVSu0PPewg
+REPLICATE_API_KEY=<YOUR_KEY>
 NEWS_API_KEY=your_news_api_key_here
 ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key_here
-RAPIDAPI_KEY=024887c011msh588fd1cec974e2bp16266djsn1b16f80bcfe9
+RAPIDAPI_KEY=<YOUR_KEY>
 ```
 
 ### **5. Deploy to AWS**

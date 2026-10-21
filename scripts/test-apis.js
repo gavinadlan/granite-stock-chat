@@ -1,3 +1,4 @@
+// Smoke-test third-party providers. Usage: node --env-file=backend/.env scripts/test-apis.js
 // Test script untuk memverifikasi semua API connections
 console.log('🔍 Testing API Connections...\n');
 
@@ -8,7 +9,7 @@ async function testRapidAPI() {
     const response = await fetch('https://yahoo-finance-real-time1.p.rapidapi.com/stock/get-detail?symbol=AAPL&lang=en-US&region=US', {
       method: 'GET',
       headers: {
-        'X-RapidAPI-Key': '024887c011msh588fd1cec974e2bp16266djsn1b16f80bcfe9',
+        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
         'X-RapidAPI-Host': 'yahoo-finance-real-time1.p.rapidapi.com'
       }
     });
@@ -31,7 +32,7 @@ async function testRapidAPI() {
 async function testNewsAPI() {
   console.log('\n📰 Testing News API...');
   try {
-    const response = await fetch('https://newsapi.org/v2/everything?q=AAPL&apiKey=c273c5d8b13a44b5a857e67545b90ee1&sortBy=publishedAt&pageSize=1');
+    const response = await fetch(`https://newsapi.org/v2/everything?q=AAPL&apiKey=${process.env.NEWS_API_KEY}&sortBy=publishedAt&pageSize=1`);
     
     if (response.ok) {
       const data = await response.json();
@@ -51,7 +52,7 @@ async function testNewsAPI() {
 async function testAlphaVantage() {
   console.log('\n📈 Testing Alpha Vantage...');
   try {
-    const response = await fetch('https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AAPL&apikey=4EB4581OOOF9HXUN');
+    const response = await fetch(`https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AAPL&apikey=${process.env.ALPHA_VANTAGE_API_KEY}`);
     
     if (response.ok) {
       const data = await response.json();
@@ -78,7 +79,7 @@ async function testReplicate() {
     const response = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
-        'Authorization': 'Token r8_DaMQj6GV5SXmXlriHPJnRf5TjwPaVSu0PPewg',
+        'Authorization': `Token ${process.env.REPLICATE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

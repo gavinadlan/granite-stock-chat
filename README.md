@@ -7,24 +7,15 @@ A modern, AI-powered stock market assistant that provides real-time stock inform
 ## 🏗️ **Project Architecture**
 
 ```
-granite-stock-chat-68dfe4c3/
-├── frontend/                 # React Frontend
-│   ├── src/
-│   │   ├── components/      # UI Components
-│   │   ├── services/        # API Services
-│   │   ├── pages/          # Page Components
-│   │   └── hooks/          # Custom Hooks
-│   ├── public/             # Static Assets
-│   └── package.json        # Frontend Dependencies
-├── backend/                 # AWS Lambda Backend
-│   ├── functions/          # Lambda Functions
-│   ├── serverless.yml      # Serverless Configuration
-│   └── package.json        # Backend Dependencies
-├── docs/                   # Documentation
-│   ├── API.md             # API Documentation
-│   ├── DEPLOYMENT.md      # Deployment Guide
-│   └── SETUP.md           # Setup Instructions
-└── README.md              # This file
+granite-stock-chat/
+├── frontend/            # React + Vite + TypeScript app
+│   └── src/             # components, pages, services, hooks, lib
+├── backend/             # AWS Lambda functions + serverless.yml
+├── packages/shared/     # Types shared by frontend and backend
+├── docs/                # API & deployment docs (legacy guides in docs/legacy)
+├── roadmap/             # Scale-up roadmap with execution prompts
+├── scripts/             # Dev scripts (legacy deploy scripts in scripts/legacy)
+└── CLAUDE.md            # Project rules & context for Claude Code
 ```
 
 ## ✨ **Features**
@@ -46,37 +37,26 @@ granite-stock-chat-68dfe4c3/
 
 ## 🚀 **Quick Start**
 
-### **1. Frontend Setup**
+This is an npm workspaces monorepo (`frontend`, `backend`, `packages/shared`). Node 20+.
+
 ```bash
-cd frontend
-npm install
-npm run dev
+npm install            # installs every workspace from the repo root
+npm run dev:web        # frontend on http://localhost:5173
+npm run dev:api        # backend via serverless-offline on http://localhost:3001
+npm run lint && npm run typecheck && npm test && npm run build
 ```
 
-### **2. Backend Setup**
-```bash
-cd backend
-npm install
-npm run deploy:dev
-```
-
-### **3. Environment Variables**
-Create `.env.local` in frontend folder:
-```bash
-VITE_AWS_API_URL=https://your-api-gateway-url.amazonaws.com/dev
-VITE_ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key
-VITE_NEWS_API_KEY=your_news_api_key
-VITE_REPLICATE_API_KEY=your_replicate_api_key
-VITE_RAPIDAPI_KEY=your_rapidapi_key
-```
+### **Environment Variables**
+- Frontend: copy `frontend/.env.example` to `frontend/.env.local` (public values only: API URL & Cognito IDs).
+- Backend: secrets live in AWS SSM Parameter Store, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#1-secrets).
+  For local overrides copy `backend/.env.example` to `backend/.env`.
 
 ## 📚 **Documentation**
 
-- [📖 Setup Guide](docs/SETUP.md) - Complete setup instructions
-- [🚀 Deployment Guide](docs/DEPLOYMENT.md) - AWS deployment instructions
+- [🚀 Deployment Guide](docs/DEPLOYMENT.md) - AWS deployment & secrets
 - [🔌 API Documentation](docs/API.md) - API endpoints and usage
-- [🤖 IBM Granite Setup](docs/IBM_GRANITE_SETUP.md) - AI model configuration
-- [📊 Yahoo Finance Setup](docs/YAHOO_FINANCE_SETUP.md) - Data source configuration
+- [🗺️ Roadmap](roadmap/README.md) - Scale-up roadmap and execution prompts
+- [📦 Legacy setup notes](docs/legacy/) - Older setup guides (IBM Granite, Yahoo Finance, AWS)
 
 ## 🛠️ **Tech Stack**
 
