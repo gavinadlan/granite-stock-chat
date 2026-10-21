@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
 import { StockPrice } from '@/services/stockMarketAPI';
 import { formatPrice, formatChange } from '@/lib/currencyUtils';
+import { DataSourceBadge } from './DataSourceBadge';
 
 interface StockCardProps {
   stockPrice: StockPrice;
@@ -70,9 +71,12 @@ export function StockCard({ stockPrice }: StockCardProps) {
         </div>
 
         {/* Last Updated */}
-        <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 pt-2 border-t dark:border-slate-700">
-          Last updated: {new Date(stockPrice.lastUpdated).toLocaleString()}
-        </div>
+        <DataSourceBadge
+          source={stockPrice.source}
+          asOf={stockPrice.asOf}
+          delayed={stockPrice.delayed}
+          className="pt-2 border-t dark:border-slate-700"
+        />
       </CardContent>
     </Card>
   );

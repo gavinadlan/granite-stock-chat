@@ -14,6 +14,8 @@ import { NewsCard } from './NewsCard';
 import { TypingIndicator } from './TypingIndicator';
 import { StockSymbolTable } from './StockSymbolTable';
 import { API_CONSTANTS } from '@/lib/constants';
+import { DataSourceBadge } from './DataSourceBadge';
+import { Disclaimer } from './Disclaimer';
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -89,7 +91,7 @@ export function ChatInterface() {
   const renderMessageData = (message: ChatMessage) => {
     if (!message.data) return null;
 
-    const { stockPrice, prediction, technicalAnalysis, news } = message.data;
+    const { stockPrice, prediction, technicalAnalysis, news, newsMeta } = message.data;
 
     return (
       <div className="space-y-3 sm:space-y-4 mt-2 sm:mt-4 px-1 sm:px-2">
@@ -104,6 +106,7 @@ export function ChatInterface() {
                 <NewsCard key={index} newsItem={item} />
               ))}
             </div>
+            {newsMeta && <DataSourceBadge source={newsMeta.source} asOf={newsMeta.asOf} className="px-1" />}
           </div>
         )}
       </div>
@@ -191,6 +194,8 @@ export function ChatInterface() {
             </Button>
           </div>
           
+          <Disclaimer className="mt-2" />
+
           {/* Quick Actions */}
           <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
             <Button

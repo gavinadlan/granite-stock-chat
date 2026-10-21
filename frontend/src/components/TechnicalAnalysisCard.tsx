@@ -3,6 +3,8 @@ import { Badge } from '@/components/ui/badge';
 import { BarChart3, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { TechnicalAnalysis } from '@/services/stockMarketAPI';
 import { formatPrice } from '@/lib/currencyUtils';
+import { DataSourceBadge } from './DataSourceBadge';
+import { Disclaimer } from './Disclaimer';
 
 interface TechnicalAnalysisCardProps {
   technicalAnalysis: TechnicalAnalysis;
@@ -130,8 +132,9 @@ export function TechnicalAnalysisCard({ technicalAnalysis: ta }: TechnicalAnalys
           <p className="text-[10px] sm:text-xs text-amber-700 dark:text-amber-400">{ta.warnings.join(' · ')}</p>
         )}
 
-        <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 pt-2 border-t dark:border-slate-700">
-          Last updated: {new Date(ta.lastUpdated).toLocaleString()}
+        <div className="space-y-1.5 pt-2 border-t dark:border-slate-700">
+          <DataSourceBadge source={ta.source} asOf={ta.asOf} />
+          <Disclaimer />
         </div>
       </CardContent>
     </Card>

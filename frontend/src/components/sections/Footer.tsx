@@ -115,6 +115,10 @@ export function Footer() {
             {/* Copyright */}
             <div className="text-sm text-slate-400 text-center md:text-left">
               <p>© {currentYear} StockAI. All rights reserved.</p>
+              <p className="mt-1 max-w-xl">
+                StockAI provides information for research and education only. It is not financial advice.
+                Market data may be delayed. Bukan nasihat keuangan.
+              </p>
               <p className="mt-1 text-xs">Built with ❤️ for the stock market community</p>
             </div>
 
