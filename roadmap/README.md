@@ -105,15 +105,15 @@ Sprint <N> selesai. Baca roadmap/<file-sprint>.md, cek setiap task terhadap kode
 | ID | Task | Tipe | ⏱️ | Status |
 |---|---|---|---|---|
 | **S0-01** | Rotasi semua API key | 🧑 | 1 | ☐ |
-| **S0-02** | Hapus secrets dari repo & git history | 🤝 | 2 | ☐ |
-| **S0-03** | Secrets ke SSM Parameter Store | 🤝 | 2 | ☐ |
-| **S0-04** | Bersih-bersih repo + npm workspaces | 🤖 | 3 | ☐ |
-| **S0-05** | Middleware backend (CORS, error, validasi) | 🤖 | 3 | ☐ |
-| **S0-06** | Frontend hanya lewat backend, hapus mock | 🤖🧠 | 5 | ☐ |
-| **S0-07** | Konsolidasi auth (Cognito via Amplify) | 🤖🧠 | 4 | ☐ |
-| **S0-08** | Disclaimer + badge sumber data | 🤖 | 2 | ☐ |
-| **S0-09** | CI dasar + Vitest | 🤖 | 3 | ☐ |
-| **S0-10** | Verifikasi, deploy, tag v0.2.0 | 🤝 | 2 | ☐ |
+| **S0-02** | Hapus secrets dari repo & git history | 🤝 | 2 | ✅ |
+| **S0-03** | Secrets ke SSM Parameter Store | 🤝 | 2 | ✅ |
+| **S0-04** | Bersih-bersih repo + npm workspaces | 🤖 | 3 | ✅ |
+| **S0-05** | Middleware backend (CORS, error, validasi) | 🤖 | 3 | ✅ |
+| **S0-06** | Frontend hanya lewat backend, hapus mock | 🤖🧠 | 5 | ✅ |
+| **S0-07** | Konsolidasi auth (Cognito via Amplify) | 🤖🧠 | 4 | ✅ |
+| **S0-08** | Disclaimer + badge sumber data | 🤖 | 2 | ✅ |
+| **S0-09** | CI dasar + Vitest | 🤖 | 3 | ✅ |
+| **S0-10** | Verifikasi, deploy, tag v0.2.0 | 🤝 | 2 | 🟡 kode selesai, deploy & tag manual |
 | **S1-01** | Backend → TypeScript + esbuild + struktur baru | 🤖🧠 | 6 | ☐ |
 | **S1-02** | HTTP API + Cognito JWT authorizer + stage | 🤝🧠 | 4 | ☐ |
 | **S1-03** | Provider adapter + retry + circuit breaker | 🤖 | 6 | ☐ |
