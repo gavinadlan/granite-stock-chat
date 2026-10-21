@@ -56,7 +56,6 @@ custom:
     platform: node
     exclude:
       - '@aws-sdk/*'
-      - aws-sdk
   serverless-offline:
     httpPort: 3001
     host: 0.0.0.0
@@ -120,21 +119,6 @@ functions:
     timeout: 15
     memorySize: 256
 
-  # Auth Functions (removed in S0-07, auth moves to Cognito via Amplify)
-  auth:
-    handler: functions/auth.handler
-    events:
-      - http:
-          path: /auth/{action}
-          method: post
-          cors: *cors
-    timeout: 30
-    memorySize: 256
-    environment:
-      USER_POOL_ID: !Ref UserPool
-      USER_POOL_CLIENT_ID: !Ref UserPoolClient
-      USER_TABLE: !Ref UserTable
-
 resources:
   Resources:
     ApiGatewayRestApi:
@@ -184,9 +168,12 @@ resources:
           - ALLOW_REFRESH_TOKEN_AUTH
         PreventUserExistenceErrors: ENABLED
 
-    # DynamoDB Table for User Data
+    # Legacy table from the removed auth Lambda. Kept with Retain so a deploy can
+    # never delete data. Remove (and delete manually if empty) in S1-04.
     UserTable:
       Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      UpdateReplacePolicy: Retain
       Properties:
         TableName: StockChatUsers
         AttributeDefinitions:
@@ -196,3 +183,11 @@ resources:
           - AttributeName: userId
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
+
+  Outputs:
+    UserPoolId:
+      Description: Cognito user pool id (frontend VITE_USER_POOL_ID)
+      Value: !Ref UserPool
+    UserPoolClientId:
+      Description: Cognito app client id (frontend VITE_USER_POOL_CLIENT_ID)
+      Value: !Ref UserPoolClient

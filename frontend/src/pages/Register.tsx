@@ -1,12 +1,14 @@
 // Register page component
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
+import { VerifyEmailForm } from '@/components/auth/VerifyEmailForm';
+import { passwordPolicyError } from '@/lib/authErrors';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -17,7 +19,11 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  const { register } = useAuth();
+  const [searchParams] = useSearchParams();
+  // `?verify=email` lets Login send unverified users straight to the code step.
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(searchParams.get('verify'));
+
+  const { register, login } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -40,10 +46,11 @@ export default function RegisterPage() {
       return false;
     }
 
-    if (password.length < 8) {
+    const policyError = passwordPolicyError(password);
+    if (policyError) {
       toast({
         title: "Error",
-        description: "Password must be at least 8 characters long",
+        description: policyError,
         variant: "destructive",
       });
       return false;
@@ -71,14 +78,17 @@ export default function RegisterPage() {
 
     try {
       setIsLoading(true);
-      await register({ name, email, password });
-      
-      toast({
-        title: "Success",
-        description: "Account created successfully! Welcome to Stock Chat AI.",
-      });
-      
-      navigate('/');
+      const { needsConfirmation } = await register({ name, email, password });
+      if (needsConfirmation) {
+        toast({
+          title: "Check your email",
+          description: `We sent a verification code to ${email.trim()}.`,
+        });
+        setVerifyEmail(email.trim());
+        return;
+      }
+      await login({ email, password });
+      navigate('/chat');
     } catch (error) {
       toast({
         title: "Registration Failed",
@@ -89,6 +99,32 @@ export default function RegisterPage() {
       setIsLoading(false);
     }
   };
+
+  const handleVerified = async () => {
+    // We still have the password if the user registered in this session.
+    if (password && verifyEmail === email.trim()) {
+      try {
+        const result = await login({ email, password });
+        if (result.status === 'signedIn') {
+          navigate('/chat');
+          return;
+        }
+      } catch {
+        // fall through to the login page
+      }
+    }
+    navigate('/login');
+  };
+
+  if (verifyEmail) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <VerifyEmailForm email={verifyEmail} onVerified={handleVerified} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
