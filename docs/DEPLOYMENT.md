@@ -38,22 +38,32 @@ aws configure
 
 ## Deployment Steps
 
-### 1. Prepare Environment Variables
+### 1. Secrets
 
-Create `.env` file in the `backend` folder:
+API keys are **never** stored in the repo or in the frontend bundle. Each stage reads them from
+**AWS SSM Parameter Store** (SecureString) when you run `serverless deploy`.
 
+| Parameter | Used for |
+|---|---|
+| `/stockai/<stage>/replicate-api-key` | IBM Granite via Replicate |
+| `/stockai/<stage>/news-api-key` | NewsAPI |
+| `/stockai/<stage>/alpha-vantage-key` | Alpha Vantage (fallback quotes) |
+| `/stockai/<stage>/rapidapi-key` | RapidAPI (optional fallback) |
+
+Create or rotate a secret:
 ```bash
-cd backend
-touch .env
+aws ssm put-parameter --region us-east-1 --type SecureString --overwrite \
+  --name "/stockai/dev/replicate-api-key" --value "<NEW_KEY>"
+# then redeploy so Lambda picks up the new value
+npm run deploy:dev
 ```
 
-Add your API keys to `.env`:
-```bash
-REPLICATE_API_KEY=r8_DaMQj6GV5SXmXlriHPJnRf5TjwPaVSu0PPewg
-NEWS_API_KEY=your_news_api_key_here
-ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key_here
-RAPIDAPI_KEY=024887c011msh588fd1cec974e2bp16266djsn1b16f80bcfe9
-```
+Notes:
+- Values are resolved **at deploy time** and stored in the Lambda configuration (visible to anyone with
+  `lambda:GetFunctionConfiguration`). Lambda itself needs no SSM permission. A later task (S1-09) can switch
+  to fetching at runtime with Powertools Parameters.
+- `npm run offline` resolves the same SSM parameters, so it needs AWS credentials for the `dev` stage.
+- Rotation checklist: create new key at the provider → `put-parameter` → deploy → verify → revoke old key.
 
 ### 2. Install Backend Dependencies
 
