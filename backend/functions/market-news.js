@@ -1,108 +1,51 @@
-// AWS Lambda function for market news
-const https = require('https');
+'use strict';
+// GET /market-news?symbol=AAPL  or  /market-news?query=stock%20market
+// Returns real articles from NewsAPI or an error. Never fabricated headlines.
+const crypto = require('crypto');
+const { handler, unavailable } = require('../lib/http');
+const { NewsQuerySchema } = require('../lib/validation');
 
-exports.handler = async (event) => {
-    console.log('Market News Lambda invoked:', JSON.stringify(event, null, 2));
-    
+const TIMEOUT_MS = 6000;
+
+exports.handler = handler(
+  async ({ query }) => {
+    const apiKey = process.env.NEWS_API_KEY;
+    if (!apiKey) throw unavailable('News provider is not configured');
+
+    const base = query.symbol ? query.symbol.replace(/\.JK$/, '') : null;
+    const q = query.symbol ? `"${base}" AND (stock OR shares OR saham)` : query.query;
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q)}&pageSize=10&sortBy=publishedAt&searchIn=title,description`;
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    let data;
     try {
-        // Parse the request
-        const { query = 'stock market', symbol } = event.queryStringParameters || {};
-        
-        // Get news data
-        const newsData = await getMarketNews(query, symbol);
-        
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
-            },
-            body: JSON.stringify(newsData)
-        };
-        
-    } catch (error) {
-        console.error('Error in market news lambda:', error);
-        
-        return {
-            statusCode: 500,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
-            },
-            body: JSON.stringify({
-                error: 'Internal server error',
-                message: error.message
-            })
-        };
+      const res = await fetch(url, { signal: controller.signal, headers: { 'X-Api-Key': apiKey } });
+      data = await res.json();
+      if (!res.ok || data.status !== 'ok') throw new Error(data && data.message ? data.message : `HTTP ${res.status}`);
+    } catch (err) {
+      throw unavailable(`News provider unavailable: ${err.name === 'AbortError' ? 'timeout' : 'request failed'}`);
+    } finally {
+      clearTimeout(timer);
     }
-};
 
-// Function to get market news
-async function getMarketNews(query, symbol) {
-    const newsApiKey = process.env.NEWS_API_KEY;
-    
-    if (!newsApiKey) {
-        // Fallback to mock news if no API key
-        return getMockNews();
+    const seen = new Set();
+    const news = [];
+    for (const a of data.articles || []) {
+      if (!a || !a.url || !a.title || a.title === '[Removed]') continue;
+      const key = a.title.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      news.push({
+        id: crypto.createHash('sha1').update(a.url).digest('hex').slice(0, 16),
+        title: a.title,
+        description: a.description || '',
+        url: a.url,
+        publishedAt: a.publishedAt,
+        source: (a.source && a.source.name) || 'Unknown',
+      });
     }
-    
-    try {
-        const searchQuery = symbol ? `${symbol} stock` : query;
-        const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(searchQuery)}&apiKey=${newsApiKey}&pageSize=10&sortBy=publishedAt`;
-        
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`News API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (data.status !== 'ok') {
-            throw new Error(data.message || 'Failed to fetch news');
-        }
-
-        return data.articles.map(article => ({
-            title: article.title,
-            source: article.source.name,
-            time: formatTimeAgo(new Date(article.publishedAt)),
-            url: article.url,
-            description: article.description
-        }));
-        
-    } catch (error) {
-        console.error('Error fetching news:', error);
-        // Fallback to mock news
-        return getMockNews();
-    }
-}
-
-// Format time ago
-function formatTimeAgo(date) {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 60) {
-        return `${diffInMinutes}m ago`;
-    } else if (diffInMinutes < 1440) {
-        return `${Math.floor(diffInMinutes / 60)}h ago`;
-    } else {
-        return `${Math.floor(diffInMinutes / 1440)}d ago`;
-    }
-}
-
-// Mock news data
-function getMockNews() {
-    return [
-        { title: "Apple Reports Strong Q4 Earnings Beat Expectations", source: "Bloomberg", time: "2h ago" },
-        { title: "Tesla Announces New Gigafactory in Mexico", source: "Reuters", time: "4h ago" },
-        { title: "Microsoft Azure Revenue Surges 30% in Latest Quarter", source: "CNBC", time: "6h ago" },
-        { title: "Google's AI Investments Drive Stock Price Higher", source: "Wall Street Journal", time: "8h ago" },
-        { title: "Amazon Web Services Sees Record Growth", source: "Financial Times", time: "10h ago" },
-        { title: "Meta's Reality Labs Division Shows Promising Results", source: "TechCrunch", time: "12h ago" }
-    ];
-}
+    return { body: { news, source: 'NewsAPI', asOf: new Date().toISOString() }, cacheSeconds: 600 };
+  },
+  { querySchema: NewsQuerySchema },
+);

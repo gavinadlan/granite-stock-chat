@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Brain, Target } from 'lucide-react';
 import { Prediction } from '@/services/stockMarketAPI';
+import { formatPrice } from '@/lib/currencyUtils';
 
 interface PredictionChartProps {
   prediction: Prediction;
@@ -22,7 +23,7 @@ export function PredictionChart({ prediction }: PredictionChartProps) {
         <CardTitle className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center space-x-2">
             <Brain className="h-4 w-4 sm:h-5 sm:w-5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
-            <span className="text-base sm:text-lg font-semibold dark:text-white">AI Prediction</span>
+            <span className="text-base sm:text-lg font-semibold dark:text-white">AI Outlook</span>
           </div>
           <Badge variant="secondary" className="text-[10px] sm:text-xs dark:bg-slate-700 dark:text-slate-200">
             {prediction.timeframe}
@@ -35,12 +36,12 @@ export function PredictionChart({ prediction }: PredictionChartProps) {
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Current Price</span>
-            <span className="font-semibold text-sm sm:text-base break-all dark:text-white">${prediction.currentPrice.toFixed(2)}</span>
+            <span className="font-semibold text-sm sm:text-base break-all dark:text-white">{formatPrice(prediction.currentPrice, prediction.currency)}</span>
           </div>
           
           <div className="flex justify-between items-center">
             <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Predicted Price</span>
-            <span className="font-semibold text-sm sm:text-base break-all dark:text-white">${prediction.predictedPrice.toFixed(2)}</span>
+            <span className="font-semibold text-sm sm:text-base break-all dark:text-white">{formatPrice(prediction.predictedPrice, prediction.currency)}</span>
           </div>
         </div>
 
@@ -56,28 +57,30 @@ export function PredictionChart({ prediction }: PredictionChartProps) {
           </span>
         </div>
 
-        {/* Confidence */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-1.5 sm:space-x-2">
-              <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 dark:text-slate-300 flex-shrink-0" />
-              <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Confidence</span>
+        {/* Confidence (as reported by the model, not a statistical guarantee) */}
+        {prediction.confidence !== null && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                <Target className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 dark:text-slate-300 flex-shrink-0" />
+                <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Model-stated confidence</span>
+              </div>
+              <span className="font-semibold text-xs sm:text-sm dark:text-white">{prediction.confidence.toFixed(0)}%</span>
             </div>
-            <span className="font-semibold text-xs sm:text-sm dark:text-white">{(prediction.confidence * 100).toFixed(1)}%</span>
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(prediction.confidence, 100)}%` }}
+              />
+            </div>
           </div>
-          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-            <div 
-              className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${Math.min(prediction.confidence * 100, 100)}%` }}
-            />
-          </div>
-        </div>
+        )}
 
         {/* Reasoning */}
         <div className="space-y-2">
           <h4 className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">AI Analysis</h4>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 p-2.5 sm:p-3 rounded-lg leading-relaxed">
-            {prediction.reasoning}
+            {prediction.reasoning ?? 'The model did not provide an explanation.'}
           </p>
         </div>
 

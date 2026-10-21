@@ -37,22 +37,23 @@ export function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const handleSendMessage = async (override?: string) => {
+    const text = (override ?? inputValue).trim();
+    if (!text || isLoading) return;
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      content: inputValue,
+      content: text,
       isUser: true,
       timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
+    if (override === undefined) setInputValue('');
     setIsLoading(true);
 
     try {
-      const response = await stockMarketAPI.processMessage(inputValue);
+      const response = await stockMarketAPI.processMessage(text);
       setMessages(prev => [...prev, response]);
     } catch (error) {
       console.error('Error processing message:', error);
@@ -159,7 +160,7 @@ export function ChatInterface() {
       <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 mb-4 sm:mb-6 px-1 sm:px-2">
         {messages.map((message) => (
           <div key={message.id} className="w-full">
-            <MessageBubble message={message} />
+            <MessageBubble message={message} onRetry={(text) => handleSendMessage(text)} />
             {renderMessageData(message)}
           </div>
         ))}
@@ -181,7 +182,7 @@ export function ChatInterface() {
               className="flex-1 text-sm sm:text-base h-9 sm:h-10"
             />
             <Button 
-              onClick={handleSendMessage} 
+              onClick={() => handleSendMessage()} 
               disabled={!inputValue.trim() || isLoading}
               size="icon"
               className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0"

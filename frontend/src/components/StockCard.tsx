@@ -9,7 +9,7 @@ interface StockCardProps {
 }
 
 export function StockCard({ stockPrice }: StockCardProps) {
-  const isPositive = stockPrice.change >= 0;
+  const isPositive = (stockPrice.change ?? 0) >= 0;
   const changeIcon = isPositive ? TrendingUp : TrendingDown;
   const changeColor = isPositive ? 'text-green-600' : 'text-red-600';
   const changeColorDark = isPositive ? 'dark:text-green-400' : 'dark:text-red-400';
@@ -22,7 +22,7 @@ export function StockCard({ stockPrice }: StockCardProps) {
         <CardTitle className="flex items-center justify-between">
           <span className="text-base sm:text-lg font-semibold dark:text-white">{stockPrice.symbol}</span>
           <Badge variant="secondary" className="text-[10px] sm:text-xs dark:bg-slate-700 dark:text-slate-200">
-            Live
+            {stockPrice.delayed ? 'Delayed' : 'Live'}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -44,10 +44,10 @@ export function StockCard({ stockPrice }: StockCardProps) {
             <TrendingDown className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${changeColor} ${changeColorDark} flex-shrink-0`} />
           )}
           <span className={`font-semibold text-sm sm:text-base ${changeColor} ${changeColorDark} break-all`}>
-            {formatChange(stockPrice.change, stockPrice.currency)}
+            {stockPrice.change === null ? '—' : formatChange(stockPrice.change, stockPrice.currency)}
           </span>
           <span className={`text-xs sm:text-sm ${changeColor} ${changeColorDark} whitespace-nowrap`}>
-            ({isPositive ? '+' : ''}{stockPrice.changePercent.toFixed(2)}%)
+            {stockPrice.changePercent === null ? '' : `(${isPositive ? '+' : ''}${stockPrice.changePercent.toFixed(2)}%)`}
           </span>
         </div>
 
@@ -57,7 +57,7 @@ export function StockCard({ stockPrice }: StockCardProps) {
             <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 dark:text-slate-300 flex-shrink-0 mt-0.5" />
             <div className="min-w-0">
               <p className="text-slate-600 dark:text-slate-400 text-[10px] sm:text-xs">Volume</p>
-              <p className="font-semibold text-xs sm:text-sm break-all dark:text-slate-100">{stockPrice.volume.toLocaleString()}</p>
+              <p className="font-semibold text-xs sm:text-sm break-all dark:text-slate-100">{stockPrice.volume === null ? '—' : stockPrice.volume.toLocaleString()}</p>
             </div>
           </div>
           <div className="flex items-start space-x-1.5 sm:space-x-2">

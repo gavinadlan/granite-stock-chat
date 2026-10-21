@@ -10,6 +10,8 @@ provider:
   logRetentionInDays: 14
   environment:
     STAGE: ${sls:stage}
+    # Replicate model id; verify the latest IBM Granite instruct model at replicate.com/ibm-granite
+    LLM_MODEL: ${env:LLM_MODEL, 'ibm-granite/granite-3.3-8b-instruct'}
     ALLOWED_ORIGINS: ${self:custom.allowedOrigins.${sls:stage}}
     # Secrets are resolved at deploy time from SSM Parameter Store.
     # See docs/DEPLOYMENT.md#1-secrets. Never hardcode values here.
