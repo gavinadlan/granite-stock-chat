@@ -1,5 +1,7 @@
 # 🚀 StockAI
 
+[![CI](https://github.com/gavinadlan/granite-stock-chat/actions/workflows/ci.yml/badge.svg)](https://github.com/gavinadlan/granite-stock-chat/actions/workflows/ci.yml)
+
 **AI-Powered Stock Market Assistant Using AWS Lambda and IBM Granite**
 
 A modern, AI-powered stock market assistant that provides real-time stock information, predictions, and technical analysis. Built with React frontend and AWS Lambda serverless backend.
