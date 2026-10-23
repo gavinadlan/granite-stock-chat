@@ -1,87 +1,63 @@
-name: Deploy to Production
+name: Deploy (manual)
+
+# Manual deploy until the OIDC pipeline of Sprint 5 (S5-03) replaces it.
+# Required in each GitHub Environment (dev / prod):
+#   secrets:   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+#   variables: AWS_REGION, S3_BUCKET, CF_DISTRIBUTION_ID,
+#              VITE_API_URL, VITE_USER_POOL_ID, VITE_USER_POOL_CLIENT_ID
+# Backend secrets are read from SSM at deploy time (docs/DEPLOYMENT.md).
 
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Environment to deploy to'
+      stage:
+        description: 'Stage to deploy'
         required: true
-        default: 'staging'
+        default: 'dev'
         type: choice
         options:
-        - staging
-        - production
+          - dev
+          - prod
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
-    
+    environment: ${{ inputs.stage == 'prod' && 'production' || 'development' }}
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        npm ci
-        
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm ci
-        
-    - name: Build frontend
-      run: |
-        cd frontend
-        npm run build
-        
-    - name: Deploy backend to AWS
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-      run: |
-        cd backend
-        if [ "${{ github.event.inputs.environment }}" = "production" ]; then
-          npm run deploy:prod
-        else
-          npm run deploy:dev
-        fi
-        
-    - name: Deploy frontend to S3
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-      run: |
-        cd frontend
-        npm run build
-        if [ "${{ github.event.inputs.environment }}" = "production" ]; then
-          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_PRODUCTION }} --delete
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_PRODUCTION }} --paths "/*"
-        else
-          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_STAGING }} --delete
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID_STAGING }} --paths "/*"
-        fi
-        
-    - name: Notify deployment success
-      uses: 8398a7/action-slack@v3
-      if: success()
-      with:
-        status: success
-        text: "🚀 Deployment to ${{ github.event.inputs.environment }} successful!"
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-        
-    - name: Notify deployment failure
-      uses: 8398a7/action-slack@v3
-      if: failure()
-      with:
-        status: failure
-        text: "❌ Deployment to ${{ github.event.inputs.environment }} failed!"
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Deploy backend
+        run: npm run deploy:${{ inputs.stage }} -w backend
+
+      - name: Build frontend
+        run: npm run build -w frontend
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_USER_POOL_ID: ${{ vars.VITE_USER_POOL_ID }}
+          VITE_USER_POOL_CLIENT_ID: ${{ vars.VITE_USER_POOL_CLIENT_ID }}
+          VITE_AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+
+      - name: Upload frontend
+        run: |
+          aws s3 sync frontend/dist/ "s3://${{ vars.S3_BUCKET }}" --delete \
+            --cache-control "public,max-age=31536000,immutable" --exclude index.html
+          aws s3 cp frontend/dist/index.html "s3://${{ vars.S3_BUCKET }}/index.html" \
+            --cache-control "no-cache"
+          aws cloudfront create-invalidation --distribution-id "${{ vars.CF_DISTRIBUTION_ID }}" --paths "/index.html"

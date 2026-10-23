@@ -23,7 +23,7 @@ export function HeroSection({ onScrollToSection }: HeroSectionProps) {
               Stock Market AI Assistant
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Get real-time stock prices, AI-powered predictions, technical analysis, and market news. Make informed trading decisions with our advanced AI chatbot.
+              Ask about stock prices, technical analysis and market news, and get AI explanations. Data may be delayed and is for education, not investment advice.
             </p>
           </div>
           

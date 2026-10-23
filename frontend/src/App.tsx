@@ -6,6 +6,7 @@ import Index from './pages/Index';
 import Chat from './pages/Chat';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import NotFound from './pages/NotFound';
 import { UserProfile } from '@/components/UserProfile';
 import { SettingsPage } from '@/components/SettingsPage';
@@ -20,6 +21,7 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route 
               path="/chat" 
               element={

@@ -9,7 +9,7 @@ export function CTASection() {
       <Card className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-700 dark:to-purple-700 text-white border-0">
         <CardContent className="text-center py-12">
           <div className="space-y-4">
-            <h2 className="text-3xl font-bold">Ready to Start Trading Smarter?</h2>
+            <h2 className="text-3xl font-bold">Ready to Research Smarter?</h2>
             <p className="text-xl text-blue-100 dark:text-blue-200 max-w-2xl mx-auto">
               Join thousands of traders using AI to make better investment decisions.
             </p>

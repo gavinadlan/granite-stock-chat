@@ -32,14 +32,22 @@ export default function LoginPage() {
 
     try {
       setIsLoading(true);
-      await login({ email, password });
-      
+      const result = await login({ email, password });
+      if (result.status === 'needsConfirmation') {
+        toast({
+          title: "Verify your email",
+          description: "Your account isn't verified yet. We sent you a new code.",
+        });
+        navigate(`/register?verify=${encodeURIComponent(email.trim())}`);
+        return;
+      }
+
       toast({
         title: "Success",
         description: "Login successful! Welcome back.",
       });
-      
-      navigate('/');
+
+      navigate('/chat');
     } catch (error) {
       toast({
         title: "Login Failed",
@@ -122,6 +130,12 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              <div className="text-right -mt-2">
+                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+                  Forgot password?
+                </Link>
+              </div>
+
               {/* Submit Button */}
               <Button
                 type="submit"
@@ -147,14 +161,6 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials</h3>
-          <p className="text-xs text-blue-700">
-            Email: demo@example.com<br />
-            Password: Demo123!
-          </p>
-        </div>
       </div>
     </div>
   );

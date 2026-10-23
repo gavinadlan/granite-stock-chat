@@ -1,278 +1,102 @@
-// AWS Lambda function for AI stock predictions using IBM Granite
-const https = require('https');
+'use strict';
+// GET /ai-prediction?symbol=AAPL&timeframe=1w
+// Returns a qualitative outlook written by IBM Granite (via Replicate) on top of the
+// real current price. The model is NOT asked for a price target or a confidence
+// number: those would be invented figures (CLAUDE.md rule 4). Sprint 1 (S1-08)
+// adds a statistical projection computed from real data; the LLM only explains it.
+const { handler, HttpError, unavailable } = require('../lib/http');
+const { PredictionQuerySchema } = require('../lib/validation');
+const { getQuote } = require('../lib/yahoo');
 
-// fetch is available in Node.js 18+ (AWS Lambda runtime)
+const MODEL = process.env.LLM_MODEL || 'ibm-granite/granite-3.3-8b-instruct';
+// Lambda timeout is 28s. The quote fetch takes up to 5s, so the LLM budget is 18s
+// which leaves headroom and lets us return a proper JSON error with CORS headers.
+const DEADLINE_MS = 18000;
+const TIMEFRAME_LABEL = { '1d': '1 day', '1w': '1 week', '1m': '1 month', '3m': '3 months' };
 
-exports.handler = async (event) => {
-    console.log('AI Prediction Lambda invoked:', JSON.stringify(event, null, 2));
-    
+function buildPrompt(symbol, price, currency, timeframe) {
+  return `You are a cautious financial educator. The current price of ${symbol} is ${price} ${currency}.
+Describe, for a beginner, the kinds of factors that could influence this stock over the next ${timeframe}.
+Rules: do NOT give a price target, a percentage forecast, a probability or a buy/sell/hold recommendation. Do not invent news or numbers.
+
+Reply in exactly this format and nothing else:
+FACTORS: <two or three sentences about general factors that could matter>
+RISKS: <one or two sentences about the main uncertainties>`;
+}
+
+async function callReplicate(prompt, signal) {
+  const apiKey = process.env.REPLICATE_API_KEY;
+  if (!apiKey) throw unavailable('AI provider is not configured');
+  const headers = { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
+
+  let res = await fetch(`https://api.replicate.com/v1/models/${MODEL}/predictions`, {
+    method: 'POST',
+    headers: { ...headers, Prefer: 'wait=12' },
+    body: JSON.stringify({ input: { prompt, max_tokens: 256, temperature: 0.3 } }),
+    signal,
+  });
+  if (!res.ok) throw unavailable(`AI provider error (HTTP ${res.status})`);
+  let prediction = await res.json();
+
+  while (prediction.status === 'starting' || prediction.status === 'processing') {
+    await new Promise((r) => setTimeout(r, 1000));
+    res = await fetch(prediction.urls.get, { headers, signal });
+    if (!res.ok) throw unavailable(`AI provider error (HTTP ${res.status})`);
+    prediction = await res.json();
+  }
+  if (prediction.status !== 'succeeded') throw unavailable('AI provider could not complete the request');
+  return Array.isArray(prediction.output) ? prediction.output.join('') : String(prediction.output || '');
+}
+
+const firstLine = (s) => s.trim().split('\n')[0].trim();
+
+/** Parse the model answer. Returns nulls instead of inventing values. */
+function parseAnswer(text) {
+  const factors = text.match(/FACTORS:\s*([\s\S]*?)(?=\n\s*RISKS:|$)/i);
+  const risks = text.match(/RISKS:\s*([\s\S]+)/i);
+  return {
+    reasoning: factors && factors[1].trim() ? factors[1].trim() : null,
+    risks: risks && firstLine(risks[1]) ? firstLine(risks[1]) : null,
+  };
+}
+
+exports.handler = handler(
+  async ({ query }) => {
+    const quote = await getQuote(query.symbol);
+    const timeframe = TIMEFRAME_LABEL[query.timeframe];
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), DEADLINE_MS);
+    let text;
     try {
-        // Parse the request
-        const { symbol, timeframe = '1 week' } = event.queryStringParameters || {};
-        
-        if (!symbol) {
-            console.error('No symbol provided');
-            return {
-                statusCode: 400,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
-                },
-                body: JSON.stringify({
-                    error: 'Symbol parameter is required'
-                })
-            };
-        }
-
-        console.log(`Processing prediction for symbol: ${symbol}, timeframe: ${timeframe}`);
-
-        // Get current stock price first
-        console.log('Getting stock data...');
-        const stockData = await getStockData(symbol);
-        console.log('Stock data received:', stockData);
-        
-        // Generate AI prediction using IBM Granite
-        console.log('Generating AI prediction...');
-        const prediction = await generateAIPrediction(symbol, stockData.price, timeframe);
-        console.log('Prediction generated:', prediction);
-        
-        return {
-            statusCode: 200,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
-            },
-            body: JSON.stringify(prediction)
-        };
-        
-    } catch (error) {
-        console.error('Error in AI prediction lambda:', error);
-        console.error('Error stack:', error.stack);
-        
-        return {
-            statusCode: 500,
-            headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
-            },
-            body: JSON.stringify({
-                error: 'Internal server error',
-                message: error.message,
-                stack: error.stack
-            })
-        };
+      text = await callReplicate(buildPrompt(quote.symbol, quote.price, quote.currency, timeframe), controller.signal);
+    } catch (err) {
+      if (err instanceof HttpError) throw err;
+      throw unavailable(err.name === 'AbortError' ? 'AI provider timed out' : 'AI provider request failed');
+    } finally {
+      clearTimeout(timer);
     }
-};
 
-// Function to get stock data from Yahoo Finance
-async function getStockData(symbol) {
-    return new Promise((resolve, reject) => {
-        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}`;
-        
-        const options = {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-        };
-        
-        https.get(url, options, (res) => {
-            let data = '';
-            
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
-            
-            res.on('end', () => {
-                try {
-                    const jsonData = JSON.parse(data);
-                    
-                    if (jsonData.chart && jsonData.chart.result && jsonData.chart.result.length > 0) {
-                        const result = jsonData.chart.result[0];
-                        const meta = result.meta;
-                        
-                        resolve({
-                            symbol: meta.symbol,
-                            price: meta.regularMarketPrice || 0,
-                            change: meta.regularMarketChange || 0,
-                            changePercent: meta.regularMarketChangePercent || 0
-                        });
-                    } else {
-                        reject(new Error('No data found for symbol'));
-                    }
-                } catch (parseError) {
-                    reject(parseError);
-                }
-            });
-        }).on('error', (error) => {
-            reject(error);
-        });
-    });
-}
-
-// Function to generate AI prediction using IBM Granite via Replicate
-async function generateAIPrediction(symbol, currentPrice, timeframe) {
-    const replicateApiKey = process.env.REPLICATE_API_KEY;
-    
-    if (!replicateApiKey) {
-        // Fallback to mock prediction if no API key
-        return generateMockPrediction(symbol, currentPrice, timeframe);
+    const parsed = parseAnswer(text);
+    if (parsed.reasoning === null) {
+      throw new HttpError(502, 'AI_BAD_RESPONSE', 'The AI model returned an answer we could not use. Please try again.');
     }
-    
-    try {
-        const prompt = buildPredictionPrompt(symbol, currentPrice, timeframe);
-        
-        const response = await fetch('https://api.replicate.com/v1/predictions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Token ${replicateApiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                version: 'meta/llama-2-7b-chat',
-                input: {
-                    prompt: prompt,
-                    max_tokens: 512,
-                    temperature: 0.7
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Replicate API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Wait for prediction to complete
-        let prediction = data;
-        while (prediction.status === 'starting' || prediction.status === 'processing') {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${prediction.id}`, {
-                headers: {
-                    'Authorization': `Token ${replicateApiKey}`
-                }
-            });
-            
-            prediction = await statusResponse.json();
-        }
-        
-        if (prediction.status === 'succeeded') {
-            const output = prediction.output;
-            const response = Array.isArray(output) ? output.join('') : String(output);
-            return parsePredictionResponse(symbol, currentPrice, timeframe, response);
-        } else {
-            throw new Error(`Prediction failed: ${prediction.error}`);
-        }
-        
-    } catch (error) {
-        console.error('Error generating AI prediction:', error);
-        // Fallback to mock prediction
-        return generateMockPrediction(symbol, currentPrice, timeframe);
-    }
-}
-
-// Build prompt for stock prediction
-function buildPredictionPrompt(symbol, currentPrice, timeframe) {
-    return `As a financial AI analyst, analyze ${symbol} stock and provide a prediction for ${timeframe}.
-
-Current Price: $${currentPrice}
-
-Please provide:
-1. Predicted price for ${timeframe}
-2. Confidence level (0-100%)
-3. Key reasoning factors
-4. Risk level (low/medium/high)
-5. Recommendation (buy/sell/hold)
-
-Format your response as:
-PREDICTED_PRICE: $X.XX
-CONFIDENCE: XX%
-REASONING: [Your analysis]
-RISK_LEVEL: [low/medium/high]
-RECOMMENDATION: [buy/sell/hold]
-
-Be concise and professional.`;
-}
-
-// Parse IBM Granite prediction response
-function parsePredictionResponse(symbol, currentPrice, timeframe, response) {
-    try {
-        const lines = response.split('\n');
-        let predictedPrice = currentPrice * (1 + (Math.random() - 0.5) * 0.1); // Fallback
-        let confidence = 75; // Fallback
-        let reasoning = "AI analysis based on market data and trends.";
-        let riskLevel = 'medium';
-        let recommendation = 'hold';
-
-        for (const line of lines) {
-            if (line.includes('PREDICTED_PRICE:')) {
-                const priceMatch = line.match(/\$?([\d.]+)/);
-                if (priceMatch) {
-                    predictedPrice = parseFloat(priceMatch[1]);
-                }
-            } else if (line.includes('CONFIDENCE:')) {
-                const confMatch = line.match(/(\d+)%/);
-                if (confMatch) {
-                    confidence = parseInt(confMatch[1]);
-                }
-            } else if (line.includes('REASONING:')) {
-                reasoning = line.replace('REASONING:', '').trim();
-            } else if (line.includes('RISK_LEVEL:')) {
-                const risk = line.toLowerCase();
-                if (risk.includes('low')) riskLevel = 'low';
-                else if (risk.includes('high')) riskLevel = 'high';
-                else riskLevel = 'medium';
-            } else if (line.includes('RECOMMENDATION:')) {
-                const rec = line.toLowerCase();
-                if (rec.includes('buy')) recommendation = 'buy';
-                else if (rec.includes('sell')) recommendation = 'sell';
-                else recommendation = 'hold';
-            }
-        }
-
-        return {
-            symbol,
-            current: currentPrice,
-            predicted: predictedPrice,
-            confidence,
-            timeframe,
-            change: predictedPrice - currentPrice,
-            changePercent: ((predictedPrice - currentPrice) / currentPrice) * 100,
-            reasoning,
-            riskLevel,
-            recommendation
-        };
-    } catch (error) {
-        console.error('Error parsing prediction response:', error);
-        return generateMockPrediction(symbol, currentPrice, timeframe);
-    }
-}
-
-// Generate mock prediction as fallback
-function generateMockPrediction(symbol, currentPrice, timeframe) {
-    const volatility = 0.05;
-    const randomChange = (Math.random() - 0.5) * 2 * volatility;
-    const predictedPrice = currentPrice * (1 + randomChange);
-    const confidence = Math.floor(Math.random() * 30) + 65;
-
     return {
-        symbol,
-        current: currentPrice,
-        predicted: predictedPrice,
-        confidence,
+      body: {
+        symbol: quote.symbol,
+        current: quote.price,
+        currency: quote.currency,
         timeframe,
-        change: predictedPrice - currentPrice,
-        changePercent: ((predictedPrice - currentPrice) / currentPrice) * 100,
-        reasoning: "Analysis based on historical patterns and market trends. Consider market volatility and company fundamentals.",
-        riskLevel: confidence > 80 ? 'low' : confidence > 65 ? 'medium' : 'high',
-        recommendation: predictedPrice > currentPrice * 1.02 ? 'buy' : 
-                       predictedPrice < currentPrice * 0.98 ? 'sell' : 'hold'
+        reasoning: parsed.reasoning,
+        risks: parsed.risks,
+        method: 'llm-explanation',
+        model: MODEL,
+        source: `${quote.source} + ${MODEL}`,
+        asOf: quote.asOf,
+      },
     };
-}
+  },
+  { querySchema: PredictionQuerySchema },
+);
+
+exports._parseAnswer = parseAnswer; // exported for unit tests

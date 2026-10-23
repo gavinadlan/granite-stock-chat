@@ -1,11 +1,13 @@
-import { User, MessageCircle } from 'lucide-react';
+import { User, MessageCircle, RotateCcw } from 'lucide-react';
 import { ChatMessage } from '@/services/stockMarketAPI';
 
 interface MessageBubbleProps {
   message: ChatMessage;
+  /** Called with the original user text when the user clicks "Try again". */
+  onRetry?: (text: string) => void;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, onRetry }: MessageBubbleProps) {
   return (
     <div className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-3 sm:mb-4`}>
       <div className={`flex max-w-[85%] sm:max-w-[80%] ${message.isUser ? 'flex-row-reverse' : 'flex-row'} items-start ${message.isUser ? 'space-x-reverse space-x-2 sm:space-x-4' : 'space-x-2 sm:space-x-4'}`}>
@@ -29,6 +31,16 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100'
         }`}>
           <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed break-words">{message.content}</p>
+          {message.error && onRetry && (
+            <button
+              type="button"
+              onClick={() => onRetry(message.error!.retryText)}
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              <RotateCcw className="h-3 w-3" aria-hidden="true" />
+              Try again
+            </button>
+          )}
           <p className={`text-[10px] sm:text-xs mt-1.5 sm:mt-2 ${
             message.isUser ? 'text-blue-100 dark:text-blue-200' : 'text-slate-500 dark:text-slate-400'
           }`}>

@@ -1,48 +1,60 @@
-import { awsLambdaService } from './awsLambdaService';
-import { yahooFinanceService } from './yahooFinanceService';
-import { ibmGraniteService } from './ibmGraniteService';
-import { formatSymbol, generateSymbolFormats } from '@/lib/symbolUtils';
-import { detectCurrency } from '@/lib/currencyUtils';
-import { API_CONSTANTS, PREDICTION_CONSTANTS } from '@/lib/constants';
+// Stock data access + (temporary) keyword-based chat routing.
+// All data comes from our backend (see apiClient.ts). When data is unavailable
+// we say so; we never fabricate prices, indicators, predictions or news.
+// The keyword router is replaced by the LLM orchestrator in Sprint 2 (S2-06).
+import { apiGet, ApiError } from './apiClient';
+import { formatSymbol } from '@/lib/symbolUtils';
+import { API_CONSTANTS } from '@/lib/constants';
 
-export interface StockPrice {
+/** Where a piece of data came from and when it was valid. */
+export interface DataProvenance {
+  source: string;
+  asOf: string;
+  delayed?: boolean;
+}
+
+export interface StockPrice extends DataProvenance {
   symbol: string;
+  name?: string | null;
   price: number;
-  change: number;
-  changePercent: number;
-  volume: number;
+  change: number | null;
+  changePercent: number | null;
+  volume: number | null;
   marketCap: string | null;
   currency: string;
-  lastUpdated: Date;
+  lastUpdated: string;
 }
 
-export interface Prediction {
+export interface Prediction extends DataProvenance {
   symbol: string;
   currentPrice: number;
-  predictedPrice: number;
-  confidence: number;
+  currency: string;
   timeframe: string;
+  /** Qualitative factors written by the model. No price target, no confidence number. */
   reasoning: string;
-  lastUpdated: Date;
+  risks: string | null;
+  model?: string;
+  lastUpdated: string;
 }
 
-export interface TechnicalAnalysis {
+export interface TechnicalSignal {
+  id: string;
+  severity: 'bullish' | 'bearish' | 'info';
+  label: string;
+}
+
+export interface TechnicalAnalysis extends DataProvenance {
   symbol: string;
-  rsi: number;
-  macd: {
-    macd: number;
-    signal: number;
-    histogram: number;
-  };
-  movingAverages: {
-    sma20: number;
-    sma50: number;
-    sma200: number;
-  };
-  support: number;
-  resistance: number;
+  currency: string | null;
+  rsi: number | null;
+  macd: { macd: number | null; signal: number | null; histogram: number | null };
+  movingAverages: { sma20: number | null; sma50: number | null; sma200: number | null };
+  support: number | null;
+  resistance: number | null;
   trend: string;
-  lastUpdated: Date;
+  signals: TechnicalSignal[];
+  warnings: string[];
+  lastUpdated: string;
 }
 
 export interface NewsItem {
@@ -50,8 +62,12 @@ export interface NewsItem {
   title: string;
   description: string;
   url: string;
-  publishedAt: Date;
+  publishedAt: string;
   source: string;
+}
+
+export interface NewsResult extends DataProvenance {
+  news: NewsItem[];
 }
 
 export interface ChatMessage {
@@ -59,469 +75,118 @@ export interface ChatMessage {
   content: string;
   isUser: boolean;
   timestamp: Date;
+  /** Set when the request failed; the UI offers a retry with `retryText`. */
+  error?: { message: string; retryText: string };
   data?: {
     stockPrice?: StockPrice;
     prediction?: Prediction;
     technicalAnalysis?: TechnicalAnalysis;
     news?: NewsItem[];
+    newsMeta?: DataProvenance;
   };
 }
 
+interface BackendPrediction extends DataProvenance {
+  symbol: string;
+  current: number;
+  currency: string;
+  timeframe: string;
+  reasoning: string;
+  risks: string | null;
+  model?: string;
+}
+
 class StockMarketAPI {
-  async getStockPrice(symbol: string): Promise<StockPrice | null> {
-    const cleanSymbol = symbol.toUpperCase().trim();
-
-    // Universal approach: try all possible formats
-    const formatsToTry = generateSymbolFormats(cleanSymbol);
-
-    for (const format of formatsToTry) {
-      const result = await this.tryStockPriceAPIs(format);
-      if (result) {
-        return result;
-      }
-    }
-
-    console.error(`❌ All stock price APIs failed for symbol: ${symbol}`);
-    return null;
+  getStockPrice(symbol: string): Promise<StockPrice> {
+    return apiGet<StockPrice>('/stock-price', { symbol: formatSymbol(symbol) });
   }
 
-  private async tryStockPriceAPIs(symbol: string): Promise<StockPrice | null> {
-    // Try Yahoo Finance first
-    try {
-      const yahooData = await yahooFinanceService.getStockPrice(symbol);
-      if (yahooData) {
-        return yahooData;
-      }
-    } catch (error) {
-      console.warn(`Yahoo Finance failed for ${symbol}:`, error);
-    }
-
-    // Try Alpha Vantage as fallback
-    try {
-      const alphaData = await this.getAlphaVantageStockPrice(symbol);
-      if (alphaData) {
-        return alphaData;
-      }
-    } catch (error) {
-      console.warn(`Alpha Vantage failed for ${symbol}:`, error);
-    }
-
-    // Try AWS Lambda as final fallback
-    try {
-      const awsData = await awsLambdaService.getStockPrice(symbol);
-      if (awsData) {
-        return this.convertAWSToStockPrice(awsData);
-      }
-    } catch (error) {
-      console.warn(`AWS Lambda failed for ${symbol}:`, error);
-    }
-
-    return null;
+  async getStockPrediction(symbol: string, timeframe = '1w'): Promise<Prediction> {
+    const p = await apiGet<BackendPrediction>('/ai-prediction', { symbol: formatSymbol(symbol), timeframe });
+    return {
+      symbol: p.symbol,
+      currentPrice: p.current,
+      currency: p.currency,
+      timeframe: p.timeframe,
+      reasoning: p.reasoning,
+      risks: p.risks,
+      model: p.model,
+      source: p.source,
+      asOf: p.asOf,
+      lastUpdated: p.asOf,
+    };
   }
 
-  async getStockPrediction(symbol: string, timeframe: string = '1 week'): Promise<Prediction | null> {
-    const formattedSymbol = formatSymbol(symbol);
-    console.log(`🔮 Getting prediction for ${symbol} (formatted: ${formattedSymbol})`);
-
-    // Try IBM Granite first (more reliable)
-    try {
-      console.log(`🔄 Trying IBM Granite prediction for ${formattedSymbol}`);
-      const graniteData = await ibmGraniteService.getPrediction(formattedSymbol, timeframe);
-      if (graniteData) {
-        console.log(`✅ IBM Granite prediction success for ${formattedSymbol}:`, graniteData);
-        return graniteData;
-      } else {
-        console.log(`❌ IBM Granite prediction returned null for ${formattedSymbol}`);
-      }
-    } catch (error) {
-      console.warn(`❌ IBM Granite prediction failed for ${formattedSymbol}:`, error);
-    }
-
-    // Fallback to AWS Lambda (with timeout)
-    try {
-      console.log(`🔄 Trying AWS Lambda prediction for ${formattedSymbol}`);
-      const awsData = await Promise.race([
-        awsLambdaService.getAIPrediction(formattedSymbol, timeframe),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), API_CONSTANTS.TIMEOUTS.DEFAULT))
-      ]) as any;
-
-      if (awsData) {
-        console.log(`✅ AWS Lambda prediction success for ${formattedSymbol}:`, awsData);
-        return awsData;
-      } else {
-        console.log(`❌ AWS Lambda prediction returned null for ${formattedSymbol}`);
-      }
-    } catch (error) {
-      console.warn(`❌ AWS Lambda prediction failed for ${formattedSymbol}:`, error);
-    }
-
-    // Generate mock prediction as final fallback
-    console.log(`🔄 Generating mock prediction for ${formattedSymbol}`);
-    const mockPrediction = this.generateMockPrediction(formattedSymbol, timeframe);
-    console.log(`✅ Mock prediction generated for ${formattedSymbol}:`, mockPrediction);
-    return mockPrediction;
+  getTechnicalAnalysis(symbol: string): Promise<TechnicalAnalysis> {
+    return apiGet<TechnicalAnalysis>('/technical-analysis', { symbol: formatSymbol(symbol) });
   }
 
-  async getTechnicalAnalysis(symbol: string): Promise<TechnicalAnalysis | null> {
-    const formattedSymbol = formatSymbol(symbol);
-    // Try AWS Lambda first
-    try {
-      const awsData = await awsLambdaService.getTechnicalAnalysis(formattedSymbol);
-      if (awsData) {
-        return awsData;
-      }
-    } catch (error) {
-      console.warn('AWS Lambda technical analysis failed:', error);
-    }
-
-    // Fallback to IBM Granite
-    try {
-      const graniteData = await ibmGraniteService.getTechnicalAnalysis(formattedSymbol);
-      if (graniteData) {
-        return graniteData;
-      }
-    } catch (error) {
-      console.warn('IBM Granite technical analysis failed:', error);
-    }
-
-    // No fallback - return null if all APIs fail
-    console.error('All technical analysis APIs failed for symbol:', symbol);
-    return null;
-  }
-
-  async getMarketNews(symbol: string): Promise<NewsItem[]> {
-    const formattedSymbol = formatSymbol(symbol);
-    console.log(`📰 Getting news for ${symbol} (formatted: ${formattedSymbol})`);
-
-    // Try News API first (using local key via proxy)
-    try {
-      console.log(`🔄 Trying News API for ${formattedSymbol}`);
-      const newsData = await this.getNewsAPIData(formattedSymbol);
-      if (newsData && newsData.length > 0) {
-        console.log(`✅ News API success for ${formattedSymbol}: ${newsData.length} articles`);
-        return newsData;
-      } else {
-        console.log(`❌ News API returned empty for ${formattedSymbol}`);
-      }
-    } catch (error) {
-      console.warn(`❌ News API failed for ${formattedSymbol}:`, error);
-    }
-
-    // Checking AWS Lambda for news often returns generic/irrelevant mock data if the backend API key is missing.
-    // To ensure user satisfaction ("news adjusted to what is searched"), we will fallback to 
-    // generating relevant mock news locally if the real API fails.
-
-    console.log(`🔄 Generating relevant mock news for ${formattedSymbol}`);
-    return this.generateMockNews(formattedSymbol);
-  }
-
-  private generateMockNews(symbol: string): NewsItem[] {
-    const today = new Date();
-    const sources = ['Bloomberg', 'Reuters', 'CNBC', 'Wall Street Journal', 'Financial Times'];
-    const templates = [
-      `${symbol} Reports Strong Quarterly Earnings, Beating Expectations`,
-      `Analysts Upgrade ${symbol} Following New Product Announcement`,
-      `${symbol} Stock Rises Amidst Broader Market Rally`,
-      `Investors Watch ${symbol} Closely Ahead of Annual Meeting`,
-      `Market Analysis: Why ${symbol} Could Be a Strong Buy`,
-      `${symbol} Expands Operations into New Markets`,
-      `Regulatory Updates Impacting ${symbol} Share Price`
-    ];
-
-    // Shuffle and pick 3-4 random templates
-    const shuffledTemplates = templates.sort(() => 0.5 - Math.random());
-    const selectedTemplates = shuffledTemplates.slice(0, 3 + Math.floor(Math.random() * 2));
-
-    return selectedTemplates.map((title, index) => {
-      // Random time between 1 and 24 hours ago
-      const timeOffset = Math.floor(Math.random() * 24 * 60 * 60 * 1000);
-      const publishDate = new Date(today.getTime() - timeOffset);
-
-      return {
-        id: `mock-${symbol}-${index}`,
-        title: title,
-        description: `Latest market updates and analysis regarding ${symbol}. Trading volume remains high as investors digest recent news.`,
-        url: '#',
-        publishedAt: publishDate,
-        source: sources[Math.floor(Math.random() * sources.length)]
-      };
-    });
+  getMarketNews(symbol: string): Promise<NewsResult> {
+    return apiGet<NewsResult>('/market-news', { symbol: formatSymbol(symbol) });
   }
 
   async processMessage(message: string): Promise<ChatMessage> {
-    const messageId = Date.now().toString();
-    const timestamp = new Date();
-    const lowerMessage = message.toLowerCase();
+    const base = { id: `${Date.now()}`, isUser: false, timestamp: new Date() };
+    const lower = message.toLowerCase();
+    const symbol = this.extractSymbol(message);
 
-    // Try prediction request first (highest priority)
-    const predictionResponse = await this.handlePredictionRequest(message, lowerMessage, messageId, timestamp);
-    if (predictionResponse) return predictionResponse;
+    if (!symbol) {
+      return {
+        ...base,
+        content:
+          "I can help with stock prices, AI outlooks, technical analysis and news. Mention a ticker in capitals, e.g. 'What's the price of AAPL?' or 'Technical analysis BBCA'.",
+      };
+    }
 
-    // Try news request second
-    const newsResponse = await this.handleNewsRequest(message, lowerMessage, messageId, timestamp);
-    if (newsResponse) return newsResponse;
-
-    // Try technical analysis request third
-    const technicalResponse = await this.handleTechnicalAnalysisRequest(message, lowerMessage, messageId, timestamp);
-    if (technicalResponse) return technicalResponse;
-
-    // Try price request last (lowest priority)
-    const priceResponse = await this.handlePriceRequest(message, lowerMessage, messageId, timestamp);
-    if (priceResponse) return priceResponse;
-
-    // Default response
-    return {
-      id: messageId,
-      content: "I can help you with stock prices, predictions, technical analysis, and news. Try asking about a specific stock like 'What's the price of AAPL?' or 'Predict TSLA stock'.",
-      isUser: false,
-      timestamp
+    const fail = (what: string, err: unknown): ChatMessage => {
+      const reason = err instanceof ApiError ? err.message : 'Unexpected error.';
+      return {
+        ...base,
+        content: `Sorry, I couldn't get ${what} for ${symbol}. ${reason}`,
+        error: { message: reason, retryText: message },
+      };
     };
-  }
-
-  private async handlePredictionRequest(message: string, lowerMessage: string, messageId: string, timestamp: Date): Promise<ChatMessage | null> {
-    if (!lowerMessage.includes('predict') && !lowerMessage.includes('forecast') && !lowerMessage.includes('prediction')) {
-      return null;
-    }
-
-    const symbol = this.extractSymbol(message);
-    if (!symbol) return null;
-
-    console.log(`🔮 Processing prediction request for: ${symbol}`);
-    const prediction = await this.getStockPrediction(symbol);
-
-    if (prediction) {
-      return {
-        id: messageId,
-        content: `Here's my AI prediction for ${symbol}:`,
-        isUser: false,
-        timestamp,
-        data: { prediction }
-      };
-    } else {
-      return {
-        id: messageId,
-        content: `Sorry, I couldn't generate a prediction for ${symbol}. Please check if the symbol is correct and try again.`,
-        isUser: false,
-        timestamp
-      };
-    }
-  }
-
-  private async handleNewsRequest(message: string, lowerMessage: string, messageId: string, timestamp: Date): Promise<ChatMessage | null> {
-    if (!lowerMessage.includes('news') && !lowerMessage.includes('latest news')) {
-      return null;
-    }
-
-    const symbol = this.extractSymbol(message);
-    if (!symbol) return null;
-
-    console.log(`📰 Processing news request for: ${symbol}`);
-    const news = await this.getMarketNews(symbol);
-
-    if (news && news.length > 0) {
-      return {
-        id: messageId,
-        content: `Here's the latest news for ${symbol}:`,
-        isUser: false,
-        timestamp,
-        data: { news: news.slice(0, API_CONSTANTS.MAX_DISPLAY_NEWS) }
-      };
-    } else {
-      return {
-        id: messageId,
-        content: `Sorry, I couldn't find any news for ${symbol}. Please check if the symbol is correct and try again.`,
-        isUser: false,
-        timestamp
-      };
-    }
-  }
-
-  private async handleTechnicalAnalysisRequest(message: string, lowerMessage: string, messageId: string, timestamp: Date): Promise<ChatMessage | null> {
-    if (!lowerMessage.includes('technical') && !lowerMessage.includes('analysis')) {
-      return null;
-    }
-
-    const symbol = this.extractSymbol(message);
-    if (!symbol) return null;
-
-    console.log(`📊 Processing technical analysis request for: ${symbol}`);
-    const technicalAnalysis = await this.getTechnicalAnalysis(symbol);
-
-    if (technicalAnalysis) {
-      return {
-        id: messageId,
-        content: `Here's the technical analysis for ${symbol}:`,
-        isUser: false,
-        timestamp,
-        data: { technicalAnalysis }
-      };
-    } else {
-      return {
-        id: messageId,
-        content: `Sorry, I couldn't generate technical analysis for ${symbol}. Please check if the symbol is correct and try again.`,
-        isUser: false,
-        timestamp
-      };
-    }
-  }
-
-  private async handlePriceRequest(message: string, lowerMessage: string, messageId: string, timestamp: Date): Promise<ChatMessage | null> {
-    if (!lowerMessage.includes('price') && !lowerMessage.includes('stock') && !lowerMessage.includes('current')) {
-      return null;
-    }
-
-    const symbol = this.extractSymbol(message);
-    if (!symbol) return null;
-
-    console.log(`💰 Processing price request for: ${symbol}`);
-    const stockPrice = await this.getStockPrice(symbol);
-
-    if (stockPrice) {
-      return {
-        id: messageId,
-        content: `Here's the current price for ${symbol}:`,
-        isUser: false,
-        timestamp,
-        data: { stockPrice }
-      };
-    } else {
-      return {
-        id: messageId,
-        content: `Sorry, I couldn't fetch the current price for ${symbol}. Please check if the symbol is correct and try again.`,
-        isUser: false,
-        timestamp
-      };
-    }
-  }
-
-  private extractSymbol(message: string): string | null {
-    // Extract stock symbols from message - improved regex
-    console.log(`🔍 Extracting symbol from: "${message}"`);
-
-    // Try to find common stock symbols (1-5 uppercase letters)
-    const symbolMatch = message.match(/\b([A-Z]{1,5})\b/g);
-    if (symbolMatch) {
-      console.log(`✅ Found symbols: ${symbolMatch}`);
-      return symbolMatch[0];
-    }
-
-    // Fallback: look for any uppercase letters
-    const fallbackMatch = message.match(/([A-Z]+)/g);
-    if (fallbackMatch) {
-      console.log(`🔄 Fallback found: ${fallbackMatch}`);
-      return fallbackMatch[0];
-    }
-
-    console.log(`❌ No symbol found in: "${message}"`);
-    return null;
-  }
-
-  private async getAlphaVantageStockPrice(symbol: string): Promise<StockPrice | null> {
-    const apiKey = import.meta.env?.VITE_ALPHA_VANTAGE_API_KEY;
-    if (!apiKey) {
-      throw new Error('Alpha Vantage API key not found');
-    }
 
     try {
-      const response = await fetch(
-        `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`
-      );
-      const data = await response.json();
-
-      if (data['Global Quote']) {
-        const quote = data['Global Quote'];
-        const symbol = quote['01. symbol'];
-        const currency = detectCurrency(symbol);
+      if (/predict|forecast|prediksi|proyeksi/.test(lower)) {
+        const prediction = await this.getStockPrediction(symbol);
+        return { ...base, content: `Here's an AI outlook for ${prediction.symbol}:`, data: { prediction } };
+      }
+      if (/news|berita/.test(lower)) {
+        const result = await this.getMarketNews(symbol);
+        if (!result.news.length) return { ...base, content: `No recent news found for ${symbol}.` };
         return {
-          symbol: symbol,
-          price: parseFloat(quote['05. price']),
-          change: parseFloat(quote['09. change']),
-          changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
-          volume: parseInt(quote['06. volume']),
-          marketCap: null,
-          currency: currency,
-          lastUpdated: new Date()
+          ...base,
+          content: `Here's the latest news for ${symbol}:`,
+          data: { news: result.news.slice(0, API_CONSTANTS.MAX_DISPLAY_NEWS), newsMeta: result },
         };
       }
-      return null;
-    } catch (error) {
-      console.error('Alpha Vantage API error:', error);
-      throw error;
-    }
-  }
-
-  private async getNewsAPIData(symbol: string): Promise<NewsItem[]> {
-    const apiKey = import.meta.env?.VITE_NEWS_API_KEY || 'c273c5d8b13a44b5a857e67545b90ee1';
-    if (!apiKey) {
-      console.warn('⚠️ News API key not found, using fallback');
-      return [];
-    }
-
-    try {
-      console.log(`📰 Fetching news for ${symbol} using News API`);
-
-      // Use proxy to avoid CORS issues
-      const proxyUrl = 'https://api.allorigins.win/raw?url=';
-      const newsUrl = `https://newsapi.org/v2/everything?q=${symbol}+stock&language=en&apiKey=${apiKey}&sortBy=relevancy&pageSize=5`;
-
-      const response = await fetch(proxyUrl + encodeURIComponent(newsUrl));
-
-      if (!response.ok) {
-        console.error(`❌ News API error: ${response.status}`);
-        return [];
+      if (/technical|analysis|analisis|teknikal|rsi|macd/.test(lower)) {
+        const technicalAnalysis = await this.getTechnicalAnalysis(symbol);
+        return { ...base, content: `Here's the technical analysis for ${technicalAnalysis.symbol}:`, data: { technicalAnalysis } };
       }
-
-      const data = await response.json();
-
-      if (data.articles && data.articles.length > 0) {
-        console.log(`✅ Found ${data.articles.length} news articles for ${symbol}`);
-        return data.articles.map((article: any) => ({
-          id: article.url,
-          title: article.title,
-          description: article.description,
-          url: article.url,
-          publishedAt: new Date(article.publishedAt),
-          source: article.source.name
-        }));
-      }
-      return [];
-    } catch (error) {
-      console.error('News API error:', error);
-      return [];
+      const stockPrice = await this.getStockPrice(symbol);
+      return { ...base, content: `Here's the current price for ${stockPrice.symbol}:`, data: { stockPrice } };
+    } catch (err) {
+      const what = /predict|forecast|prediksi|proyeksi/.test(lower)
+        ? 'an AI outlook'
+        : /news|berita/.test(lower)
+          ? 'news'
+          : /technical|analysis|analisis|teknikal|rsi|macd/.test(lower)
+            ? 'technical analysis'
+            : 'the price';
+      return fail(what, err);
     }
   }
 
-  private convertAWSToStockPrice(awsData: any): StockPrice {
-    return {
-      symbol: awsData.symbol,
-      price: awsData.price,
-      change: awsData.change,
-      changePercent: awsData.changePercent,
-      volume: awsData.volume,
-      marketCap: awsData.marketCap,
-      currency: awsData.currency || 'USD', // Default to USD if not provided
-      lastUpdated: new Date(awsData.lastUpdated)
-    };
+  /** Extracts the first ticker-looking token (e.g. AAPL, BBCA, BBCA.JK, BRK-B). */
+  extractSymbol(message: string): string | null {
+    const NOT_TICKERS = new Set(['I', 'A', 'AI', 'RSI', 'MACD', 'SMA', 'EMA', 'USD', 'IDR', 'IDX', 'OK']);
+    for (const m of message.matchAll(/\b([A-Z]{1,5}(?:[.-][A-Z]{1,2})?)\b/g)) {
+      if (!NOT_TICKERS.has(m[1])) return m[1];
+    }
+    return null;
   }
-
-  private generateMockPrediction(symbol: string, timeframe: string): Prediction {
-    const volatility = PREDICTION_CONSTANTS.VOLATILITY;
-    const randomChange = (Math.random() - 0.5) * 2 * volatility;
-    const currentPrice = PREDICTION_CONSTANTS.MIN_PRICE + Math.random() * (PREDICTION_CONSTANTS.MAX_PRICE - PREDICTION_CONSTANTS.MIN_PRICE);
-    const predictedPrice = currentPrice * (1 + randomChange);
-    const confidence = Math.floor(Math.random() * (PREDICTION_CONSTANTS.MAX_CONFIDENCE - PREDICTION_CONSTANTS.MIN_CONFIDENCE)) + PREDICTION_CONSTANTS.MIN_CONFIDENCE;
-
-    return {
-      symbol: symbol.toUpperCase(),
-      currentPrice,
-      predictedPrice,
-      confidence,
-      timeframe,
-      reasoning: `AI analysis based on historical patterns and market trends for ${symbol}. Consider market volatility and company fundamentals.`,
-      lastUpdated: new Date()
-    };
-  }
-
 }
 
 export const stockMarketAPI = new StockMarketAPI();

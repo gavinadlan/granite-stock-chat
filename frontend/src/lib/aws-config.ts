@@ -18,7 +18,7 @@ const awsConfig = {
 // Validate configuration
 if (!import.meta.env.VITE_USER_POOL_ID || import.meta.env.VITE_USER_POOL_ID.includes('XXXXXXXXX')) {
   console.warn('⚠️ AWS Cognito configuration not set. Please configure VITE_USER_POOL_ID and VITE_USER_POOL_CLIENT_ID in .env.local');
-  console.warn('📝 See env.aws.template for configuration instructions');
+  console.warn('📝 See frontend/.env.example for configuration instructions');
 }
 
 // Initialize Amplify

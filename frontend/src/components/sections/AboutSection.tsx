@@ -14,28 +14,28 @@ const aboutFeatures = [
     iconColor: "text-green-600",
     bgColor: "bg-green-100",
     title: "Secure & Reliable",
-    description: "Built on AWS infrastructure with enterprise-grade security and 99.9% uptime. Your data is protected with industry-standard encryption and security protocols."
+    description: "Runs on serverless AWS infrastructure (Lambda, API Gateway, Cognito). API keys stay on the server and are never sent to your browser."
   },
   {
     icon: Clock,
     iconColor: "text-purple-600",
     bgColor: "bg-purple-100",
-    title: "Real-time Data",
-    description: "Live market data updated every second from multiple trusted financial sources including Yahoo Finance, Alpha Vantage, and News API for accurate analysis."
+    title: "Transparent Data",
+    description: "Market data from Yahoo Finance and news from NewsAPI, cached briefly and always labelled with its source and timestamp."
   },
   {
     icon: Star,
     iconColor: "text-orange-600",
     bgColor: "bg-orange-100",
     title: "AI-Powered",
-    description: "Advanced IBM Granite AI provides intelligent analysis and predictions with machine learning algorithms trained on vast financial datasets for accurate insights."
+    description: "IBM Granite turns the numbers into plain-language explanations. Indicators are calculated by code, not guessed by the model."
   }
 ]
 
 const badges = [
   "Free to Use",
   "No Registration Required",
-  "Real-time Updates",
+  "Sources & Timestamps Shown",
   "AI-Powered Analysis"
 ]
 
@@ -50,7 +50,7 @@ export function AboutSection() {
           </p>
           <p className="text-base text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">
             Our Stock Market AI Assistant leverages the power of IBM Granite AI, AWS Lambda, 
-            and real-time market data APIs to deliver professional-grade financial analysis 
+            and public market data APIs to deliver professional-grade financial analysis 
             accessible to everyone, from beginners to experienced traders.
           </p>
         </div>
@@ -76,10 +76,9 @@ export function AboutSection() {
           <div className="text-center space-y-4">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Why Choose Our Platform?</h3>
             <p className="text-lg text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Our Stock Market AI Assistant combines the power of artificial intelligence with real-time market data 
-              to provide you with comprehensive analysis, accurate predictions, and actionable insights. 
-              Whether you're a beginner investor or an experienced trader, our platform helps you make 
-              informed decisions with confidence and precision.
+              StockAI combines market data with an AI assistant that explains what the numbers mean.
+              Every price, indicator and headline comes from a named source with a timestamp, and AI-generated
+              outlooks are clearly labelled. Use it to research faster, then make your own decisions.
             </p>
             <div className="flex flex-wrap justify-center gap-4 mt-6">
               {badges.map((badge, index) => (

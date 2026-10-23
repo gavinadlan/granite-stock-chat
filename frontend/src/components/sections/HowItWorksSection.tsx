@@ -12,7 +12,7 @@ const steps = [
   {
     number: 3,
     title: "Get Results",
-    description: "Receive detailed analysis, predictions, technical indicators, and news with confidence levels and actionable recommendations."
+    description: "Receive prices, technical indicators computed from real price history, news, and an AI-written explanation, each with its data source."
   }
 ]
 

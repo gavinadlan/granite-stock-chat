@@ -6,15 +6,15 @@ const features = [
     icon: TrendingUp,
     iconColor: "text-blue-600",
     bgColor: "bg-blue-100",
-    title: "Real-time Prices",
-    description: "Live stock prices, volume, market cap, and price changes from Yahoo Finance API. Get instant updates on any stock symbol with accurate market data."
+    title: "Market Prices",
+    description: "Stock prices, volume and daily change from Yahoo Finance for US and Indonesian (IDX) tickers. Every number shows its source and time; free data may be delayed."
   },
   {
     icon: Brain,
     iconColor: "text-purple-600",
     bgColor: "bg-purple-100",
     title: "AI Predictions",
-    description: "IBM Granite AI analyzes historical patterns, market sentiment, and technical indicators to forecast future stock movements with confidence levels and detailed reasoning."
+    description: "IBM Granite explains the data in plain language and sketches a short-term scenario. Outlooks are clearly labelled as AI-generated and are never a guarantee."
   },
   {
     icon: BarChart3,
@@ -28,7 +28,7 @@ const features = [
     iconColor: "text-orange-600",
     bgColor: "bg-orange-100",
     title: "Market News",
-    description: "Latest news and sentiment analysis from News API, filtered by stock symbols. Stay informed with real-time market updates and company announcements."
+    description: "Recent articles from NewsAPI filtered by ticker, with links to the original source. No made-up headlines: if there is no news, we tell you."
   }
 ]
 
@@ -42,8 +42,8 @@ export function FeaturesSection() {
             Comprehensive AI-powered tools for intelligent stock market analysis
           </p>
           <p className="text-base text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">
-            Our advanced platform combines cutting-edge artificial intelligence with real-time market data 
-            to provide you with professional-grade analysis tools that help you make smarter investment decisions.
+            Our advanced platform combines cutting-edge artificial intelligence with public market data 
+            to give you analysis tools for learning about the market. It is not investment advice.
           </p>
         </div>
 
