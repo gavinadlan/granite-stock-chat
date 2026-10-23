@@ -28,12 +28,11 @@ export interface StockPrice extends DataProvenance {
 export interface Prediction extends DataProvenance {
   symbol: string;
   currentPrice: number;
-  predictedPrice: number;
   currency: string;
-  /** 0-100 as reported by the model, or null if it did not say. */
-  confidence: number | null;
   timeframe: string;
-  reasoning: string | null;
+  /** Qualitative factors written by the model. No price target, no confidence number. */
+  reasoning: string;
+  risks: string | null;
   model?: string;
   lastUpdated: string;
 }
@@ -90,11 +89,10 @@ export interface ChatMessage {
 interface BackendPrediction extends DataProvenance {
   symbol: string;
   current: number;
-  predicted: number;
   currency: string;
-  confidence: number | null;
   timeframe: string;
-  reasoning: string | null;
+  reasoning: string;
+  risks: string | null;
   model?: string;
 }
 
@@ -108,11 +106,10 @@ class StockMarketAPI {
     return {
       symbol: p.symbol,
       currentPrice: p.current,
-      predictedPrice: p.predicted,
       currency: p.currency,
-      confidence: p.confidence,
       timeframe: p.timeframe,
       reasoning: p.reasoning,
+      risks: p.risks,
       model: p.model,
       source: p.source,
       asOf: p.asOf,

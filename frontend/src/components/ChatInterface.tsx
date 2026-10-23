@@ -13,7 +13,6 @@ import { TechnicalAnalysisCard } from './TechnicalAnalysisCard';
 import { NewsCard } from './NewsCard';
 import { TypingIndicator } from './TypingIndicator';
 import { StockSymbolTable } from './StockSymbolTable';
-import { API_CONSTANTS } from '@/lib/constants';
 import { DataSourceBadge } from './DataSourceBadge';
 import { Disclaimer } from './Disclaimer';
 
@@ -21,7 +20,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      content: "Hello! I'm your AI stock market assistant. I can help you with real-time stock prices, predictions, technical analysis, and market news. Try asking me about a stock like 'What's the price of AAPL?' or 'Predict TSLA stock'.",
+      content: "Hello! I'm your AI stock market assistant. I can help you with stock prices (may be delayed), a qualitative AI outlook, technical analysis, and market news. Try asking me about a stock like 'What's the price of AAPL?' or 'Predict TSLA stock'.",
       isUser: false,
       timestamp: new Date()
     }
@@ -44,7 +43,7 @@ export function ChatInterface() {
     if (!text || isLoading) return;
 
     const userMessage: ChatMessage = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       content: text,
       isUser: true,
       timestamp: new Date()
@@ -60,7 +59,7 @@ export function ChatInterface() {
     } catch (error) {
       console.error('Error processing message:', error);
       const errorMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
+        id: crypto.randomUUID(),
         content: "Sorry, I encountered an error processing your request. Please try again.",
         isUser: false,
         timestamp: new Date()
@@ -102,8 +101,8 @@ export function ChatInterface() {
           <div className="space-y-2">
             <h4 className="text-xs sm:text-sm font-semibold text-slate-700 px-1">Latest News</h4>
             <div className="grid gap-2 sm:gap-3">
-              {news.slice(0, API_CONSTANTS.MAX_DISPLAY_NEWS).map((item, index) => (
-                <NewsCard key={index} newsItem={item} />
+              {news.map((item) => (
+                <NewsCard key={item.id} newsItem={item} />
               ))}
             </div>
             {newsMeta && <DataSourceBadge source={newsMeta.source} asOf={newsMeta.asOf} className="px-1" />}
@@ -125,7 +124,7 @@ export function ChatInterface() {
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <Badge variant="secondary" className="flex-shrink-0 text-[10px] sm:text-xs">
-              Live
+              Delayed data
             </Badge>
               <Button
                 variant="outline"

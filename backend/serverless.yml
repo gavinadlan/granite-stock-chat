@@ -15,10 +15,7 @@ provider:
     ALLOWED_ORIGINS: ${self:custom.allowedOrigins.${sls:stage}}
     # Secrets are resolved at deploy time from SSM Parameter Store.
     # See docs/DEPLOYMENT.md#1-secrets. Never hardcode values here.
-    REPLICATE_API_KEY: ${ssm:/stockai/${sls:stage}/replicate-api-key}
-    NEWS_API_KEY: ${ssm:/stockai/${sls:stage}/news-api-key}
-    ALPHA_VANTAGE_API_KEY: ${ssm:/stockai/${sls:stage}/alpha-vantage-key}
-    RAPIDAPI_KEY: ${ssm:/stockai/${sls:stage}/rapidapi-key}
+    # Each key is injected only into the function that uses it (see `functions:` below).
   iam:
     role:
       statements:
@@ -96,8 +93,11 @@ functions:
           method: get
           cors: *cors
     # API Gateway REST integrations time out at 29s; keep the function below that.
+    # Budget: quote <= 5s + LLM deadline 18s (see functions/ai-prediction.js).
     timeout: 28
     memorySize: 512
+    environment:
+      REPLICATE_API_KEY: ${ssm:/stockai/${sls:stage}/replicate-api-key}
 
   technicalAnalysis:
     handler: functions/technical-analysis.handler
@@ -118,6 +118,8 @@ functions:
           cors: *cors
     timeout: 15
     memorySize: 256
+    environment:
+      NEWS_API_KEY: ${ssm:/stockai/${sls:stage}/news-api-key}
 
 resources:
   Resources:

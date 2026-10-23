@@ -47,8 +47,6 @@ API keys are **never** stored in the repo or in the frontend bundle. Each stage 
 |---|---|
 | `/stockai/<stage>/replicate-api-key` | IBM Granite via Replicate |
 | `/stockai/<stage>/news-api-key` | NewsAPI |
-| `/stockai/<stage>/alpha-vantage-key` | Alpha Vantage (fallback quotes) |
-| `/stockai/<stage>/rapidapi-key` | RapidAPI (optional fallback) |
 
 Create or rotate a secret:
 ```bash
@@ -216,7 +214,7 @@ npm run logs -- -f marketNews
    - Check IAM policies
 
 3. **Environment variables not set**
-   - Verify `.env` file exists in backend folder
+   - Verify the SSM parameters exist for the stage (`aws ssm get-parameters-by-path --path /stockai/dev/`)
    - Check all API keys are valid
 
 4. **Deploy failed**

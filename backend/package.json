@@ -15,7 +15,6 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "dotenv": "^16.4.5",
     "esbuild": "^0.24.0",
     "serverless": "^3.39.0",
     "serverless-esbuild": "^1.54.0",

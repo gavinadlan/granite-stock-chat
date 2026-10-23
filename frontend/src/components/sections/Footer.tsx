@@ -21,7 +21,7 @@ export function Footer() {
               <h3 className="text-xl font-bold">StockAI</h3>
             </div>
             <p className="text-slate-400 text-sm leading-relaxed">
-              AI-powered stock market assistant providing real-time data, predictions, and technical analysis to help you make informed trading decisions.
+              AI-powered stock market assistant providing market data (may be delayed), technical analysis and AI explanations for educational purposes. Not investment advice.
             </p>
             <div className="flex items-center space-x-2 text-sm text-slate-400">
               <Zap className="h-4 w-4 text-yellow-400" />
@@ -78,7 +78,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center space-x-2 text-slate-400 text-sm">
                 <TrendingUp className="h-4 w-4 text-blue-400" />
-                <span>Real-time Stock Prices</span>
+                <span>Stock Prices</span>
               </li>
               <li className="flex items-center space-x-2 text-slate-400 text-sm">
                 <Brain className="h-4 w-4 text-purple-400" />
@@ -126,7 +126,7 @@ export function Footer() {
             <div className="flex flex-wrap justify-center md:justify-end items-center gap-4 text-xs text-slate-500">
               <span className="flex items-center space-x-1">
                 <Zap className="h-3 w-3" />
-                <span>Real-time Data</span>
+                <span>Sourced Data</span>
               </span>
               <span className="hidden md:inline">•</span>
               <span>Free to Use</span>

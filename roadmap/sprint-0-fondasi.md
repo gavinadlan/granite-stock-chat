@@ -170,7 +170,7 @@ Lakukan:
 2. Tulis ulang hooks/useAuth.tsx: state { user, status: 'loading'|'authenticated'|'unauthenticated' }, aksi register/confirm/login/logout/forgotPassword/updateName, listener Hub untuk event auth. Hapus authService.ts & cognitoAuthService.ts dan perbarui semua pemakaiannya.
 3. Halaman Register: tambah langkah input kode verifikasi + kirim ulang kode. Login: tautan lupa password (halaman baru /forgot-password).
 4. awsLambdaService: sisipkan header Authorization dari fetchAuthSession().tokens.accessToken.
-5. Backend: hapus functions/auth.js, event /auth/{action}, resource UserTable; pertahankan UserPool & UserPoolClient (tambah Outputs CloudFormation UserPoolId & UserPoolClientId). ExplicitAuthFlows tetap SRP + refresh.
+5. Backend: hapus functions/auth.js, event /auth/{action}, resource UserTable (CATATAN: tabel dipertahankan dengan DeletionPolicy: Retain dan dihapus di S1-04 setelah memastikan kosong); pertahankan UserPool & UserPoolClient (tambah Outputs CloudFormation UserPoolId & UserPoolClientId). ExplicitAuthFlows tetap SRP + refresh.
 6. Petakan error Cognito ke pesan ramah (UsernameExistsException, CodeMismatchException, NotAuthorizedException, UserNotConfirmedException → arahkan ke verifikasi).
 Commit: "refactor(auth): single Cognito auth flow via Amplify, remove auth lambda [S0-07]"
 ```

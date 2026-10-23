@@ -6,7 +6,7 @@ const features = [
     icon: TrendingUp,
     iconColor: "text-blue-600",
     bgColor: "bg-blue-100",
-    title: "Real-time Prices",
+    title: "Market Prices",
     description: "Stock prices, volume and daily change from Yahoo Finance for US and Indonesian (IDX) tickers. Every number shows its source and time; free data may be delayed."
   },
   {
@@ -42,8 +42,8 @@ export function FeaturesSection() {
             Comprehensive AI-powered tools for intelligent stock market analysis
           </p>
           <p className="text-base text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">
-            Our advanced platform combines cutting-edge artificial intelligence with real-time market data 
-            to provide you with professional-grade analysis tools that help you make smarter investment decisions.
+            Our advanced platform combines cutting-edge artificial intelligence with public market data 
+            to give you analysis tools for learning about the market. It is not investment advice.
           </p>
         </div>
 

@@ -4,8 +4,8 @@ A modern React frontend for the Stock Market AI Assistant, built with Vite, Type
 
 ## Features
 
-- 🚀 **Real-time Stock Prices** - Get live stock data from multiple sources
-- 🤖 **AI Predictions** - IBM Granite-powered stock price predictions
+- 🚀 **Stock Prices** - Market data from Yahoo Finance (may be delayed, always labelled with source and time)
+- 🤖 **AI Outlook** - IBM Granite explanations of factors and risks (no price targets)
 - 📊 **Technical Analysis** - RSI, MACD, moving averages, and more
 - 📰 **Market News** - Latest news with sentiment analysis
 - 💬 **Interactive Chat** - Natural language interface for stock queries
@@ -25,7 +25,7 @@ A modern React frontend for the Stock Market AI Assistant, built with Vite, Type
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 20+ 
 - npm or yarn
 
 ### Installation
@@ -43,16 +43,15 @@ A modern React frontend for the Stock Market AI Assistant, built with Vite, Type
 
 3. **Set up environment variables**
    ```bash
-   cp env-template.txt .env.local
+   cp .env.example .env.local
    ```
-   
-   Edit `.env.local` and add your API keys:
+
+   Edit `.env.local`. Only public values belong here (they are bundled into the site).
+   API keys live on the backend (SSM Parameter Store), never in `VITE_*` variables.
    ```
-   VITE_AWS_API_URL=http://localhost:3001
-   VITE_RAPIDAPI_KEY=your_rapidapi_key
-   VITE_REPLICATE_API_KEY=your_replicate_key
-   VITE_ALPHA_VANTAGE_API_KEY=your_alpha_vantage_key
-   VITE_NEWS_API_KEY=your_news_api_key
+   VITE_API_URL=https://<api-id>.execute-api.us-east-1.amazonaws.com/dev
+   VITE_USER_POOL_ID=us-east-1_xxxxxxxxx
+   VITE_USER_POOL_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
    ```
 
 4. **Start the development server**
@@ -108,11 +107,10 @@ The frontend integrates with multiple APIs:
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `VITE_AWS_API_URL` | AWS Lambda API URL | No |
-| `VITE_RAPIDAPI_KEY` | RapidAPI key for Yahoo Finance | No |
-| `VITE_REPLICATE_API_KEY` | Replicate API key for IBM Granite | No |
-| `VITE_ALPHA_VANTAGE_API_KEY` | Alpha Vantage API key | No |
-| `VITE_NEWS_API_KEY` | News API key | No |
+| `VITE_API_URL` | API Gateway base URL including the stage (e.g. `.../dev`) | Yes |
+| `VITE_USER_POOL_ID` | Cognito User Pool ID | Yes |
+| `VITE_USER_POOL_CLIENT_ID` | Cognito App Client ID | Yes |
+| `VITE_AWS_REGION` | Cognito region (default `us-east-1`) | No |
 
 ## Deployment
 

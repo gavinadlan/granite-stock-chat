@@ -1,11 +1,11 @@
 /// <reference types="vite/client" />
 
+// Only public, non-secret values may live in VITE_* variables (they end up in the bundle).
 interface ImportMetaEnv {
-  readonly VITE_AWS_API_URL: string
-  readonly VITE_RAPIDAPI_KEY: string
-  readonly VITE_REPLICATE_API_KEY: string
-  readonly VITE_ALPHA_VANTAGE_API_KEY: string
-  readonly VITE_NEWS_API_KEY: string
+  readonly VITE_API_URL: string
+  readonly VITE_AWS_REGION?: string
+  readonly VITE_USER_POOL_ID: string
+  readonly VITE_USER_POOL_CLIENT_ID: string
 }
 
 interface ImportMeta {

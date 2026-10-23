@@ -20,7 +20,7 @@ const aboutFeatures = [
     icon: Clock,
     iconColor: "text-purple-600",
     bgColor: "bg-purple-100",
-    title: "Real-time Data",
+    title: "Transparent Data",
     description: "Market data from Yahoo Finance and news from NewsAPI, cached briefly and always labelled with its source and timestamp."
   },
   {
@@ -35,7 +35,7 @@ const aboutFeatures = [
 const badges = [
   "Free to Use",
   "No Registration Required",
-  "Real-time Updates",
+  "Sources & Timestamps Shown",
   "AI-Powered Analysis"
 ]
 
@@ -50,7 +50,7 @@ export function AboutSection() {
           </p>
           <p className="text-base text-slate-500 dark:text-slate-400 max-w-3xl mx-auto">
             Our Stock Market AI Assistant leverages the power of IBM Granite AI, AWS Lambda, 
-            and real-time market data APIs to deliver professional-grade financial analysis 
+            and public market data APIs to deliver professional-grade financial analysis 
             accessible to everyone, from beginners to experienced traders.
           </p>
         </div>

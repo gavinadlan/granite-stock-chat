@@ -1,26 +1,27 @@
 'use strict';
 // GET /ai-prediction?symbol=AAPL&timeframe=1w
-// Asks IBM Granite (via Replicate) for a short-horizon outlook on top of the real
-// current price. If the model is unavailable or its answer cannot be parsed we
-// return an error: we never substitute a random "prediction".
-// NOTE: Sprint 1 (S1-08) replaces the LLM-generated price with a statistical
-// projection and keeps the LLM only for the explanation.
+// Returns a qualitative outlook written by IBM Granite (via Replicate) on top of the
+// real current price. The model is NOT asked for a price target or a confidence
+// number: those would be invented figures (CLAUDE.md rule 4). Sprint 1 (S1-08)
+// adds a statistical projection computed from real data; the LLM only explains it.
 const { handler, HttpError, unavailable } = require('../lib/http');
 const { PredictionQuerySchema } = require('../lib/validation');
 const { getQuote } = require('../lib/yahoo');
 
 const MODEL = process.env.LLM_MODEL || 'ibm-granite/granite-3.3-8b-instruct';
-const DEADLINE_MS = 24000; // stay below the 29s API Gateway limit
+// Lambda timeout is 28s. The quote fetch takes up to 5s, so the LLM budget is 18s
+// which leaves headroom and lets us return a proper JSON error with CORS headers.
+const DEADLINE_MS = 18000;
 const TIMEFRAME_LABEL = { '1d': '1 day', '1w': '1 week', '1m': '1 month', '3m': '3 months' };
 
 function buildPrompt(symbol, price, currency, timeframe) {
-  return `You are a cautious financial analyst. The current price of ${symbol} is ${price} ${currency}.
-Give a short outlook for the next ${timeframe}. Be realistic and conservative.
+  return `You are a cautious financial educator. The current price of ${symbol} is ${price} ${currency}.
+Describe, for a beginner, the kinds of factors that could influence this stock over the next ${timeframe}.
+Rules: do NOT give a price target, a percentage forecast, a probability or a buy/sell/hold recommendation. Do not invent news or numbers.
 
 Reply in exactly this format and nothing else:
-PREDICTED_PRICE: <number>
-CONFIDENCE: <0-100>%
-REASONING: <one or two sentences, mention the main uncertainty>`;
+FACTORS: <two or three sentences about general factors that could matter>
+RISKS: <one or two sentences about the main uncertainties>`;
 }
 
 async function callReplicate(prompt, signal) {
@@ -30,7 +31,7 @@ async function callReplicate(prompt, signal) {
 
   let res = await fetch(`https://api.replicate.com/v1/models/${MODEL}/predictions`, {
     method: 'POST',
-    headers: { ...headers, Prefer: 'wait=20' },
+    headers: { ...headers, Prefer: 'wait=12' },
     body: JSON.stringify({ input: { prompt, max_tokens: 256, temperature: 0.3 } }),
     signal,
   });
@@ -47,15 +48,15 @@ async function callReplicate(prompt, signal) {
   return Array.isArray(prediction.output) ? prediction.output.join('') : String(prediction.output || '');
 }
 
-/** Parse the model answer. Returns null fields instead of inventing values. */
+const firstLine = (s) => s.trim().split('\n')[0].trim();
+
+/** Parse the model answer. Returns nulls instead of inventing values. */
 function parseAnswer(text) {
-  const price = text.match(/PREDICTED_PRICE:\s*\$?\s*([\d,]+(?:\.\d+)?)/i);
-  const conf = text.match(/CONFIDENCE:\s*(\d{1,3})\s*%/i);
-  const reasoning = text.match(/REASONING:\s*([\s\S]+)/i);
+  const factors = text.match(/FACTORS:\s*([\s\S]*?)(?=\n\s*RISKS:|$)/i);
+  const risks = text.match(/RISKS:\s*([\s\S]+)/i);
   return {
-    predicted: price ? Number(price[1].replace(/,/g, '')) : null,
-    confidence: conf ? Math.min(100, Number(conf[1])) : null,
-    reasoning: reasoning ? reasoning[1].trim().split('\n')[0] : null,
+    reasoning: factors && factors[1].trim() ? factors[1].trim() : null,
+    risks: risks && firstLine(risks[1]) ? firstLine(risks[1]) : null,
   };
 }
 
@@ -77,23 +78,18 @@ exports.handler = handler(
     }
 
     const parsed = parseAnswer(text);
-    // Reject unparseable or implausible answers (> ±50% move) rather than showing them.
-    if (parsed.predicted === null || Math.abs(parsed.predicted / quote.price - 1) > 0.5) {
+    if (parsed.reasoning === null) {
       throw new HttpError(502, 'AI_BAD_RESPONSE', 'The AI model returned an answer we could not use. Please try again.');
     }
-    const change = parsed.predicted - quote.price;
     return {
       body: {
         symbol: quote.symbol,
         current: quote.price,
-        predicted: Number(parsed.predicted.toFixed(4)),
         currency: quote.currency,
-        confidence: parsed.confidence,
         timeframe,
-        change: Number(change.toFixed(4)),
-        changePercent: Number(((change / quote.price) * 100).toFixed(2)),
         reasoning: parsed.reasoning,
-        method: 'llm',
+        risks: parsed.risks,
+        method: 'llm-explanation',
         model: MODEL,
         source: `${quote.source} + ${MODEL}`,
         asOf: quote.asOf,

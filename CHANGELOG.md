@@ -9,7 +9,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), versioning: [S
 - Removed hardcoded API keys from `serverless.yml`, env templates, frontend services, docs and scripts.
 - Stopped tracking `backend/.env` and `.serverless/` build artifacts.
 - Backend secrets now come from AWS SSM Parameter Store (`/stockai/<stage>/*`).
-- The browser no longer calls Replicate, NewsAPI, Alpha Vantage or RapidAPI directly; no `VITE_*_KEY` variables.
+- The browser no longer calls Replicate, NewsAPI, Alpha Vantage or RapidAPI directly; no `VITE_*_KEY` variables (typings and docs cleaned up too).
 - Removed the mock auth fallback that signed users in when Cognito rejected their password.
 - CORS restricted to an allow-list; error responses no longer include stack traces.
 

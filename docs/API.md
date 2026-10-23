@@ -6,7 +6,7 @@ This document describes the API endpoints for the Stock Market Chatbot backend.
 
 ## Base URL
 
-- **Development**: `http://localhost:3000`
+- **Development**: `http://localhost:3001`
 - **Production**: `https://your-api-gateway-url.amazonaws.com/dev`
 
 ## Authentication
@@ -26,7 +26,7 @@ Get real-time stock price information.
 
 **Example Request**:
 ```bash
-curl "http://localhost:3000/stock-price?symbol=AAPL"
+curl "http://localhost:3001/stock-price?symbol=AAPL"
 ```
 
 **Example Response**:
@@ -57,19 +57,21 @@ curl "http://localhost:3000/stock-price?symbol=AAPL"
 
 ---
 
-### 2. AI Prediction
+### 2. AI Outlook
 
-Get AI-powered stock price predictions using IBM Granite.
+Qualitative outlook written by IBM Granite on top of the real current price.
+The model is not asked for a price target, percentage forecast, confidence number or
+buy/sell recommendation (those would be invented figures).
 
 **Endpoint**: `GET /ai-prediction`
 
 **Parameters**:
 - `symbol` (required): Stock symbol
-- `timeframe` (optional): Prediction timeframe (default: "1 week")
+- `timeframe` (optional): `1d`, `1w` (default), `1m`, `3m`
 
 **Example Request**:
 ```bash
-curl "http://localhost:3000/ai-prediction?symbol=TSLA&timeframe=1%20week"
+curl "http://localhost:3001/ai-prediction?symbol=TSLA&timeframe=1w"
 ```
 
 **Example Response**:
@@ -77,28 +79,19 @@ curl "http://localhost:3000/ai-prediction?symbol=TSLA&timeframe=1%20week"
 {
   "symbol": "TSLA",
   "current": 245.67,
-  "predicted": 252.30,
-  "confidence": 78,
+  "currency": "USD",
   "timeframe": "1 week",
-  "change": 6.63,
-  "changePercent": 2.70,
-  "reasoning": "Analysis based on historical patterns and market trends. Consider market volatility and company fundamentals.",
-  "riskLevel": "medium",
-  "recommendation": "buy"
+  "reasoning": "Earnings expectations and interest-rate news often move large growth stocks.",
+  "risks": "Results can differ sharply from expectations.",
+  "method": "llm-explanation",
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "source": "Yahoo Finance + ibm-granite/granite-3.3-8b-instruct",
+  "asOf": "2026-10-23T14:30:00.000Z"
 }
 ```
 
-**Response Fields**:
-- `symbol`: Stock symbol
-- `current`: Current price
-- `predicted`: Predicted price
-- `confidence`: Confidence level (0-100)
-- `timeframe`: Prediction timeframe
-- `change`: Predicted price change
-- `changePercent`: Predicted percentage change
-- `reasoning`: AI reasoning for prediction
-- `riskLevel`: Risk level (low/medium/high)
-- `recommendation`: AI recommendation (buy/sell/hold)
+**Errors**: `503` when the AI provider is unavailable or times out; `502 AI_BAD_RESPONSE` when its answer cannot be used.
+A statistical projection computed from real data arrives in Sprint 1 (S1-08).
 
 ---
 
@@ -113,7 +106,7 @@ Get technical analysis indicators for a stock.
 
 **Example Request**:
 ```bash
-curl "http://localhost:3000/technical-analysis?symbol=MSFT"
+curl "http://localhost:3001/technical-analysis?symbol=MSFT"
 ```
 
 **Example Response**:
@@ -171,8 +164,8 @@ Get latest market news related to stocks.
 
 **Example Request**:
 ```bash
-curl "http://localhost:3000/market-news?query=stock%20market"
-curl "http://localhost:3000/market-news?symbol=AAPL"
+curl "http://localhost:3001/market-news?query=stock%20market"
+curl "http://localhost:3001/market-news?symbol=AAPL"
 ```
 
 **Example Response**:
