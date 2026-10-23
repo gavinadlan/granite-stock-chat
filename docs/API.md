@@ -15,6 +15,19 @@ Currently, no authentication is required. All endpoints are publicly accessible.
 
 ## Endpoints
 
+Every endpoint is served under `/v1` and, until S1-10, also under its legacy path.
+Both paths run the same handler and return the same body and query parameters.
+
+| `/v1` path | Legacy alias |
+|---|---|
+| `GET /v1/quote` | `GET /stock-price` |
+| `GET /v1/projection` | `GET /ai-prediction` |
+| `GET /v1/technicals` | `GET /technical-analysis` |
+| `GET /v1/news` | `GET /market-news` |
+| `GET /v1/health` | `GET /health` |
+
+Response shapes are defined as zod schemas in `packages/shared/src/index.ts`.
+
 ### 1. Stock Price
 
 Get real-time stock price information.
