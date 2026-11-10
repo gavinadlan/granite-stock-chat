@@ -18,13 +18,18 @@ StockAI adalah asisten chat pasar saham berbasis AI (IBM Granite) dengan data ha
 npm workspaces monorepo (satu `package-lock.json` di root, Node 20 lihat `.nvmrc`):
 ```
 frontend/            React app (src/components, pages, services, hooks, lib)
-backend/             Lambda functions (functions/*.js, lib/) + serverless.yml
-packages/shared/     @stockai/shared: tipe bersama frontend & backend
+backend/             Lambda backend (TypeScript, bundled by serverless-esbuild) + serverless.yml
+  src/handlers/      tipis: validasi query → panggil service → response (/v1/* + alias lama s/d S1-10)
+  src/services/      logika bisnis (dipakai handler & tool AI di Sprint 2)
+  src/providers/     klien Yahoo chart, NewsAPI, Replicate
+  src/domain/        fungsi murni (indicators/)
+  src/lib/           config (env zod, cold start), http (wrapper handler, CORS, error), validation
+  test/              Vitest (*.test.ts)
+packages/shared/     @stockai/shared: zod schema + tipe response (frontend & backend)
 docs/                API.md, DEPLOYMENT.md (secrets), legacy/ (panduan lama)
 scripts/             skrip dev (legacy/ = skrip deploy lama, dihapus di S5-03)
 roadmap/             Roadmap & prompt eksekusi
 ```
-Target setelah Sprint 1: backend TypeScript di `backend/src/{handlers,services,providers,domain,lib}`.
 
 ## Perintah (jalankan dari root)
 - Install: `npm install`
@@ -32,6 +37,8 @@ Target setelah Sprint 1: backend TypeScript di `backend/src/{handlers,services,p
 - Cek: `npm run lint` · `npm run typecheck` · `npm test` · `npm run build`
 - Deploy backend: `npm run deploy:dev -w backend` / `npm run deploy:prod -w backend`
 - Per workspace: `npm run <script> -w frontend|backend|@stockai/shared`
+- Backend: `npm run typecheck|lint|test -w backend` · `npx serverless package --stage dev` (dari `backend/`, butuh izin `ssm:GetParameter`)
+- Handler baru: buat `backend/src/handlers/<nama>.ts` (export `handler`), daftarkan di `serverless.yml` dengan `handler: src/handlers/<nama>.handler`
 
 ## Aturan WAJIB
 1. **Tidak ada secret di kode/frontend.** Semua API key hanya di backend, dibaca dari env yang diisi SSM Parameter Store. Jangan pernah membuat variabel `VITE_*` untuk API key pihak ketiga.

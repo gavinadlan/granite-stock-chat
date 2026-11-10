@@ -1,55 +1,91 @@
-'use strict';
 // Minimal Yahoo Finance chart client (unofficial endpoint).
-// Sprint 1 (S1-03) replaces this with a provider adapter + fallback chain.
-const { notFound, unavailable } = require('./http');
+// S1-03 replaces this with a provider adapter + fallback chain.
+import type { DataMeta, Quote } from '@stockai/shared';
+import type { Candle } from '../domain/indicators';
+import { notFound, unavailable } from '../lib/http';
 
 const BASE = 'https://query1.finance.yahoo.com/v8/finance/chart/';
 const TIMEOUT_MS = 5000;
 
-async function fetchChart(symbol, { range = '1d', interval = '1d' } = {}) {
+type Column = (number | null)[];
+
+export interface ChartMeta {
+  symbol?: string;
+  longName?: string;
+  shortName?: string;
+  currency?: string;
+  exchangeName?: string;
+  regularMarketPrice?: number;
+  regularMarketTime?: number;
+  regularMarketDayHigh?: number;
+  regularMarketDayLow?: number;
+  regularMarketVolume?: number;
+  previousClose?: number;
+  chartPreviousClose?: number;
+}
+
+export interface ChartResult {
+  meta?: ChartMeta;
+  timestamp?: number[];
+  indicators?: { quote?: { open?: Column; high?: Column; low?: Column; close?: Column; volume?: Column }[] };
+}
+
+interface ChartBody {
+  chart?: { result?: ChartResult[] | null; error?: { code?: string } | null };
+}
+
+export async function fetchChart(symbol: string, { range = '1d', interval = '1d' } = {}): Promise<ChartResult> {
   const url = `${BASE}${encodeURIComponent(symbol)}?range=${range}&interval=${interval}`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  let res;
+  let res: Response;
   try {
     res = await fetch(url, {
       signal: controller.signal,
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; StockAI/0.2; +https://stockai.gavinadlan.my.id)' },
     });
   } catch (err) {
-    throw unavailable(`Market data provider unreachable (${err.name === 'AbortError' ? 'timeout' : 'network'})`);
+    const timedOut = err instanceof Error && err.name === 'AbortError';
+    throw unavailable(`Market data provider unreachable (${timedOut ? 'timeout' : 'network'})`);
   } finally {
     clearTimeout(timer);
   }
-  let body;
+  let body: ChartBody | null;
   try {
-    body = await res.json();
+    body = (await res.json()) as ChartBody | null; // shape checked field by field below
   } catch {
     throw unavailable(`Market data provider returned an invalid response (HTTP ${res.status})`);
   }
-  const chart = body && body.chart;
-  if (res.status === 404 || (chart && chart.error && /not found/i.test(chart.error.code || ''))) {
+  const chart = body?.chart;
+  if (res.status === 404 || (chart?.error && /not found/i.test(chart.error.code || ''))) {
     throw notFound(`Symbol ${symbol} not found`);
   }
-  if (!res.ok || !chart || !chart.result || !chart.result.length) {
+  if (!res.ok || !chart?.result?.length) {
     throw unavailable(`Market data provider error (HTTP ${res.status})`);
   }
   return chart.result[0];
 }
 
+const isNum = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
+
 /** Parse candles, dropping incomplete rows (Yahoo returns nulls for gaps). */
-function toCandles(result) {
+export function toCandles(result: ChartResult): Candle[] {
   const ts = result.timestamp || [];
-  const q = (result.indicators && result.indicators.quote && result.indicators.quote[0]) || {};
-  const candles = [];
+  const q = result.indicators?.quote?.[0] || {};
+  const candles: Candle[] = [];
   for (let i = 0; i < ts.length; i++) {
-    const c = { t: ts[i], o: q.open && q.open[i], h: q.high && q.high[i], l: q.low && q.low[i], c: q.close && q.close[i], v: q.volume && q.volume[i] };
-    if ([c.o, c.h, c.l, c.c].every((x) => typeof x === 'number' && Number.isFinite(x))) candles.push(c);
+    const o = q.open?.[i];
+    const h = q.high?.[i];
+    const l = q.low?.[i];
+    const c = q.close?.[i];
+    if (isNum(o) && isNum(h) && isNum(l) && isNum(c)) candles.push({ t: ts[i], o, h, l, c, v: q.volume?.[i] ?? null });
   }
   return candles;
 }
 
-async function getQuote(symbol) {
+export type QuoteWithMeta = Quote & DataMeta;
+
+export async function getQuote(symbol: string): Promise<QuoteWithMeta> {
   const result = await fetchChart(symbol, { range: '5d', interval: '1d' });
   const meta = result.meta || {};
   const price = meta.regularMarketPrice;
@@ -80,9 +116,7 @@ async function getQuote(symbol) {
   };
 }
 
-async function getDailyHistory(symbol, range = '1y') {
+export async function getDailyHistory(symbol: string, range = '1y'): Promise<{ meta: ChartMeta; candles: Candle[] }> {
   const result = await fetchChart(symbol, { range, interval: '1d' });
   return { meta: result.meta || {}, candles: toCandles(result) };
 }
-
-module.exports = { fetchChart, toCandles, getQuote, getDailyHistory };
