@@ -3,7 +3,7 @@ export type RsiZone = 'oversold' | 'neutral' | 'overbought';
 export const RSI_OVERSOLD = 30;
 export const RSI_OVERBOUGHT = 70;
 
-/** Same inclusive thresholds as the backend signals (backend/lib/indicators.js). */
+/** Same inclusive thresholds as the backend signals (backend/src/domain/indicators/index.ts). */
 export function rsiZone(rsi: number): RsiZone {
   if (rsi >= RSI_OVERBOUGHT) return 'overbought';
   if (rsi <= RSI_OVERSOLD) return 'oversold';
