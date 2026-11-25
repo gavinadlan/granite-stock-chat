@@ -60,25 +60,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to Home Button */}
         <div className="mb-6">
           <Link 
             to="/" 
-            className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
         </div>
 
-        <Card className="shadow-lg">
+        <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-slate-900">
+            <CardTitle className="text-2xl font-bold text-foreground">
               Welcome Back
             </CardTitle>
-            <CardDescription className="text-slate-600">
+            <CardDescription className="text-muted-foreground">
               Sign in to access your AI stock chat
             </CardDescription>
           </CardHeader>
@@ -87,11 +87,11 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email Field */}
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-slate-700">
+                <label htmlFor="email" className="text-sm font-medium text-foreground">
                   Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="email"
                     type="email"
@@ -106,11 +106,11 @@ export default function LoginPage() {
 
               {/* Password Field */}
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-slate-700">
+                <label htmlFor="password" className="text-sm font-medium text-foreground">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
@@ -123,7 +123,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -131,7 +131,7 @@ export default function LoginPage() {
               </div>
 
               <div className="text-right -mt-2">
-                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+                <Link to="/forgot-password" className="text-sm text-foreground underline underline-offset-4 hover:decoration-2">
                   Forgot password?
                 </Link>
               </div>
@@ -148,11 +148,11 @@ export default function LoginPage() {
 
             {/* Register Link */}
             <div className="mt-6 text-center">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-muted-foreground">
                 Don't have an account?{' '}
                 <Link 
                   to="/register" 
-                  className="text-blue-600 hover:text-blue-700 font-medium"
+                  className="text-foreground underline underline-offset-4 hover:decoration-2 font-medium"
                 >
                   Sign up here
                 </Link>

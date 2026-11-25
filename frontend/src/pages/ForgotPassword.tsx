@@ -53,18 +53,18 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-6">
-          <Link to="/login" className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors">
+          <Link to="/login" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to sign in
           </Link>
         </div>
-        <Card className="shadow-lg">
+        <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-slate-900">Reset password</CardTitle>
-            <CardDescription className="text-slate-600">
+            <CardTitle className="text-2xl font-bold text-foreground">Reset password</CardTitle>
+            <CardDescription className="text-muted-foreground">
               {step === 'request' ? 'Enter your email and we will send you a reset code.' : `Enter the code sent to ${email}.`}
             </CardDescription>
           </CardHeader>
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
             {step === 'request' ? (
               <form onSubmit={requestCode} className="space-y-4">
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input type="email" aria-label="Email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10" required />
                 </div>
                 <Button type="submit" className="w-full" disabled={busy}>
@@ -82,11 +82,11 @@ export default function ForgotPasswordPage() {
             ) : (
               <form onSubmit={reset} className="space-y-4">
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input aria-label="Reset code" inputMode="numeric" autoComplete="one-time-code" placeholder="123456" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} className="pl-10 tracking-widest" maxLength={6} required />
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input type="password" aria-label="New password" autoComplete="new-password" placeholder="New password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" required />
                 </div>
                 <Button type="submit" className="w-full" disabled={busy}>

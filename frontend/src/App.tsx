@@ -16,7 +16,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="min-h-screen bg-background">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />

@@ -177,13 +177,13 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8">
+    <div className="min-h-screen bg-background py-8">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Back Button */}
         <div className="mb-6">
           <Link 
             to="/" 
-            className="inline-flex items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
@@ -193,8 +193,8 @@ export function SettingsPage() {
         <div className="space-y-6">
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Settings</h1>
-            <p className="text-slate-600 dark:text-slate-300">Manage your account preferences and privacy settings</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">Settings</h1>
+            <p className="text-muted-foreground">Manage your account preferences and privacy settings</p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
@@ -213,7 +213,7 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Push Notifications</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Receive notifications in your browser</p>
+                    <p className="text-sm text-muted-foreground">Receive notifications in your browser</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -222,7 +222,7 @@ export function SettingsPage() {
                       onChange={(e) => handleSettingChange('notifications', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-11 h-6 border border-input bg-muted peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 ring-offset-background rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-px after:left-px after:bg-card after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
               </CardContent>
@@ -243,7 +243,7 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Dark Mode</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Switch to dark theme</p>
+                    <p className="text-sm text-muted-foreground">Switch to dark theme</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -252,7 +252,7 @@ export function SettingsPage() {
                       onChange={(e) => handleSettingChange('darkMode', e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <div className="w-11 h-6 border border-input bg-muted peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 ring-offset-background rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-px after:left-px after:bg-card after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                   </label>
                 </div>
               </CardContent>

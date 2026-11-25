@@ -6,7 +6,7 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-slate-900 text-white">
+    <footer className="bg-muted text-foreground">
       <div className="container mx-auto px-4 py-12">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
@@ -20,23 +20,23 @@ export function Footer() {
               />
               <h3 className="text-xl font-bold">StockAI</h3>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               AI-powered stock market assistant providing market data (may be delayed), technical analysis and AI explanations for educational purposes. Not investment advice.
             </p>
-            <div className="flex items-center space-x-2 text-sm text-slate-400">
-              <Zap className="h-4 w-4 text-yellow-400" />
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <Zap className="h-4 w-4 text-muted-foreground" />
               <span>Powered by IBM Granite AI</span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Quick Links</h4>
+            <h4 className="text-lg font-semibold">Quick Links</h4>
             <ul className="space-y-3">
               <li>
                 <Link 
                   to="/" 
-                  className="text-slate-400 hover:text-white transition-colors text-sm flex items-center space-x-2"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm flex items-center space-x-2"
                 >
                   <ExternalLink className="h-3 w-3" />
                   <span>Home</span>
@@ -45,7 +45,7 @@ export function Footer() {
               <li>
                 <Link 
                   to="/chat" 
-                  className="text-slate-400 hover:text-white transition-colors text-sm flex items-center space-x-2"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm flex items-center space-x-2"
                 >
                   <ExternalLink className="h-3 w-3" />
                   <span>Start Chatting</span>
@@ -54,7 +54,7 @@ export function Footer() {
               <li>
                 <Link 
                   to="/login" 
-                  className="text-slate-400 hover:text-white transition-colors text-sm flex items-center space-x-2"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm flex items-center space-x-2"
                 >
                   <ExternalLink className="h-3 w-3" />
                   <span>Login</span>
@@ -63,7 +63,7 @@ export function Footer() {
               <li>
                 <Link 
                   to="/register" 
-                  className="text-slate-400 hover:text-white transition-colors text-sm flex items-center space-x-2"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm flex items-center space-x-2"
                 >
                   <ExternalLink className="h-3 w-3" />
                   <span>Sign Up</span>
@@ -74,22 +74,22 @@ export function Footer() {
 
           {/* Features */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Features</h4>
+            <h4 className="text-lg font-semibold">Features</h4>
             <ul className="space-y-3">
-              <li className="flex items-center space-x-2 text-slate-400 text-sm">
-                <TrendingUp className="h-4 w-4 text-blue-400" />
+              <li className="flex items-center space-x-2 text-muted-foreground text-sm">
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 <span>Stock Prices</span>
               </li>
-              <li className="flex items-center space-x-2 text-slate-400 text-sm">
-                <Brain className="h-4 w-4 text-purple-400" />
+              <li className="flex items-center space-x-2 text-muted-foreground text-sm">
+                <Brain className="h-4 w-4 text-muted-foreground" />
                 <span>AI Predictions</span>
               </li>
-              <li className="flex items-center space-x-2 text-slate-400 text-sm">
-                <BarChart3 className="h-4 w-4 text-green-400" />
+              <li className="flex items-center space-x-2 text-muted-foreground text-sm">
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 <span>Technical Analysis</span>
               </li>
-              <li className="flex items-center space-x-2 text-slate-400 text-sm">
-                <Newspaper className="h-4 w-4 text-orange-400" />
+              <li className="flex items-center space-x-2 text-muted-foreground text-sm">
+                <Newspaper className="h-4 w-4 text-muted-foreground" />
                 <span>Market News</span>
               </li>
             </ul>
@@ -97,8 +97,8 @@ export function Footer() {
 
           {/* Tech Stack */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white">Powered By</h4>
-            <ul className="space-y-2 text-sm text-slate-400">
+            <h4 className="text-lg font-semibold">Powered By</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
               <li>• IBM Granite AI</li>
               <li>• AWS Lambda</li>
               <li>• Yahoo Finance</li>
@@ -109,11 +109,11 @@ export function Footer() {
         </div>
 
         {/* Divider */}
-        <div className="border-t border-slate-800 pt-8">
+        <div className="border-t border-border pt-8">
           {/* Bottom Section */}
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             {/* Copyright */}
-            <div className="text-sm text-slate-400 text-center md:text-left">
+            <div className="text-sm text-muted-foreground text-center md:text-left">
               <p>© {currentYear} StockAI. All rights reserved.</p>
               <p className="mt-1 max-w-xl">
                 StockAI provides information for research and education only. It is not financial advice.
@@ -123,7 +123,7 @@ export function Footer() {
             </div>
 
             {/* Additional Info */}
-            <div className="flex flex-wrap justify-center md:justify-end items-center gap-4 text-xs text-slate-500">
+            <div className="flex flex-wrap justify-center md:justify-end items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center space-x-1">
                 <Zap className="h-3 w-3" />
                 <span>Sourced Data</span>

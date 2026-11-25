@@ -52,11 +52,33 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        surface: {
+          raised: "hsl(var(--surface-raised))",
+        },
+        // Price direction only. Never use for status, success or errors.
+        up: "hsl(var(--up))",
+        down: "hsl(var(--down))",
+      },
+      fontFamily: {
+        sans: ["IBM Plex Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["IBM Plex Sans Condensed", "IBM Plex Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      // Type scale: sm 14, base 16 (Tailwind defaults) + these. Also register new names in lib/utils.ts.
+      fontSize: {
+        title: ["1.25rem", { lineHeight: "1.75rem" }], // 20
+        heading: ["1.75rem", { lineHeight: "2.125rem" }], // 28
+        display: ["2.75rem", { lineHeight: "3rem" }], // 44
+        hero: ["4rem", { lineHeight: "4rem" }], // 64
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        control: "6px",
+        card: "10px",
+        panel: "16px",
+        // shadcn names mapped onto the same three steps
+        sm: "4px",
+        md: "6px",
+        lg: "10px",
+        xl: "16px",
       },
       keyframes: {
         "accordion-down": {

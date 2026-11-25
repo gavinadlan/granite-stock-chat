@@ -1,8 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
+import { PriceChange } from '@/components/ui/price-change';
 import { StockPrice } from '@/services/stockMarketAPI';
-import { formatPrice, formatChange } from '@/lib/currencyUtils';
+import { formatPrice } from '@/lib/currencyUtils';
 import { DataSourceBadge } from './DataSourceBadge';
 
 interface StockCardProps {
@@ -10,72 +10,42 @@ interface StockCardProps {
 }
 
 export function StockCard({ stockPrice }: StockCardProps) {
-  const isPositive = (stockPrice.change ?? 0) >= 0;
-  const changeIcon = isPositive ? TrendingUp : TrendingDown;
-  const changeColor = isPositive ? 'text-green-600' : 'text-red-600';
-  const changeColorDark = isPositive ? 'dark:text-green-400' : 'dark:text-red-400';
-  const bgColor = isPositive ? 'bg-green-50' : 'bg-red-50';
-  const bgColorDark = isPositive ? 'dark:bg-green-900/30' : 'dark:bg-red-900/30';
-
   return (
-    <Card className="w-full max-w-md mx-auto dark:bg-slate-800 dark:border-slate-700">
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader className="pb-2 p-4 sm:p-6">
         <CardTitle className="flex items-center justify-between">
-          <span className="text-base sm:text-lg font-semibold dark:text-white">{stockPrice.symbol}</span>
-          <Badge variant="secondary" className="text-[10px] sm:text-xs dark:bg-slate-700 dark:text-slate-200">
-            {stockPrice.delayed ? 'Delayed' : 'Live'}
-          </Badge>
+          <span className="text-base sm:text-lg font-semibold">{stockPrice.symbol}</span>
+          <Badge variant="secondary">{stockPrice.delayed ? 'Delayed' : 'Live'}</Badge>
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
-        {/* Price */}
-        <div className="flex items-center space-x-2">
-          <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-slate-600 dark:text-slate-300 flex-shrink-0" />
-          <span className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white break-all">
-            {formatPrice(stockPrice.price, stockPrice.currency)}
-          </span>
-        </div>
+        <p className="text-xl sm:text-2xl font-semibold tabular-nums break-all">
+          {formatPrice(stockPrice.price, stockPrice.currency)}
+        </p>
+        <PriceChange
+          change={stockPrice.change}
+          changePercent={stockPrice.changePercent}
+          currency={stockPrice.currency}
+          className="block font-medium"
+        />
 
-        {/* Change */}
-        <div className={`flex items-center space-x-2 ${bgColor} ${bgColorDark} p-2 sm:p-2.5 rounded-lg`}>
-          {changeIcon === TrendingUp ? (
-            <TrendingUp className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${changeColor} ${changeColorDark} flex-shrink-0`} />
-          ) : (
-            <TrendingDown className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${changeColor} ${changeColorDark} flex-shrink-0`} />
-          )}
-          <span className={`font-semibold text-sm sm:text-base ${changeColor} ${changeColorDark} break-all`}>
-            {stockPrice.change === null ? '—' : formatChange(stockPrice.change, stockPrice.currency)}
-          </span>
-          <span className={`text-xs sm:text-sm ${changeColor} ${changeColorDark} whitespace-nowrap`}>
-            {stockPrice.changePercent === null ? '' : `(${isPositive ? '+' : ''}${stockPrice.changePercent.toFixed(2)}%)`}
-          </span>
-        </div>
-
-        {/* Additional Info */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
-          <div className="flex items-start space-x-1.5 sm:space-x-2">
-            <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 dark:text-slate-300 flex-shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-slate-600 dark:text-slate-400 text-[10px] sm:text-xs">Volume</p>
-              <p className="font-semibold text-xs sm:text-sm break-all dark:text-slate-100">{stockPrice.volume === null ? '—' : stockPrice.volume.toLocaleString()}</p>
-            </div>
+        <dl className="grid grid-cols-2 gap-3 sm:gap-4 text-sm">
+          <div className="min-w-0">
+            <dt className="text-muted-foreground">Volume</dt>
+            <dd className="font-medium tabular-nums break-all">{stockPrice.volume === null ? '—' : stockPrice.volume.toLocaleString()}</dd>
           </div>
-          <div className="flex items-start space-x-1.5 sm:space-x-2">
-            <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 dark:text-slate-300 flex-shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-slate-600 dark:text-slate-400 text-[10px] sm:text-xs">Market Cap</p>
-              <p className="font-semibold text-xs sm:text-sm break-all dark:text-slate-100">{stockPrice.marketCap || 'N/A'}</p>
-            </div>
+          <div className="min-w-0">
+            <dt className="text-muted-foreground">Market cap</dt>
+            <dd className="font-medium tabular-nums break-all">{stockPrice.marketCap ?? '—'}</dd>
           </div>
-        </div>
+        </dl>
 
-        {/* Last Updated */}
         <DataSourceBadge
           source={stockPrice.source}
           asOf={stockPrice.asOf}
           delayed={stockPrice.delayed}
-          className="pt-2 border-t dark:border-slate-700"
+          className="pt-2 border-t"
         />
       </CardContent>
     </Card>

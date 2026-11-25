@@ -16,13 +16,13 @@ export function HeroSection({ onScrollToSection }: HeroSectionProps) {
       <div className="container mx-auto px-4">
         <div className="text-center space-y-8">
           <div className="space-y-4">
-            <Badge variant="secondary" className="text-sm dark:bg-slate-800 dark:text-slate-200">
+            <Badge variant="secondary" className="text-sm">
               AI-Powered Stock Analysis
             </Badge>
-            <h1 className="text-5xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-5xl font-bold text-foreground">
               Stock Market AI Assistant
             </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Ask about stock prices, technical analysis and market news, and get AI explanations. Data may be delayed and is for education, not investment advice.
             </p>
           </div>
@@ -31,8 +31,8 @@ export function HeroSection({ onScrollToSection }: HeroSectionProps) {
             {isLoading ? (
               // Loading state - show skeleton buttons
               <>
-                <div className="h-12 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
-                <div className="h-12 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
+                <div className="h-12 w-32 bg-muted rounded-lg animate-pulse"></div>
+                <div className="h-12 w-24 bg-muted rounded-lg animate-pulse"></div>
               </>
             ) : isAuthenticated ? (
               <Button size="lg" asChild>

@@ -39,7 +39,7 @@ export function TechStackSection() {
           alt={item.alt} 
           className="w-10 h-10 md:w-12 md:h-12 object-contain flex-shrink-0"
         />
-        <span className="text-slate-700 dark:text-slate-200 font-semibold text-sm md:text-base whitespace-nowrap">
+        <span className="text-foreground font-semibold text-sm md:text-base whitespace-nowrap">
           {item.name}
         </span>
       </div>
@@ -49,11 +49,11 @@ export function TechStackSection() {
   }))
 
   return (
-    <div className="py-16 bg-slate-50 dark:bg-slate-800/50">
+    <div className="py-16 bg-muted">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-12">
-          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Powered by Leading Technologies</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-foreground">Powered by Leading Technologies</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Built with industry-leading AI, cloud, and data technologies
           </p>
         </div>

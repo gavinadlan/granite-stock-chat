@@ -52,7 +52,7 @@
 }
 
 .box-loader-wrapper .boxes .box > div {
-  --background: #5C8DF6;
+  --background: hsl(var(--primary));
   --top: auto;
   --right: auto;
   --bottom: auto;
@@ -77,18 +77,18 @@
 }
 
 .box-loader-wrapper .boxes .box > div:nth-child(2) {
-  --background: #145af2;
+  --background: hsl(var(--primary) / 0.75);
   --right: 0;
   --rotateY: 90deg;
 }
 
 .box-loader-wrapper .boxes .box > div:nth-child(3) {
-  --background: #447cf5;
+  --background: hsl(var(--primary) / 0.9);
   --rotateX: -90deg;
 }
 
 .box-loader-wrapper .boxes .box > div:nth-child(4) {
-  --background: #DBE3F4;
+  --background: hsl(var(--muted));
   --top: 0;
   --left: 0;
   --translateZ: calc(var(--size) * 3 * -1);
@@ -190,20 +190,8 @@
   }
 }
 
-/* Dark mode support */
-.dark .box-loader-wrapper .boxes .box > div {
-  --background: #5C8DF6;
+@media (prefers-reduced-motion: reduce) {
+  .box-loader-wrapper .boxes .box:nth-child(n) {
+    animation: none;
+  }
 }
-
-.dark .box-loader-wrapper .boxes .box > div:nth-child(2) {
-  --background: #145af2;
-}
-
-.dark .box-loader-wrapper .boxes .box > div:nth-child(3) {
-  --background: #447cf5;
-}
-
-.dark .box-loader-wrapper .boxes .box > div:nth-child(4) {
-  --background: #DBE3F4;
-}
-

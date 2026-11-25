@@ -14,7 +14,7 @@ export function NewsCard({ newsItem }: NewsCardProps) {
       <CardHeader className="pb-2 p-4 sm:p-6">
         <CardTitle className="flex items-center justify-between gap-2">
           <div className="flex items-center space-x-1.5 sm:space-x-2 min-w-0 flex-1">
-            <Newspaper className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 flex-shrink-0" />
+            <Newspaper className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-xs sm:text-sm font-semibold line-clamp-2 break-words">{newsItem.title}</span>
           </div>
           <Badge variant="secondary" className="text-[10px] sm:text-xs flex-shrink-0">
@@ -25,12 +25,12 @@ export function NewsCard({ newsItem }: NewsCardProps) {
       
       <CardContent className="space-y-2.5 sm:space-y-3 p-4 sm:p-6 pt-0">
         {/* Description */}
-        <p className="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed">
+        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3 leading-relaxed">
           {newsItem.description}
         </p>
 
         {/* Source and Date */}
-        <div className="flex items-center justify-between text-[10px] sm:text-xs text-slate-500 flex-wrap gap-1">
+        <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground flex-wrap gap-1">
           <div className="flex items-center space-x-1">
             <Calendar className="h-3 w-3 flex-shrink-0" />
             <span className="break-all">{new Date(newsItem.publishedAt).toLocaleDateString()}</span>
@@ -45,7 +45,7 @@ export function NewsCard({ newsItem }: NewsCardProps) {
               href={newsItem.url} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center space-x-1 text-xs sm:text-sm text-blue-600 hover:text-blue-800"
+              className="inline-flex items-center space-x-1 text-xs sm:text-sm text-foreground underline underline-offset-4 hover:decoration-2"
             >
               <span>Read more</span>
               <ExternalLink className="h-3 w-3 flex-shrink-0" />
