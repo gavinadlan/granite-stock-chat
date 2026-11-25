@@ -157,12 +157,6 @@ export function UserProfile() {
                     {user?.userId || 'N/A'}
                   </span>
                 </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-sm text-muted-foreground">Member Since</span>
-                  <span className="text-sm text-foreground font-medium">
-                    {new Date().toLocaleDateString()}
-                  </span>
-                </div>
               </div>
             </div>
           </CardContent>
