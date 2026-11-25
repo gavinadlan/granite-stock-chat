@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import StockAILogo from '@/components/image/logo.png';
+import { Logo } from '@/components/brand/Logo';
+import { LogoMark } from '@/components/brand/LogoMark';
 import { UserMenu } from './UserMenu';
 
 interface ChatHeaderProps {
@@ -12,9 +13,10 @@ interface ChatHeaderProps {
 
 export function ChatHeader({ title, stocksOpen, onOpenStocks }: ChatHeaderProps) {
   return (
-    <header className="flex h-14 flex-shrink-0 items-center gap-2 border-b px-3 sm:px-4">
-      <Link to="/" className="flex-shrink-0 rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="StockAI home">
-        <img src={StockAILogo} alt="" className="h-8 w-8" />
+    <header className="flex h-14 flex-shrink-0 items-center gap-3 border-b px-3 sm:gap-5 sm:px-4">
+      <Link to="/" className="flex flex-shrink-0 items-center rounded-control focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <LogoMark className="h-[25px] w-[25px] sm:hidden" />
+        <Logo className="hidden sm:inline-flex" />
       </Link>
       <h1 className="min-w-0 flex-1 truncate font-sans font-medium">{title}</h1>
       <Button variant="ghost" className="h-11 px-3" aria-haspopup="dialog" aria-expanded={stocksOpen} onClick={onOpenStocks}>

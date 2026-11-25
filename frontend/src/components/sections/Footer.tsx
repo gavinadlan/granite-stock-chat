@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { Brain, Zap, TrendingUp, BarChart3, Newspaper, ExternalLink } from "lucide-react"
-import StockAILogo from "@/components/image/logo.png"
+import { Logo } from "@/components/brand/Logo"
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -12,14 +12,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <img 
-                src={StockAILogo} 
-                alt="Stock AI" 
-                className="h-8 w-8 object-contain"
-              />
-              <h3 className="text-xl font-bold">StockAI</h3>
-            </div>
+            <Logo className="text-[20px]" />
             <p className="text-muted-foreground text-sm leading-relaxed">
               AI-powered stock market assistant providing market data (may be delayed), technical analysis and AI explanations for educational purposes. Not investment advice.
             </p>

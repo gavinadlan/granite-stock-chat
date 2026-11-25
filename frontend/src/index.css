@@ -27,6 +27,7 @@
     --ring: 36.7 84.6% 38.2%; /* dark amber #B4740F: #E59A1F is only 2.1:1 on paper */
     --up: 142.4 71.8% 29.2%;
     --down: 17.5 88.3% 40.4%;
+    --logo-accent: 37.3 79.2% 51%; /* #E59A1F on the ink bubble */
   }
 
   .dark {
@@ -44,6 +45,7 @@
     --ring: 37.3 79.2% 51%;
     --up: 141.9 69.2% 58%;
     --down: 27 96% 61%;
+    --logo-accent: 36.8 100% 36.1%; /* #B87100: the bubble is paper, plain amber is too weak on it */
   }
 }
 

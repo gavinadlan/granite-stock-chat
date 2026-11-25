@@ -3,7 +3,7 @@ import { Menu, X, User, LogOut, Settings, Edit } from "lucide-react"
 import { Link } from "react-router-dom"
 import { useState, useRef, useEffect } from "react"
 import { useAuth } from "@/hooks/useAuth"
-import StockAILogo from "@/components/image/image.png"
+import { Logo } from "@/components/brand/Logo"
 
 interface HeaderProps {
   onScrollToSection: (sectionId: string) => void;
@@ -43,20 +43,8 @@ export function Header({ onScrollToSection }: HeaderProps) {
     <header className="bg-card border-b sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16"> {/* Fixed height untuk navbar */}
-          {/* Logo dengan position absolute dan transform */}
-          <Link 
-            to="/" 
-            className="flex items-center origin-left"
-            style={{ 
-              transform: 'scale(2.5)',
-              marginLeft: '1.5rem'
-            }}
-          >
-            <img 
-              src={StockAILogo} 
-              alt="Stock AI" 
-              className="h-12 w-12 object-contain" // Base size lebih kecil untuk scaling yang lebih besar
-            />
+          <Link to="/" className="flex items-center">
+            <Logo />
           </Link>
 
           {/* Desktop Navigation */}
