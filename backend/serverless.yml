@@ -27,7 +27,7 @@ provider:
           Resource: "*"
 
 custom:
-  # Comma-separated origins allowed to call the API (checked in lib/http.js).
+  # Comma-separated origins allowed to call the API (validated in src/lib/config.ts, checked in src/lib/http.ts).
   # The live site currently talks to the dev stage, so dev allows it too.
   allowedOrigins:
     dev: http://localhost:5173,http://localhost:8080,https://stockai.gavinadlan.my.id
@@ -65,9 +65,15 @@ package:
   individually: true
 
 functions:
+  # Each function serves its /v1 route plus the legacy path as an alias.
+  # Legacy paths are removed in S1-10 once the frontend uses /v1.
   health:
-    handler: functions/health.handler
+    handler: src/handlers/health.handler
     events:
+      - http:
+          path: /v1/health
+          method: get
+          cors: *cors
       - http:
           path: /health
           method: get
@@ -75,9 +81,13 @@ functions:
     timeout: 5
     memorySize: 128
 
-  stockPrice:
-    handler: functions/stock-price.handler
+  quote:
+    handler: src/handlers/quote.handler
     events:
+      - http:
+          path: /v1/quote
+          method: get
+          cors: *cors
       - http:
           path: /stock-price
           method: get
@@ -85,23 +95,31 @@ functions:
     timeout: 15
     memorySize: 256
 
-  aiPrediction:
-    handler: functions/ai-prediction.handler
+  projection:
+    handler: src/handlers/projection.handler
     events:
+      - http:
+          path: /v1/projection
+          method: get
+          cors: *cors
       - http:
           path: /ai-prediction
           method: get
           cors: *cors
     # API Gateway REST integrations time out at 29s; keep the function below that.
-    # Budget: quote <= 5s + LLM deadline 18s (see functions/ai-prediction.js).
+    # Budget: quote <= 5s + LLM deadline 18s (see src/services/projection.ts).
     timeout: 28
     memorySize: 512
     environment:
       REPLICATE_API_KEY: ${ssm:/stockai/${sls:stage}/replicate-api-key}
 
-  technicalAnalysis:
-    handler: functions/technical-analysis.handler
+  technicals:
+    handler: src/handlers/technicals.handler
     events:
+      - http:
+          path: /v1/technicals
+          method: get
+          cors: *cors
       - http:
           path: /technical-analysis
           method: get
@@ -109,9 +127,13 @@ functions:
     timeout: 15
     memorySize: 256
 
-  marketNews:
-    handler: functions/market-news.handler
+  news:
+    handler: src/handlers/news.handler
     events:
+      - http:
+          path: /v1/news
+          method: get
+          cors: *cors
       - http:
           path: /market-news
           method: get

@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import ind from '../lib/indicators.js';
-const { sma, ema, rsi, macd, summarize } = ind;
+import { ema, macd, rsi, sma, summarize } from '../src/domain/indicators';
 
 describe('sma/ema', () => {
   it('sma averages a sliding window', () => {
@@ -20,8 +19,8 @@ describe('rsi (Wilder)', () => {
   it('matches the reference values', () => {
     const r = rsi(closes, 14);
     expect(r[13]).toBeNull();
-    expect(Math.abs(r[14] - 70.53)).toBeLessThan(0.15);
-    expect(Math.abs(r[15] - 66.32)).toBeLessThan(0.15);
+    expect(Math.abs((r[14] ?? NaN) - 70.53)).toBeLessThan(0.15);
+    expect(Math.abs((r[15] ?? NaN) - 66.32)).toBeLessThan(0.15);
   });
   it('is 100 for a strictly rising series and 50 for a flat one', () => {
     expect(rsi([...Array(20).keys()], 14)[19]).toBe(100);
