@@ -11,6 +11,7 @@ StockAI adalah asisten chat pasar saham berbasis AI (IBM Granite) dengan data ha
 
 ## Stack
 - **Frontend**: React 18, Vite, TypeScript, Tailwind, shadcn/Radix, TanStack Query, AWS Amplify (Cognito), React Router.
+- **Desain**: token "Granite" di `frontend/src/index.css` (light & dark), font IBM Plex Sans/Condensed self-host lewat `@fontsource`. Pakai token semantik, jangan `dark:` atau warna Tailwind hardcode; `up`/`down` hanya untuk arah harga. Skala font/radius baru wajib didaftarkan juga di `frontend/src/lib/utils.ts`.
 - **Backend**: AWS Lambda (Node.js 20), Serverless Framework v3, API Gateway, DynamoDB, Cognito, region `us-east-1`.
 - **Data**: Yahoo Finance (chart endpoint), Alpha Vantage, NewsAPI. **AI**: IBM Granite via Replicate.
 
@@ -18,6 +19,8 @@ StockAI adalah asisten chat pasar saham berbasis AI (IBM Granite) dengan data ha
 npm workspaces monorepo (satu `package-lock.json` di root, Node 20 lihat `.nvmrc`):
 ```
 frontend/            React app (src/components, pages, services, hooks, lib)
+                     components/ui = primitif (button, sheet, field, price-change);
+                     components/DataCard = kerangka kartu data chat; FormLayout = halaman form
 backend/             Lambda functions (functions/*.js, lib/) + serverless.yml
 packages/shared/     @stockai/shared: tipe bersama frontend & backend
 docs/                API.md, DEPLOYMENT.md (secrets), legacy/ (panduan lama)

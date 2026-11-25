@@ -1,53 +1,50 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PriceChange } from '@/components/ui/price-change';
 import { StockPrice } from '@/services/stockMarketAPI';
 import { formatPrice } from '@/lib/currencyUtils';
+import { DataCard, DataCardFooter, DataRow } from './DataCard';
 import { DataSourceBadge } from './DataSourceBadge';
 
-interface StockCardProps {
-  stockPrice: StockPrice;
-}
+/** Display names for Yahoo exchange codes; unknown codes are shown as they are. */
+const EXCHANGE_NAMES: Record<string, string> = {
+  NMS: 'NASDAQ',
+  NGM: 'NASDAQ',
+  NCM: 'NASDAQ',
+  NYQ: 'NYSE',
+  PCX: 'NYSE Arca',
+  JKT: 'IDX',
+};
 
-export function StockCard({ stockPrice }: StockCardProps) {
+export function StockCard({ stockPrice }: { stockPrice: StockPrice }) {
+  const { symbol, name, exchange, currency, price, change, changePercent, volume, marketCap } = stockPrice;
+  const subtitle = [name, exchange && (EXCHANGE_NAMES[exchange] ?? exchange), currency].filter(Boolean).join(' · ');
+
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="pb-2 p-4 sm:p-6">
-        <CardTitle className="flex items-center justify-between">
-          <span className="text-base sm:text-lg font-semibold">{stockPrice.symbol}</span>
-          <Badge variant="secondary">{stockPrice.delayed ? 'Delayed' : 'Live'}</Badge>
-        </CardTitle>
-      </CardHeader>
+    <DataCard label={`${symbol} price`}>
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-title font-semibold">{symbol}</h3>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
+        </div>
+        <Badge variant="secondary">{stockPrice.delayed ? 'Delayed' : 'Live'}</Badge>
+      </header>
 
-      <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
-        <p className="text-xl sm:text-2xl font-semibold tabular-nums break-all">
-          {formatPrice(stockPrice.price, stockPrice.currency)}
-        </p>
-        <PriceChange
-          change={stockPrice.change}
-          changePercent={stockPrice.changePercent}
-          currency={stockPrice.currency}
-          className="block font-medium"
-        />
+      <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
+        <div>
+          <p className="text-heading font-semibold tabular-nums [overflow-wrap:anywhere] sm:text-display">{formatPrice(price, currency)}</p>
+          <PriceChange change={change} changePercent={changePercent} currency={currency} className="font-medium" />
+        </div>
+        {/* TODO(S1-06): sparkline goes in this second column once the history endpoint exists. */}
+      </div>
 
-        <dl className="grid grid-cols-2 gap-3 sm:gap-4 text-sm">
-          <div className="min-w-0">
-            <dt className="text-muted-foreground">Volume</dt>
-            <dd className="font-medium tabular-nums break-all">{stockPrice.volume === null ? '—' : stockPrice.volume.toLocaleString()}</dd>
-          </div>
-          <div className="min-w-0">
-            <dt className="text-muted-foreground">Market cap</dt>
-            <dd className="font-medium tabular-nums break-all">{stockPrice.marketCap ?? '—'}</dd>
-          </div>
-        </dl>
+      <dl className="space-y-1.5 border-t pt-3">
+        <DataRow label="Volume">{volume === null ? '—' : volume.toLocaleString('en-US')}</DataRow>
+        <DataRow label="Market cap">{marketCap ?? '—'}</DataRow>
+      </dl>
 
-        <DataSourceBadge
-          source={stockPrice.source}
-          asOf={stockPrice.asOf}
-          delayed={stockPrice.delayed}
-          className="pt-2 border-t"
-        />
-      </CardContent>
-    </Card>
+      <DataCardFooter>
+        <DataSourceBadge source={stockPrice.source} asOf={stockPrice.asOf} />
+      </DataCardFooter>
+    </DataCard>
   );
 }

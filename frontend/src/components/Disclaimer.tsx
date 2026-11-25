@@ -1,14 +1,16 @@
-import { Info } from 'lucide-react';
-
-/** Financial disclaimer shown next to analysis/outlook content. */
-export function Disclaimer({ className = '' }: { className?: string }) {
+/** Financial disclaimer shown next to analysis/outlook content. `short` is the one-line composer version. */
+export function Disclaimer({ short = false, className = '' }: { short?: boolean; className?: string }) {
+  if (short) {
+    return (
+      <p className={`text-sm text-muted-foreground ${className}`}>
+        Not financial advice · <span lang="id">Bukan nasihat keuangan</span>
+      </p>
+    );
+  }
   return (
-    <p className={`flex items-start gap-1.5 text-[10px] sm:text-xs text-muted-foreground ${className}`}>
-      <Info className="h-3 w-3 mt-0.5 flex-shrink-0" aria-hidden="true" />
-      <span>
-        For information only, not financial advice. Do your own research before investing.
-        <span lang="id" className="block">Bukan nasihat keuangan. Lakukan riset sendiri sebelum berinvestasi.</span>
-      </span>
+    <p className={`text-sm text-muted-foreground ${className}`}>
+      For information only, not financial advice. Do your own research before investing.{' '}
+      <span lang="id">Bukan nasihat keuangan. Lakukan riset sendiri sebelum berinvestasi.</span>
     </p>
   );
 }

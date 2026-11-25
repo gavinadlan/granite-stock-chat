@@ -19,4 +19,13 @@ describe('MessageBubble', () => {
     render(<MessageBubble message={{ id: '2', content: 'Hi', isUser: false, timestamp: new Date() }} onRetry={() => {}} />);
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
+
+  it('puts only user messages in a bubble and names the speaker for screen readers', () => {
+    render(<MessageBubble message={{ id: '3', content: 'mine', isUser: true, timestamp: new Date() }} />);
+    render(<MessageBubble message={{ id: '4', content: 'theirs', isUser: false, timestamp: new Date() }} />);
+    expect(screen.getByText('mine')).toHaveClass('bg-muted');
+    expect(screen.getByText('theirs')).not.toHaveClass('bg-muted');
+    expect(screen.getByText('You:')).toHaveClass('sr-only');
+    expect(screen.getByText('StockAI:')).toHaveClass('sr-only');
+  });
 });

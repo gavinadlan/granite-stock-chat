@@ -114,6 +114,9 @@ Sprint <N> selesai. Baca roadmap/<file-sprint>.md, cek setiap task terhadap kode
 | **S0-08** | Disclaimer + badge sumber data | 🤖 | 2 | ✅ |
 | **S0-09** | CI dasar + Vitest | 🤖 | 3 | ✅ |
 | **S0-10** | Verifikasi, deploy, tag v0.2.0 | 🤝 | 2 | 🟡 kode selesai, deploy & tag manual |
+| **UI-01** | Fondasi Granite: token, font, warna semantik ([ui-redesign.md](ui-redesign.md)) | 🤖🧠 | – | ✅ |
+| **UI-02** | Landing page dengan demo harga live | 🤖🧠 | – | ☐ |
+| **UI-03** | Chat & kartu data | 🤖🧠 | – | 🟡 kode selesai, uji dengan login & backend manual |
 | **S1-01** | Backend → TypeScript + esbuild + struktur baru | 🤖🧠 | 6 | ☐ |
 | **S1-02** | HTTP API + Cognito JWT authorizer + stage | 🤝🧠 | 4 | ☐ |
 | **S1-03** | Provider adapter + retry + circuit breaker | 🤖 | 6 | ☐ |

@@ -1,12 +1,11 @@
 // Two-step password reset with Cognito: request a code, then set a new password.
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { FormLayout } from '@/components/FormLayout';
+import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, KeyRound, Lock, Mail } from 'lucide-react';
 import { passwordPolicyError } from '@/lib/authErrors';
 
 export default function ForgotPasswordPage() {
@@ -53,50 +52,27 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-6">
-          <Link to="/login" className="inline-flex items-center text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to sign in
-          </Link>
-        </div>
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-foreground">Reset password</CardTitle>
-            <CardDescription className="text-muted-foreground">
-              {step === 'request' ? 'Enter your email and we will send you a reset code.' : `Enter the code sent to ${email}.`}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {step === 'request' ? (
-              <form onSubmit={requestCode} className="space-y-4">
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input type="email" aria-label="Email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10" required />
-                </div>
-                <Button type="submit" className="w-full" disabled={busy}>
-                  {busy ? 'Sending...' : 'Send reset code'}
-                </Button>
-              </form>
-            ) : (
-              <form onSubmit={reset} className="space-y-4">
-                <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input aria-label="Reset code" inputMode="numeric" autoComplete="one-time-code" placeholder="123456" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} className="pl-10 tracking-widest" maxLength={6} required />
-                </div>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input type="password" aria-label="New password" autoComplete="new-password" placeholder="New password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-10" required />
-                </div>
-                <Button type="submit" className="w-full" disabled={busy}>
-                  {busy ? 'Saving...' : 'Set new password'}
-                </Button>
-              </form>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <FormLayout
+      title="Reset password"
+      description={step === 'request' ? 'Enter your email and we will send you a reset code.' : `Enter the code sent to ${email}.`}
+      back={{ to: '/login', label: 'Back to sign in' }}
+    >
+      {step === 'request' ? (
+        <form onSubmit={requestCode} className="space-y-5">
+          <Field id="email" label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <Button type="submit" size="lg" className="w-full" disabled={busy}>
+            {busy ? 'Sending…' : 'Send reset code'}
+          </Button>
+        </form>
+      ) : (
+        <form onSubmit={reset} className="space-y-5">
+          <Field id="code" label="Reset code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value)} required />
+          <Field id="password" label="New password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <Button type="submit" size="lg" className="w-full" disabled={busy}>
+            {busy ? 'Saving…' : 'Set new password'}
+          </Button>
+        </form>
+      )}
+    </FormLayout>
   );
 }

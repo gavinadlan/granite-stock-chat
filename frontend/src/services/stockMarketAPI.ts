@@ -22,6 +22,8 @@ export interface StockPrice extends DataProvenance {
   volume: number | null;
   marketCap: string | null;
   currency: string;
+  /** Provider exchange code, e.g. NMS or JKT. */
+  exchange?: string | null;
   lastUpdated: string;
 }
 
@@ -54,6 +56,8 @@ export interface TechnicalAnalysis extends DataProvenance {
   trend: string;
   signals: TechnicalSignal[];
   warnings: string[];
+  /** How the indicators were computed, written by the backend. */
+  method?: string;
   lastUpdated: string;
 }
 
