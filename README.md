@@ -28,13 +28,13 @@ granite-stock-chat/
 - 🤖 **AI Outlook** - IBM Granite explains general factors and risks (no price targets)
 - 📈 **Technical Analysis** - RSI, MACD, Moving Averages
 - 📰 **Market News** - Latest stock market news
-- 🔄 **Smart Fallback** - Multiple data sources with automatic fallback
+- 🚫 **No Made-up Data** - When a provider is down, the app shows an error (provider fallback is planned in [S1-03](roadmap/sprint-1-backend-data.md))
 
 ### **Backend (AWS Lambda)**
 - ⚡ **Serverless** - No server management required
 - 🔄 **Auto-scaling** - Scales automatically based on demand
 - 💰 **Cost-effective** - Pay only for what you use
-- 🛡️ **Secure** - Built-in AWS security features
+- 🔑 **Server-side Secrets** - API keys come from SSM Parameter Store and are never sent to the browser; CORS is limited to allowed origins
 - 🌐 **API Gateway** - RESTful API endpoints
 
 ## 🚀 **Quick Start**
@@ -79,7 +79,6 @@ npm run lint && npm run typecheck && npm test && npm run build
 - **IBM Granite** (via Replicate) - AI explanations
 - **Yahoo Finance** - Stock prices and daily history (may be delayed)
 - **News API** - Market news
-- **RapidAPI** - API marketplace
 
 ## 🎯 **API Endpoints**
 
