@@ -56,6 +56,11 @@
   html {
     color-scheme: light;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
   html.dark {
     color-scheme: dark;
   }
@@ -83,47 +88,4 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
-}
-
-/* Marquee Animation */
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-
-.hover\:animate-pause:hover {
-  animation-play-state: paused;
-}
-
-/* Marquee Component Styles */
-.marquee-container {
-  display: flex;
-  width: 200%;
-  animation: marquee 30s linear infinite;
-}
-
-.marquee-container:hover {
-  animation-play-state: paused;
-}
-
-.marquee-item {
-  flex: 0 0 auto;
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding-right: 0;
-}
-
-/* Fade color for the TechStackSection LogoLoop (removed with it in UI-02) */
-.logoloop-techstack {
-  --logoloop-fadeColor: hsl(var(--muted));
 }

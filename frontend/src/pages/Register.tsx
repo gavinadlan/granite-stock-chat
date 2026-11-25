@@ -141,9 +141,7 @@ export default function RegisterPage() {
         Already have an account?{' '}
         <Link to="/login" className="font-medium text-foreground underline underline-offset-4 hover:decoration-2">Sign in</Link>
       </p>
-      <p className="mt-4 text-sm text-muted-foreground">
-        By creating an account, you agree to our Terms of Service and Privacy Policy
-      </p>
+      {/* TODO(S5-06): link the Terms of Service and Privacy Policy here once those pages exist. */}
     </FormLayout>
   );
 }

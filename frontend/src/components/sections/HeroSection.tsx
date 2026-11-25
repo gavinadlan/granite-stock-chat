@@ -1,72 +1,35 @@
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, ChevronDown } from "lucide-react"
-import { Link } from "react-router-dom"
-import { useAuth } from "@/hooks/useAuth"
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Disclaimer } from '@/components/Disclaimer';
+import { useAuth } from '@/hooks/useAuth';
+import { cn } from '@/lib/utils';
+import { HeroDemo } from './HeroDemo';
 
-interface HeroSectionProps {
-  onScrollToSection: (sectionId: string) => void;
-}
-
-export function HeroSection({ onScrollToSection }: HeroSectionProps) {
-  const { isAuthenticated, isLoading } = useAuth()
+export function HeroSection() {
+  const { isAuthenticated, isLoading } = useAuth();
 
   return (
-    <div id="hero" className="py-48">
-      <div className="container mx-auto px-4">
-        <div className="text-center space-y-8">
-          <div className="space-y-4">
-            <Badge variant="secondary" className="text-sm">
-              AI-Powered Stock Analysis
-            </Badge>
-            <h1 className="text-5xl font-bold text-foreground">
-              Stock Market AI Assistant
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Ask about stock prices, technical analysis and market news, and get AI explanations. Data may be delayed and is for education, not investment advice.
-            </p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isLoading ? (
-              // Loading state - show skeleton buttons
-              <>
-                <div className="h-12 w-32 bg-muted rounded-lg animate-pulse"></div>
-                <div className="h-12 w-24 bg-muted rounded-lg animate-pulse"></div>
-              </>
-            ) : isAuthenticated ? (
-              <Button size="lg" asChild>
-                <Link to="/chat">
-                  Start Chatting
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            ) : (
-              <>
-                <Button size="lg" asChild>
-                  <Link to="/register">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button variant="outline" size="lg" asChild>
-                  <Link to="/login">
-                    Sign In
-                  </Link>
-                </Button>
-              </>
-            )}
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={() => onScrollToSection('features')}
-            >
-              Learn More
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
+    <div className="mx-auto grid max-w-6xl items-start gap-12 px-4 py-12 sm:px-6 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:gap-16">
+      <div>
+        <h1 className="text-display font-bold lg:text-hero">Ask about a stock and get an answer with its source.</h1>
+        <p className="mt-6 max-w-[65ch] text-title text-muted-foreground">
+          StockAI answers questions about US and Indonesian stocks with prices, indicators and news, and shows where each number came from and when.
+        </p>
+        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2">
+          {/* Hidden, not removed, while auth loads so the layout does not jump. */}
+          <Button size="lg" asChild className={cn('w-full sm:w-auto', isLoading && 'invisible')}>
+            {isAuthenticated ? <Link to="/chat">Open chat</Link> : <Link to="/register">Create an account</Link>}
+          </Button>
+          <a
+            href="#features"
+            className="inline-flex min-h-11 items-center rounded-control font-medium underline underline-offset-4 hover:decoration-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            See what you can ask
+          </a>
         </div>
+        <Disclaimer short className="mt-6" />
       </div>
+      <HeroDemo />
     </div>
-  )
+  );
 }
