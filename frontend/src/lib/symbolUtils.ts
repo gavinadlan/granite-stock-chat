@@ -3,34 +3,22 @@
 import { STOCK_SYMBOL_CONSTANTS } from './constants';
 
 /**
- * Indonesian stock patterns organized by category
+ * IDX tickers that can be typed without the .JK suffix. Guessing from the first
+ * letters sent US tickers such as INTC and ADBE to the wrong exchange, so this is
+ * an explicit list; tickers also used in the US (CTRA, ESSA, BIRD, ...) are left
+ * out and need an explicit ".JK". S4-01 replaces this with full IDX symbol data.
  */
-const INDONESIAN_STOCK_PATTERNS = {
-  BANKING: ['BB', 'BC', 'BR', 'MA', 'BN', 'CI'],
-  TELCO: ['TL', 'IS', 'EX', 'FR'],
-  CONSUMER: ['UN', 'IN', 'IC', 'WI', 'AD', 'JS', 'PG', 'AN', 'AS', 'SM', 'KL', 'GG', 'CP', 'TK', 'HM', 'AU', 'CD', 'BU'],
-} as const;
+const IDX_TICKERS = new Set(
+  `AALI ADHI ADMR ADRO AKRA AMMN AMRT ANTM ARTO ASII ASSA BBCA BBNI BBRI BBTN BBYB BDMN BJBR BJTM BMRI
+   BNGA BNLI BREN BRIS BRPT BSDE BTPS BUKA BUMI CMRY CPIN CUAN DMAS DSNG EMTK ERAA EXCL GGRM GIAA GOTO
+   HMSP HRUM ICBP INCO INDF INKP INTP ISAT ITMG JPFA JSMR KAEF KLBF LPKR LPPF LSIP MAPA MAPI MBMA MDKA
+   MEDC MIKA MNCN MYOR NCKL NISP PGAS PGEO PNBN PTBA PTPP PWON SCMA SIDO SMGR SMRA SRTG SSMS TAPG TBIG
+   TINS TKIM TLKM TOWR TPIA ULTJ UNTR UNVR WIKA WSKT`.split(/\s+/),
+);
 
-/**
- * Checks if a symbol matches Indonesian stock patterns
- */
+/** True for known IDX tickers written without an exchange suffix. */
 export function isIndonesianStock(symbol: string): boolean {
-  // Must be exactly 4 characters
-  if (symbol.length !== STOCK_SYMBOL_CONSTANTS.INDONESIAN_LENGTH) {
-    return false;
-  }
-
-  // Extract first 2 characters as prefix
-  const prefix = symbol.substring(0, 2);
-  
-  // Check against known Indonesian patterns
-  const allPatterns = [
-    ...INDONESIAN_STOCK_PATTERNS.BANKING,
-    ...INDONESIAN_STOCK_PATTERNS.TELCO,
-    ...INDONESIAN_STOCK_PATTERNS.CONSUMER,
-  ] as const;
-  
-  return (allPatterns as readonly string[]).includes(prefix);
+  return IDX_TICKERS.has(symbol.toUpperCase());
 }
 
 /**
@@ -68,7 +56,6 @@ export function formatSymbol(symbol: string): string {
     return cleanSymbol;
   }
   
-  // Smart detection for Indonesian stocks
   if (isIndonesianStock(cleanSymbol)) {
     return `${cleanSymbol}.JK`;
   }
