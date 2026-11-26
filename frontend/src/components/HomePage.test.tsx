@@ -28,13 +28,13 @@ const quote = (symbol: string, over: Partial<StockPrice> = {}): StockPrice => ({
   asOf, lastUpdated: asOf, delayed: true, ...over,
 });
 const technicals = (symbol: string): TechnicalAnalysis => ({
-  symbol, currency: 'IDR', rsi: 61.98, macd: { macd: 1, signal: 2, histogram: null },
+  symbol, currency: 'IDR', rsi: 61.98, macd: { macd: -1.5, signal: 2, histogram: null },
   movingAverages: { sma20: 900, sma50: 1100, sma200: 1200 }, support: 800, resistance: 1100, trend: 'neutral',
   signals: [], warnings: [], candlesUsed: 240, source: 'Yahoo Finance (daily candles)', asOf, lastUpdated: asOf,
 });
 
 const renderHome = () => render(<HomePage />, { wrapper: MemoryRouter });
-const panel = () => screen.getByText('Live answer, loaded when you opened this page').parentElement as HTMLElement;
+const panel = () => screen.getByRole('textbox', { name: 'Ask about a stock' }).closest('.rounded-panel') as HTMLElement;
 const ask = (text: string) => {
   fireEvent.change(screen.getByRole('textbox', { name: 'Ask about a stock' }), { target: { value: text } });
   fireEvent.click(screen.getByRole('button', { name: 'Ask' }));
@@ -55,7 +55,8 @@ describe('ticker strip', () => {
     renderHome();
     const strip = await screen.findByRole('region', { name: 'Market quotes' });
     const items = within(strip).getAllByRole('listitem').map((li) => li.textContent);
-    expect(items[0]).toMatch(/^IHSG 1\.000 \+1,00%$/);
+    expect(items[0]).toBe('IHSG 1.000,00 +1,00%');
+    expect(items[1]).toBe('BBCA 1.000 +1,00%');
     expect(items).toHaveLength(8);
     expect(strip).not.toHaveTextContent('TSLA');
     expect(strip).toHaveTextContent(/Delayed, Yahoo Finance, 10:04 WIB/);
@@ -73,9 +74,14 @@ describe('ticker strip', () => {
 describe('answer panel', () => {
   it('loads BBCA.JK with a code-written summary, both cards and the source line', async () => {
     renderHome();
+    expect(screen.getByText('Live answer, loaded when you opened this page')).toBeInTheDocument();
     expect(screen.getByText('Fetching data…')).toBeInTheDocument();
     expect(await screen.findByRole('article', { name: 'BBCA.JK price' })).toHaveTextContent('Previous close');
-    expect(screen.getByRole('article', { name: 'BBCA.JK indicators' })).toHaveTextContent('61,98');
+    const indicators = screen.getByRole('article', { name: 'BBCA.JK indicators' });
+    expect(indicators).toHaveTextContent('61,98');
+    expect(indicators).toHaveTextContent('SMA 501.100');
+    expect(indicators).toHaveTextContent('20-day range800 to 1.100');
+    expect(indicators).toHaveTextContent('MACD\u22121,50');
     expect(screen.getByText(/BBCA\.JK is trading at Rp1\.000, up 1,00% today\. RSI is 62/)).toBeInTheDocument();
     expect(screen.getByText(/Yahoo Finance daily candles \(240 sessions\), calculated by StockAI/)).toHaveTextContent(
       'Not financial advice.',
@@ -90,6 +96,7 @@ describe('answer panel', () => {
     expect(await screen.findByRole('article', { name: 'NVDA price' })).toBeInTheDocument();
     expect(within(panel()).getByText('nvda')).toBeInTheDocument();
     expect(getStockPrice).toHaveBeenCalledWith('NVDA');
+    expect(within(panel()).getByText(/^Live answer for NVDA, loaded at \d{2}:\d{2} WIB$/)).toBeInTheDocument();
   });
 
   it('shows the part that loaded when the other request fails', async () => {

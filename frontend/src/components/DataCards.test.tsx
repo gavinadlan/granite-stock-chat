@@ -55,7 +55,7 @@ describe('TechnicalAnalysisCard', () => {
     render(<TechnicalAnalysisCard technicalAnalysis={ta} />);
     const meter = screen.getByRole('meter', { name: 'RSI (14)' });
     expect(meter).toHaveAttribute('aria-valuenow', '70');
-    expect(meter).toHaveAttribute('aria-valuetext', '70, overbought');
+    expect(meter).toHaveAttribute('aria-valuetext', '70,0, overbought');
   });
 
   it('shows signals, warnings, method, provenance and disclaimer', () => {

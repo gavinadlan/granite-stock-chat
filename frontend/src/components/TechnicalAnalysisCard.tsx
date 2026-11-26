@@ -1,7 +1,7 @@
 import { AlertTriangle, Info, Minus, TrendingDown, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { TechnicalAnalysis, TechnicalSignal } from '@/services/stockMarketAPI';
-import { formatNumber, formatPrice } from '@/lib/currencyUtils';
+import { formatNumber, formatPrice, priceDecimals } from '@/lib/currencyUtils';
 import { cn } from '@/lib/utils';
 import { DataCard, DataCardFooter, DataRow } from './DataCard';
 import { DataSourceBadge } from './DataSourceBadge';
@@ -27,15 +27,15 @@ interface TechnicalAnalysisCardProps {
 
 function CompactTechnicals({ ta, currency, className }: { ta: TechnicalAnalysis; currency: string; className?: string }) {
   const n = (v: number | null, decimals: number) => formatNumber(v, currency, decimals);
-  const sma = (v: number | null) => n(v, currency === 'IDR' ? 1 : 2);
+  const level = (v: number | null) => n(v, priceDecimals(currency));
   const range =
-    ta.support === null || ta.resistance === null ? DASH : `${n(ta.support, 2)} to ${n(ta.resistance, 2)}`;
+    ta.support === null || ta.resistance === null ? DASH : `${level(ta.support)} to ${level(ta.resistance)}`;
   const rows: [string, string][] = [
     ['MACD', n(ta.macd.macd, 2)],
     ['Signal', n(ta.macd.signal, 2)],
-    ['SMA 20', sma(ta.movingAverages.sma20)],
-    ['SMA 50', sma(ta.movingAverages.sma50)],
-    ['SMA 200', sma(ta.movingAverages.sma200)],
+    ['SMA 20', level(ta.movingAverages.sma20)],
+    ['SMA 50', level(ta.movingAverages.sma50)],
+    ['SMA 200', level(ta.movingAverages.sma200)],
     ['20-day range', range],
   ];
   return (
@@ -68,7 +68,7 @@ export function TechnicalAnalysisCard({ technicalAnalysis: ta, variant = 'chat',
   const currency = ta.currency || 'USD';
   if (variant === 'compact') return <CompactTechnicals ta={ta} currency={currency} className={className} />;
   const money = (v: number | null) => (v === null ? DASH : formatPrice(v, currency));
-  const num = (v: number | null) => (v === null ? DASH : v.toFixed(3));
+  const num = (v: number | null) => formatNumber(v, currency, 2);
   const TrendIcon = TREND_ICON[ta.trend] ?? Minus;
 
   return (

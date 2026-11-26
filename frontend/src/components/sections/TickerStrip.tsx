@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { stockMarketAPI, StockPrice } from '@/services/stockMarketAPI';
-import { formatNumber, formatPercent } from '@/lib/currencyUtils';
+import { formatNumber, formatPercent, priceDecimals } from '@/lib/currencyUtils';
 import { STRIP_SYMBOLS, tickerLabel } from '@/lib/landing';
 import { formatWibTime, latestIso } from '@/lib/time';
 import { cn } from '@/lib/utils';
@@ -43,7 +43,7 @@ export function TickerStrip() {
             const color = pct == null || pct === 0 ? 'text-muted-foreground' : pct > 0 ? 'text-up' : 'text-down';
             return (
               <li key={q.symbol}>
-                <span className="font-semibold">{tickerLabel(q.symbol)}</span> {formatNumber(q.price, q.currency)}{' '}
+                <span className="font-semibold">{tickerLabel(q.symbol)}</span> {formatNumber(q.price, q.currency, priceDecimals(q.currency, q.symbol))}{' '}
                 <span className={color}>{formatPercent(pct, q.currency)}</span>
               </li>
             );

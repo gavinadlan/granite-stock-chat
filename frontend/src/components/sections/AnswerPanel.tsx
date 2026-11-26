@@ -10,9 +10,10 @@ import { ApiError } from '@/services/apiClient';
 import { stockMarketAPI, StockPrice, TechnicalAnalysis } from '@/services/stockMarketAPI';
 import { indicatorSource, isAccountQuestion, parseTicker } from '@/lib/landing';
 import { summarizeTechnicals } from '@/lib/summarizeTechnicals';
-import { formatWibDateTime, latestIso } from '@/lib/time';
+import { formatWibDateTime, formatWibTime, latestIso } from '@/lib/time';
 
 const FIRST = { symbol: 'BBCA.JK', question: 'Technical analysis BBCA.JK' };
+const FIRST_STATUS = 'Live answer, loaded when you opened this page';
 
 type State =
   | { status: 'loading' }
@@ -62,10 +63,11 @@ export function AnswerPanel() {
   const [question, setQuestion] = useState(FIRST.question);
   const [state, setState] = useState<State>({ status: 'loading' });
   const [input, setInput] = useState('');
+  const [status, setStatus] = useState(FIRST_STATUS);
   const [turn, setTurn] = useState(0);
   const request = useRef(0);
 
-  const load = useCallback(async (symbol: string) => {
+  const load = useCallback(async (symbol: string, asked = false) => {
     const id = ++request.current;
     setState({ status: 'loading' });
     setTurn((t) => t + 1);
@@ -79,11 +81,10 @@ export function AnswerPanel() {
       setState({ status: 'failed', symbol, reason: err instanceof ApiError ? err.message : null });
       return;
     }
-    setState({
-      status: 'ready',
-      quote: quote.status === 'fulfilled' ? quote.value : null,
-      ta: ta.status === 'fulfilled' ? ta.value : null,
-    });
+    const q = quote.status === 'fulfilled' ? quote.value : null;
+    const t = ta.status === 'fulfilled' ? ta.value : null;
+    setState({ status: 'ready', quote: q, ta: t });
+    if (asked) setStatus(`Live answer for ${q?.symbol ?? t?.symbol ?? symbol}, loaded at ${formatWibTime(new Date().toISOString())}`);
   }, []);
 
   // A second run (StrictMode) supersedes the first through the request counter.
@@ -108,7 +109,7 @@ export function AnswerPanel() {
       setTurn((t) => t + 1);
       return setState({ status: 'invalid' });
     }
-    void load(symbol);
+    void load(symbol, true);
   };
 
   const summary = state.status === 'ready' ? summarizeTechnicals(state.quote, state.ta) : null;
@@ -119,7 +120,7 @@ export function AnswerPanel() {
       <div className="overflow-hidden rounded-panel border bg-card text-card-foreground">
         <p className="flex items-center gap-2 border-b px-4 py-3 text-[13px] text-muted-foreground sm:px-5">
           <span className="h-2 w-2 flex-shrink-0 rounded-full bg-primary" aria-hidden="true" />
-          Live answer, loaded when you opened this page
+          {status}
         </p>
 
         <div aria-live="polite" aria-busy={state.status === 'loading'} className="flex flex-col gap-5 px-4 pb-2 pt-6 sm:px-7 sm:pt-7">
@@ -157,7 +158,7 @@ export function AnswerPanel() {
                 <p className="mt-1 text-muted-foreground">
                   {state.reason ? `${state.reason} ` : ''}No price is shown without a source.
                 </p>
-                <Button variant="outline" size="sm" className="mt-4" onClick={() => void load(state.symbol)}>
+                <Button variant="outline" size="sm" className="mt-4" onClick={() => void load(state.symbol, status !== FIRST_STATUS)}>
                   <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
                   Try again
                 </Button>

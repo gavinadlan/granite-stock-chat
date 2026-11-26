@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { detectCurrency, formatChange, formatNumber, formatPercent, formatPrice, formatVolume } from './currencyUtils';
+import { detectCurrency, formatChange, formatNumber, formatPercent, formatPrice, formatVolume, priceDecimals } from './currencyUtils';
 
 describe('detectCurrency', () => {
   it.each([
@@ -61,12 +61,26 @@ describe('formatVolume', () => {
 });
 
 describe('formatNumber', () => {
-  it('IDR drops trailing zeros, others keep fixed decimals', () => {
-    expect(formatNumber(5875, 'IDR')).toBe('5.875');
-    expect(formatNumber(5233.143, 'IDR')).toBe('5.233,14');
-    expect(formatNumber(5412.75, 'IDR', 1)).toBe('5.412,8');
+  it('keeps exactly the requested decimals in the currency locale', () => {
+    expect(formatNumber(5412.75, 'IDR', 0)).toBe('5.413');
+    expect(formatNumber(89.7, 'IDR', 2)).toBe('89,70');
+    expect(formatNumber(5233.143, 'IDR', 2)).toBe('5.233,14');
     expect(formatNumber(149.3, 'USD')).toBe('149.30');
-    expect(formatNumber(-3.5, 'USD')).toBe('-3.50');
     expect(formatNumber(null, 'USD')).toBe('—');
+  });
+  it('uses the U+2212 minus and no sign for values that round to zero', () => {
+    expect(formatNumber(-3.5, 'USD')).toBe('\u22123.50');
+    expect(formatNumber(-12.345, 'IDR', 2)).toBe('\u221212,35');
+    expect(formatNumber(-0.001, 'USD')).toBe('0.00');
+    expect(formatPrice(-0.001, 'USD')).toBe('$0.00');
+    expect(formatPercent(-0.004, 'IDR')).toBe('0,00%');
+  });
+});
+
+describe('priceDecimals', () => {
+  it('whole rupiah for IDR stocks, 2 for indices and other currencies', () => {
+    expect(priceDecimals('IDR', 'BBCA.JK')).toBe(0);
+    expect(priceDecimals('IDR', '^JKSE')).toBe(2);
+    expect(priceDecimals('USD', 'NVDA')).toBe(2);
   });
 });
