@@ -51,21 +51,45 @@ export function formatCurrencySymbol(currency: string): string {
   return CURRENCY_MAP[currency]?.symbol || '$';
 }
 
-/**
- * Formats price with currency symbol
- */
-export function formatPrice(price: number, currency: string): string {
-  const symbol = formatCurrencySymbol(currency);
-  return `${symbol}${price.toFixed(2)}`;
+const DASH = '—';
+const MINUS = '\u2212';
+
+/** IDR: id-ID, no decimals ("5.900"). Everything else: en-US, 2 decimals ("1,234.56"). */
+function numberFormat(currency: string, decimals = 2): Intl.NumberFormat {
+  return currency === 'IDR'
+    ? new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 })
+    : new Intl.NumberFormat('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
-/**
- * Formats change with currency symbol
- */
-export function formatChange(change: number, currency: string): string {
-  const symbol = formatCurrencySymbol(currency);
-  const prefix = change >= 0 ? '+' : '';
-  return `${prefix}${symbol}${change.toFixed(2)}`;
+function sign(value: number, plus: string): string {
+  return value > 0 ? plus : value < 0 ? MINUS : '';
+}
+
+type Num = number | null | undefined;
+
+/** "Rp5.900", "$1,234.56", "−$5.00"; null → "—". */
+export function formatPrice(price: Num, currency: string): string {
+  if (price == null) return DASH;
+  return `${sign(price, '')}${formatCurrencySymbol(currency)}${numberFormat(currency).format(Math.abs(price))}`;
+}
+
+/** Signed money change: "+Rp75", "−$1.50", "$0.00"; null → "—". */
+export function formatChange(change: Num, currency: string): string {
+  if (change == null) return DASH;
+  return `${sign(change, '+')}${formatCurrencySymbol(currency)}${numberFormat(currency).format(Math.abs(change))}`;
+}
+
+/** Signed percent in the currency's locale, always 2 decimals: "+1,29%" (IDR), "−2.00%" (USD). */
+export function formatPercent(percent: Num, currency: string): string {
+  if (percent == null) return DASH;
+  const locale = currency === 'IDR' ? 'id-ID' : 'en-US';
+  const abs = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(percent));
+  return `${sign(percent, '+')}${abs}%`;
+}
+
+/** Whole-number volume in the currency's locale: "133.232.200" (IDR), "1,234,567" (USD). */
+export function formatVolume(volume: Num, currency: string): string {
+  return volume == null ? DASH : numberFormat(currency, 0).format(volume);
 }
 
 /**

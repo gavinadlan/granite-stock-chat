@@ -35,8 +35,8 @@ describe('StockCard', () => {
   it('shows exchange, currency, change, provenance and honest blanks', () => {
     render(<StockCard stockPrice={price} />);
     expect(screen.getByText('Test Bank · IDX · IDR')).toBeInTheDocument();
-    expect(screen.getByText('Rp1000.00')).toBeInTheDocument();
-    expect(screen.getByText('−Rp10.00 (−1.00%)')).toHaveClass('text-down');
+    expect(screen.getByText('Rp1.000')).toBeInTheDocument();
+    expect(screen.getByText('−Rp10 (−1,00%)')).toHaveClass('text-down');
     expect(screen.getByText('Delayed')).toBeInTheDocument();
     expect(screen.getByText('Market cap').nextSibling).toHaveTextContent('—');
     expect(screen.getByText('Volume').nextSibling).toHaveTextContent('—');

@@ -18,6 +18,6 @@ describe('PriceChange', () => {
 
   it('uses the currency of the stock', () => {
     render(<PriceChange change={-50} changePercent={null} currency="IDR" />);
-    expect(screen.getByText('\u2212Rp50.00')).toBeInTheDocument();
+    expect(screen.getByText('\u2212Rp50')).toBeInTheDocument();
   });
 });

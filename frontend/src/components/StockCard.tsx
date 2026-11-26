@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { PriceChange } from '@/components/ui/price-change';
 import { StockPrice } from '@/services/stockMarketAPI';
-import { formatPrice } from '@/lib/currencyUtils';
+import { formatPrice, formatVolume } from '@/lib/currencyUtils';
 import { DataCard, DataCardFooter, DataRow } from './DataCard';
 import { DataSourceBadge } from './DataSourceBadge';
 
@@ -38,7 +38,7 @@ export function StockCard({ stockPrice }: { stockPrice: StockPrice }) {
       </div>
 
       <dl className="space-y-1.5 border-t pt-3">
-        <DataRow label="Volume">{volume === null ? '—' : volume.toLocaleString('en-US')}</DataRow>
+        <DataRow label="Volume">{formatVolume(volume, currency)}</DataRow>
         <DataRow label="Market cap">{marketCap ?? '—'}</DataRow>
       </dl>
 
