@@ -2,50 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
+/* "Granite" design tokens. Contrast ratios checked against WCAG AA; see roadmap/ui-redesign.md. */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --background: 60 8.3% 95.3%; /* paper #F4F4F2 */
+    --foreground: 216 10.2% 9.6%; /* ink #16181B */
+    --surface-raised: 0 0% 100%;
+    --card: var(--surface-raised);
+    --card-foreground: var(--foreground);
+    --popover: var(--surface-raised);
+    --popover-foreground: var(--foreground);
+    --primary: 37.3 79.2% 51%; /* amber #E59A1F */
+    --primary-foreground: 216 10.2% 9.6%; /* ink: white on amber is only 2.3:1 */
+    --secondary: 80 5.3% 88.8%; /* granite #E3E4E1 */
+    --secondary-foreground: var(--foreground);
+    --muted: 80 5.3% 88.8%;
+    --muted-foreground: 212.7 5.5% 39%; /* darker stone #5E6369: #8B9096 fails AA on paper */
+    --accent: 80 5.3% 88.8%; /* shadcn hover surface, not the brand accent */
+    --accent-foreground: var(--foreground);
+    --destructive: 216 10.2% 9.6%; /* ink: red is reserved for price direction */
+    --destructive-foreground: 60 8.3% 95.3%;
+    --border: 80 5.3% 88.8%;
+    --input: 213 4.5% 52.4%; /* #80858B, 3:1 control outline */
+    --ring: 36.7 84.6% 38.2%; /* dark amber #B4740F: #E59A1F is only 2.1:1 on paper */
+    --up: 142.4 71.8% 29.2%;
+    --down: 17.5 88.3% 40.4%;
+    --logo-accent: 37.3 79.2% 51%; /* #E59A1F on the ink bubble */
+    --band: 216 10.2% 9.6%; /* ink: ticker strip and #rules band; their content uses the .dark tokens */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 94.1%;
+    --background: 216 10.2% 9.6%; /* ink #16181B */
+    --foreground: 60 8.3% 95.3%; /* paper #F4F4F2 */
+    --surface-raised: 210 9.4% 12.5%; /* #1D2023 */
+    --secondary: 214.3 8.4% 16.3%; /* granite #26292D */
+    --muted: 214.3 8.4% 16.3%;
+    --muted-foreground: 212.7 6.1% 64.9%; /* #A0A5AB */
+    --accent: 214.3 8.4% 16.3%;
+    --destructive: 60 8.3% 95.3%;
+    --destructive-foreground: 216 10.2% 9.6%;
+    --border: 214.3 8.4% 16.3%;
+    --input: 212.7 4.4% 51.2%; /* #7D8288 */
+    --ring: 37.3 79.2% 51%;
+    --up: 141.9 69.2% 58%;
+    --down: 27 96% 61%;
+    --band: 213 9.1% 15.1%; /* #23262A: one step above the ink page so the band still reads as a band */
+    --logo-accent: 36.8 100% 36.1%; /* #B87100: the bubble is paper, plain amber is too weak on it */
   }
 }
 
@@ -53,8 +55,24 @@
   * {
     @apply border-border;
   }
+  html {
+    color-scheme: light;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  html.dark {
+    color-scheme: dark;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
   }
 }
 
@@ -72,51 +90,4 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
   }
-}
-
-/* Marquee Animation */
-@keyframes marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-
-.hover\:animate-pause:hover {
-  animation-play-state: paused;
-}
-
-/* Marquee Component Styles */
-.marquee-container {
-  display: flex;
-  width: 200%;
-  animation: marquee 30s linear infinite;
-}
-
-.marquee-container:hover {
-  animation-play-state: paused;
-}
-
-.marquee-item {
-  flex: 0 0 auto;
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  padding-right: 0;
-}
-
-/* Custom fade color for TechStackSection LogoLoop */
-.logoloop-techstack {
-  --logoloop-fadeColor: rgb(248 250 252);
-}
-
-.dark .logoloop-techstack {
-  --logoloop-fadeColor: rgb(30 41 59 / 0.5);
 }

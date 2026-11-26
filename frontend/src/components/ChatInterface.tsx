@@ -1,249 +1,121 @@
-import { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Send, TrendingUp, BarChart3, Newspaper, List, X } from 'lucide-react';
-import StockAILogo from '@/components/image/logo.png';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { stockMarketAPI, ChatMessage } from '@/services/stockMarketAPI';
-import { MessageBubble } from './MessageBubble';
-import { StockCard } from './StockCard';
-import { PredictionChart } from './PredictionChart';
-import { TechnicalAnalysisCard } from './TechnicalAnalysisCard';
-import { NewsCard } from './NewsCard';
-import { TypingIndicator } from './TypingIndicator';
-import { StockSymbolTable } from './StockSymbolTable';
+import { startsTimeGroup } from '@/lib/time';
+import { Sheet } from '@/components/ui/sheet';
+import { ChatComposer } from './ChatComposer';
+import { ChatEmptyState } from './ChatEmptyState';
+import { ChatHeader } from './ChatHeader';
 import { DataSourceBadge } from './DataSourceBadge';
-import { Disclaimer } from './Disclaimer';
+import { MessageBubble } from './MessageBubble';
+import { MessageSkeleton } from './MessageSkeleton';
+import { NewsCard } from './NewsCard';
+import { PredictionCard } from './PredictionCard';
+import { StockCard } from './StockCard';
+import { StockSymbolTable } from './StockSymbolTable';
+import { TechnicalAnalysisCard } from './TechnicalAnalysisCard';
+
+function MessageData({ data }: { data: NonNullable<ChatMessage['data']> }) {
+  const { stockPrice, prediction, technicalAnalysis, news, newsMeta } = data;
+  return (
+    <div className="mt-3 space-y-3">
+      {stockPrice && <StockCard stockPrice={stockPrice} />}
+      {prediction && <PredictionCard prediction={prediction} />}
+      {technicalAnalysis && <TechnicalAnalysisCard technicalAnalysis={technicalAnalysis} />}
+      {news && news.length > 0 && (
+        <>
+          {news.map((item) => (
+            <NewsCard key={item.id} newsItem={item} />
+          ))}
+          {newsMeta && <DataSourceBadge source={newsMeta.source} asOf={newsMeta.asOf} />}
+        </>
+      )}
+    </div>
+  );
+}
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      content: "Hello! I'm your AI stock market assistant. I can help you with stock prices (may be delayed), a qualitative AI outlook, technical analysis, and market news. Try asking me about a stock like 'What's the price of AAPL?' or 'Predict TSLA stock'.",
-      isUser: false,
-      timestamp: new Date()
-    }
-  ]);
-  const [inputValue, setInputValue] = useState('');
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [searchParams] = useSearchParams();
+  // Landing page links prefill the composer with ?q=; the user still presses send.
+  const [inputValue, setInputValue] = useState(() => searchParams.get('q') ?? '');
   const [isLoading, setIsLoading] = useState(false);
-  const [showStockTable, setShowStockTable] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const [stocksOpen, setStocksOpen] = useState(false);
+  const scroller = useRef<HTMLElement>(null);
+  const composer = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }, [messages, isLoading]);
 
   const handleSendMessage = async (override?: string) => {
     const text = (override ?? inputValue).trim();
     if (!text || isLoading) return;
 
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      content: text,
-      isUser: true,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+    const userMessage: ChatMessage = { id: crypto.randomUUID(), content: text, isUser: true, timestamp: new Date() };
+    setMessages((prev) => [...prev, userMessage]);
     if (override === undefined) setInputValue('');
     setIsLoading(true);
+    composer.current?.focus();
 
     try {
       const response = await stockMarketAPI.processMessage(text);
-      setMessages(prev => [...prev, response]);
+      setMessages((prev) => [...prev, response]);
     } catch (error) {
       console.error('Error processing message:', error);
       const errorMessage: ChatMessage = {
         id: crypto.randomUUID(),
-        content: "Sorry, I encountered an error processing your request. Please try again.",
+        content: 'Sorry, I encountered an error processing your request. Please try again.',
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date(),
+        error: { message: 'Unexpected error.', retryText: text },
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
   const handleSelectSymbol = (symbol: string) => {
     setInputValue(`What's the price of ${symbol}?`);
-    setShowStockTable(false);
-    // Focus on input after selection
-    setTimeout(() => {
-      const input = document.querySelector('input[type="text"]') as HTMLInputElement;
-      input?.focus();
-    }, 100);
-  };
-
-  const renderMessageData = (message: ChatMessage) => {
-    if (!message.data) return null;
-
-    const { stockPrice, prediction, technicalAnalysis, news, newsMeta } = message.data;
-
-    return (
-      <div className="space-y-3 sm:space-y-4 mt-2 sm:mt-4 px-1 sm:px-2">
-        {stockPrice && <StockCard stockPrice={stockPrice} />}
-        {prediction && <PredictionChart prediction={prediction} />}
-        {technicalAnalysis && <TechnicalAnalysisCard technicalAnalysis={technicalAnalysis} />}
-        {news && news.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-xs sm:text-sm font-semibold text-slate-700 px-1">Latest News</h4>
-            <div className="grid gap-2 sm:gap-3">
-              {news.map((item) => (
-                <NewsCard key={item.id} newsItem={item} />
-              ))}
-            </div>
-            {newsMeta && <DataSourceBadge source={newsMeta.source} asOf={newsMeta.asOf} className="px-1" />}
-          </div>
-        )}
-      </div>
-    );
+    setStocksOpen(false);
+    // Closing the dialog returns focus to the "Stocks" button; move it on afterwards.
+    requestAnimationFrame(() => composer.current?.focus());
   };
 
   return (
-    <div className="flex flex-col h-full max-w-4xl mx-auto">
-      {/* Header */}
-      <Card className="mb-4 sm:mb-6 dark:bg-slate-800 dark:border-slate-700">
-        <CardHeader className="p-3 sm:p-6">
-          <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-2">
-            <div className="flex items-center space-x-2 flex-1 min-w-0">
-              <img src={StockAILogo} alt="Stock AI" className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
-              <span className="text-sm sm:text-xl truncate dark:text-white">Stock Market AI Assistant</span>
-            </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Badge variant="secondary" className="flex-shrink-0 text-[10px] sm:text-xs">
-              Delayed data
-            </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowStockTable(!showStockTable)}
-                className="flex-1 sm:flex-initial text-xs sm:text-sm h-8 sm:h-9"
-              >
-                {showStockTable ? (
-                  <>
-                    <X className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="hidden sm:inline">Hide</span>
-                    <span className="sm:hidden">Hide</span>
-                  </>
-                ) : (
-                  <>
-                    <List className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                    <span className="hidden sm:inline">Browse</span>
-                    <span className="sm:hidden">Stocks</span>
-                  </>
+    <div className="flex h-dvh flex-col bg-background">
+      <ChatHeader title={messages[0]?.content ?? 'New chat'} stocksOpen={stocksOpen} onOpenStocks={() => setStocksOpen(true)} />
+
+      <main ref={scroller} className="min-h-0 flex-1 overflow-y-auto">
+        <div className="mx-auto flex min-h-full max-w-[760px] flex-col px-4">
+          {messages.length === 0 && <ChatEmptyState onSelect={(text) => handleSendMessage(text)} />}
+
+          <div role="log" aria-live="polite" aria-label="Conversation" className={messages.length ? 'flex-1 space-y-6 py-6' : ''}>
+            {messages.map((message, i) => (
+              <div key={message.id} className="space-y-6">
+                {startsTimeGroup(messages[i - 1]?.timestamp, message.timestamp) && (
+                  <time dateTime={message.timestamp.toISOString()} className="block text-center text-sm text-muted-foreground">
+                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </time>
                 )}
-              </Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-      </Card>
+                <div>
+                  <MessageBubble message={message} onRetry={(text) => handleSendMessage(text)} />
+                  {message.data && <MessageData data={message.data} />}
+                </div>
+              </div>
+            ))}
+            {isLoading && <MessageSkeleton />}
+          </div>
 
-      {/* Stock Symbol Table */}
-      {showStockTable && (
-        <div className="mb-4 sm:mb-6">
-          <StockSymbolTable onSelectSymbol={handleSelectSymbol} />
+          <ChatComposer ref={composer} value={inputValue} onChange={setInputValue} onSend={() => handleSendMessage()} busy={isLoading} />
         </div>
-      )}
+      </main>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 mb-4 sm:mb-6 px-1 sm:px-2">
-        {messages.map((message) => (
-          <div key={message.id} className="w-full">
-            <MessageBubble message={message} onRetry={(text) => handleSendMessage(text)} />
-            {renderMessageData(message)}
-          </div>
-        ))}
-        
-        {isLoading && <TypingIndicator />}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <Card className="sticky bottom-0 z-40 dark:bg-slate-800 dark:border-slate-700">
-        <CardContent className="p-3 sm:p-4">
-          <div className="flex space-x-2">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask about stocks..."
-              disabled={isLoading}
-              className="flex-1 text-sm sm:text-base h-9 sm:h-10"
-            />
-            <Button 
-              onClick={() => handleSendMessage()} 
-              disabled={!inputValue.trim() || isLoading}
-              size="icon"
-              className="h-9 w-9 sm:h-10 sm:w-10 flex-shrink-0"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <Disclaimer className="mt-2" />
-
-          {/* Quick Actions */}
-          <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setInputValue("What's the price of AAPL?")}
-              disabled={isLoading}
-              className="text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
-            >
-              <TrendingUp className="h-3 w-3 mr-0.5 sm:mr-1" />
-              <span className="hidden sm:inline">AAPL Price</span>
-              <span className="sm:hidden">AAPL</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setInputValue("Predict TSLA stock")}
-              disabled={isLoading}
-              className="text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
-            >
-              <TrendingUp className="h-3 w-3 mr-0.5 sm:mr-1" />
-              <span className="hidden sm:inline">Predict TSLA</span>
-              <span className="sm:hidden">TSLA</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setInputValue("Technical analysis for MSFT")}
-              disabled={isLoading}
-              className="text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
-            >
-              <BarChart3 className="h-3 w-3 mr-0.5 sm:mr-1" />
-              <span className="hidden sm:inline">Analyze MSFT</span>
-              <span className="sm:hidden">MSFT</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setInputValue("News about GOOGL")}
-              disabled={isLoading}
-              className="text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3"
-            >
-              <Newspaper className="h-3 w-3 mr-0.5 sm:mr-1" />
-              <span className="hidden sm:inline">GOOGL News</span>
-              <span className="sm:hidden">GOOGL</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <Sheet open={stocksOpen} onOpenChange={setStocksOpen} title="Stocks">
+        <StockSymbolTable onSelectSymbol={handleSelectSymbol} />
+      </Sheet>
     </div>
   );
 }

@@ -1,72 +1,19 @@
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, ChevronDown } from "lucide-react"
-import { Link } from "react-router-dom"
-import { useAuth } from "@/hooks/useAuth"
+import { AnswerPanel } from './AnswerPanel';
 
-interface HeroSectionProps {
-  onScrollToSection: (sectionId: string) => void;
-}
-
-export function HeroSection({ onScrollToSection }: HeroSectionProps) {
-  const { isAuthenticated, isLoading } = useAuth()
-
+export function HeroSection() {
   return (
-    <div id="hero" className="py-48">
-      <div className="container mx-auto px-4">
-        <div className="text-center space-y-8">
-          <div className="space-y-4">
-            <Badge variant="secondary" className="text-sm dark:bg-slate-800 dark:text-slate-200">
-              AI-Powered Stock Analysis
-            </Badge>
-            <h1 className="text-5xl font-bold text-slate-900 dark:text-white">
-              Stock Market AI Assistant
-            </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
-              Ask about stock prices, technical analysis and market news, and get AI explanations. Data may be delayed and is for education, not investment advice.
-            </p>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            {isLoading ? (
-              // Loading state - show skeleton buttons
-              <>
-                <div className="h-12 w-32 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
-                <div className="h-12 w-24 bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
-              </>
-            ) : isAuthenticated ? (
-              <Button size="lg" asChild>
-                <Link to="/chat">
-                  Start Chatting
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            ) : (
-              <>
-                <Button size="lg" asChild>
-                  <Link to="/register">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button variant="outline" size="lg" asChild>
-                  <Link to="/login">
-                    Sign In
-                  </Link>
-                </Button>
-              </>
-            )}
-            <Button 
-              variant="outline" 
-              size="lg"
-              onClick={() => onScrollToSection('features')}
-            >
-              Learn More
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+    <section aria-labelledby="hero-title" className="mx-auto max-w-[1248px] px-4 pb-16 pt-10 sm:px-6 md:pb-[72px] md:pt-14">
+      <div className="mb-10 flex flex-wrap items-end gap-x-16 gap-y-6">
+        <h1 id="hero-title" className="flex-[1_1_560px] font-display text-section font-bold leading-[0.95] md:text-hero lg:text-mega">
+          Ask about any stock.
+          <br />
+          Check every number.
+        </h1>
+        <p className="max-w-[400px] flex-[1_1_320px] text-[18px] leading-[1.55] text-foreground/80">
+          US and Indonesian stocks: prices, indicators and news in a chat. Each answer says where the data came from and how old it is.
+        </p>
       </div>
-    </div>
-  )
+      <AnswerPanel />
+    </section>
+  );
 }

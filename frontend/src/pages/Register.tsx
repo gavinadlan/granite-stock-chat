@@ -2,11 +2,10 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { FormLayout } from '@/components/FormLayout';
+import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { VerifyEmailForm } from '@/components/auth/VerifyEmailForm';
 import { passwordPolicyError } from '@/lib/authErrors';
 
@@ -15,8 +14,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   const [searchParams] = useSearchParams();
@@ -117,166 +114,34 @@ export default function RegisterPage() {
   };
 
   if (verifyEmail) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <VerifyEmailForm email={verifyEmail} onVerified={handleVerified} />
-        </div>
-      </div>
-    );
+    return <VerifyEmailForm email={verifyEmail} onVerified={handleVerified} />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Back to Home Button */}
-        <div className="mb-6">
-          <Link 
-            to="/" 
-            className="inline-flex items-center text-slate-600 hover:text-slate-900 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Link>
-        </div>
-
-        <Card className="shadow-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-slate-900">
-              Create Account
-            </CardTitle>
-            <CardDescription className="text-slate-600">
-              Join Stock Chat AI and start your investment journey
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Name Field */}
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-slate-700">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Email Field */}
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-slate-700">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-slate-700">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Create a password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-                <p className="text-xs text-slate-500">
-                  Must be at least 8 characters with uppercase, lowercase, numbers, and symbols
-                </p>
-              </div>
-
-              {/* Confirm Password Field */}
-              <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm your password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? "Creating Account..." : "Create Account"}
-              </Button>
-            </form>
-
-            {/* Login Link */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-slate-600">
-                Already have an account?{' '}
-                <Link 
-                  to="/login" 
-                  className="text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Sign in here
-                </Link>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Terms */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-slate-500">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
-          </p>
-        </div>
-      </div>
-    </div>
+    <FormLayout title="Create account" description="You need an account to use the stock chat." back={{ to: '/', label: 'Back to home' }}>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Field id="name" label="Full name" type="text" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required />
+        <Field id="email" label="Email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <Field
+          id="password"
+          label="Password"
+          type="password"
+          autoComplete="new-password"
+          hint="At least 8 characters with uppercase, lowercase, numbers and symbols."
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <Field id="confirmPassword" label="Confirm password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required />
+        <Button type="submit" size="lg" className="w-full" disabled={isLoading}>
+          {isLoading ? 'Creating account…' : 'Create account'}
+        </Button>
+      </form>
+      <p className="mt-6 text-muted-foreground">
+        Already have an account?{' '}
+        <Link to="/login" className="font-medium text-foreground underline underline-offset-4 hover:decoration-2">Sign in</Link>
+      </p>
+      {/* TODO(S5-06): link the Terms of Service and Privacy Policy here once those pages exist. */}
+    </FormLayout>
   );
 }

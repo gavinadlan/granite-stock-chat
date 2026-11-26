@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StockAI landing v2: design reference (static mockup, snapshot data 26 Nov 2026 11:19 WIB)</title>
+<!-- Design reference only. Numbers are a real API snapshot frozen for the mockup;
+     the app must fetch them live and never hardcode them (CLAUDE.md rule 2). -->
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F4F2}
+a{color:#16181B}a:hover{color:#000}
+.num{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div style="font-family:'IBM Plex Sans',sans-serif;color:#16181B;background:#F4F4F2;min-width:0">
+
+<!-- Live ticker strip -->
+<div style="background:#16181B;color:#F4F4F2;font-size:13px;overflow-x:auto">
+<div class="num" style="max-width:1200px;margin:0 auto;padding:10px 24px;display:flex;gap:28px;align-items:center;white-space:nowrap">
+<span><b style="font-weight:600">IHSG</b> 5.225,68 <span style="color:#4ADE80">+0,54%</span></span>
+<span><b style="font-weight:600">BBCA</b> 5.875 <span style="color:#4ADE80">+0,86%</span></span>
+<span><b style="font-weight:600">BBRI</b> 3.050 <span style="color:#FB923C">−0,65%</span></span>
+<span><b style="font-weight:600">BMRI</b> 3.990 <span style="color:#FB923C">−0,25%</span></span>
+<span><b style="font-weight:600">TLKM</b> 2.000 <span style="color:#FB923C">−0,50%</span></span>
+<span><b style="font-weight:600">GOTO</b> 26 <span style="color:#A3A8AE">0,00%</span></span>
+<span><b style="font-weight:600">NVDA</b> 149.30 <span style="color:#FB923C">−3.91%</span></span>
+<span><b style="font-weight:600">MSFT</b> 489.93 <span style="color:#FB923C">−1.25%</span></span>
+<span><b style="font-weight:600">TSLA</b> 380.14 <span style="color:#FB923C">−1.18%</span></span>
+<span style="margin-left:auto;color:#A3A8AE">Delayed, Yahoo Finance, 11:19 WIB</span>
+</div>
+</div>
+
+<!-- Nav -->
+<header style="max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;gap:32px">
+<a href="#" aria-label="StockAI home" style="display:flex;align-items:center;gap:6px;text-decoration:none">
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 32 32"><path d="M8 3H24A6 6 0 0 1 30 9V19A6 6 0 0 1 24 25H14L8 30V25A6 6 0 0 1 2 19V9A6 6 0 0 1 8 3Z" fill="#16181B"/><rect x="8" y="13" width="2" height="8" fill="#F4F4F2"/><rect x="7" y="15" width="4" height="4" fill="#F4F4F2"/><rect x="15" y="9" width="2" height="10" fill="#F4F4F2"/><rect x="14" y="11" width="4" height="5" fill="#F4F4F2"/><rect x="22" y="6" width="2" height="10" fill="#E59A1F"/><rect x="21" y="8" width="4" height="6" fill="#E59A1F"/></svg>
+<span style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;font-size:24px;letter-spacing:-0.01em">StockAI</span>
+</a>
+<nav style="display:flex;gap:24px;font-size:15px;flex:1"><a href="#ask" style="text-decoration:none;color:#5E636A">What you can ask</a><a href="#rules" style="text-decoration:none;color:#5E636A">How we handle data</a></nav>
+<a href="#" style="font-size:15px;font-weight:500;text-decoration:none">Sign in</a>
+<a href="#" style="font-size:15px;font-weight:600;text-decoration:none;background:#E59A1F;color:#16181B;padding:10px 16px;border-radius:6px">Sign up</a>
+</header>
+
+<!-- Hero -->
+<section style="max-width:1200px;margin:0 auto;padding:56px 24px 72px">
+<div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:24px 64px;margin-bottom:40px">
+<h1 style="margin:0;flex:1 1 560px;font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;font-size:88px;line-height:0.95;letter-spacing:-0.025em">Ask about any stock.<br>Check every number.</h1>
+<p style="margin:0;flex:1 1 320px;max-width:400px;font-size:18px;line-height:1.55;color:#3D4147">US and Indonesian stocks: prices, indicators and news in a chat. Each answer says where the data came from and how old it is.</p>
+</div>
+
+<!-- Product panel -->
+<div style="background:#FFFFFF;border:1px solid #D9DAD6;border-radius:16px;overflow:hidden">
+<div style="display:flex;align-items:center;gap:8px;padding:12px 20px;border-bottom:1px solid #E3E4E1;font-size:13px;color:#5E636A">
+<span style="width:8px;height:8px;border-radius:4px;background:#15803D"></span>Live answer, loaded when you opened this page
+</div>
+<div style="padding:28px 28px 8px;display:flex;flex-direction:column;gap:20px">
+<div style="align-self:flex-end;background:#EDEDEA;border-radius:14px 14px 4px 14px;padding:10px 16px;font-size:16px">Technical analysis BBCA.JK</div>
+<p style="margin:0;font-size:16px;line-height:1.55;max-width:640px">BBCA.JK is trading at Rp5.875, up 0,86% today. RSI is 62, so momentum is positive but not overbought. The price is still below its 50 and 200 day averages.</p>
+
+<div style="display:flex;flex-wrap:wrap;gap:16px">
+<!-- Quote -->
+<div style="flex:1 1 300px;border:1px solid #E3E4E1;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-weight:600;font-size:17px">BBCA.JK</div><div style="font-size:13px;color:#5E636A">PT Bank Central Asia Tbk, IDX, IDR</div></div><span style="font-size:12px;font-weight:500;background:#EDEDEA;border-radius:4px;padding:3px 8px">Delayed</span></div>
+<div class="num" style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;font-size:48px;line-height:1">Rp5.875</div>
+<div class="num" style="font-size:15px;font-weight:600;color:#15803D">+Rp50 (+0,86%)</div>
+<div class="num" style="border-top:1px solid #E3E4E1;padding-top:12px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:14px"><span style="color:#5E636A">Volume</span><span style="text-align:right">135.064.300</span><span style="color:#5E636A">Previous close</span><span style="text-align:right">Rp5.825</span></div>
+</div>
+<!-- Technicals -->
+<div style="flex:2 1 460px;border:1px solid #E3E4E1;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between"><div style="font-weight:600;font-size:17px">Indicators</div><span style="font-size:12px;font-weight:500;background:#EDEDEA;border-radius:4px;padding:3px 8px">Trend: neutral</span></div>
+<div>
+<div class="num" style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px"><span style="color:#5E636A">RSI (14)</span><b style="font-weight:600">61,98</b></div>
+<div style="position:relative;height:8px;border-radius:4px;background:linear-gradient(90deg,#E3E4E1 0 30%,#F1F1EE 30% 70%,#E3E4E1 70% 100%)">
+<div style="position:absolute;left:62%;top:-4px;width:4px;height:16px;border-radius:2px;background:#16181B"></div>
+</div>
+<div class="num" style="display:flex;justify-content:space-between;font-size:12px;color:#5E636A;margin-top:6px"><span>0</span><span style="margin-left:22%">30</span><span style="margin-right:22%">70</span><span>100</span></div>
+</div>
+<div class="num" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 16px;font-size:14px;border-top:1px solid #E3E4E1;padding-top:14px">
+<span style="color:#5E636A">MACD</span><span>89,74</span><span style="color:#5E636A">Signal</span><span>9,09</span>
+<span style="color:#5E636A">SMA 20</span><span>5.411,5</span><span style="color:#5E636A">SMA 50</span><span>5.629,6</span>
+<span style="color:#5E636A">SMA 200</span><span>6.246,5</span><span style="color:#5E636A">20-day range</span><span>4.820 to 6.025</span>
+</div>
+</div>
+</div>
+<div style="font-size:13px;color:#5E636A">Source: Yahoo Finance daily candles (240 sessions), calculated by StockAI. Nov 26, 2026, 11:19 WIB. Not financial advice.</div>
+</div>
+
+<!-- Composer: works on the landing page -->
+<form style="margin:20px 28px 28px;display:flex;gap:8px;border:1.5px solid #16181B;border-radius:12px;padding:6px 6px 6px 16px;align-items:center">
+<label for="try" style="position:absolute;left:-9999px">Ask about a stock</label>
+<input id="try" placeholder="Try a ticker: AAPL, TLKM.JK, NVDA" style="flex:1;min-width:0;border:0;outline:0;font:inherit;font-size:16px;background:transparent;padding:10px 0">
+<button type="button" style="font:inherit;font-weight:600;font-size:15px;background:#E59A1F;color:#16181B;border:0;border-radius:8px;padding:12px 20px">Ask</button>
+</form>
+</div>
+<p style="margin:14px 0 0;font-size:14px;color:#5E636A">Prices and indicators work without an account. Sign up for news and AI explanations.</p>
+</section>
+
+<!-- Rules: dark band -->
+<section id="rules" style="background:#16181B;color:#F4F4F2">
+<div style="max-width:1200px;margin:0 auto;padding:88px 24px">
+<h2 style="margin:0 0 48px;font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;font-size:48px;line-height:1.05;letter-spacing:-0.02em;max-width:720px">Three things StockAI will not do.</h2>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:40px">
+<div style="border-top:2px solid #E59A1F;padding-top:20px"><h3 style="margin:0 0 10px;font-size:22px;font-weight:600">Fill a gap with a guess</h3><p style="margin:0;font-size:16px;line-height:1.6;color:#C4C8CC">If Yahoo Finance or NewsAPI does not answer, you get an error message. Never a made-up price or headline.</p></div>
+<div style="border-top:2px solid #E59A1F;padding-top:20px"><h3 style="margin:0 0 10px;font-size:22px;font-weight:600">Let the AI invent numbers</h3><p style="margin:0;font-size:16px;line-height:1.6;color:#C4C8CC">RSI, MACD and moving averages are calculated in code from daily candles. IBM Granite only explains them, and never gives a price target.</p></div>
+<div style="border-top:2px solid #E59A1F;padding-top:20px"><h3 style="margin:0 0 10px;font-size:22px;font-weight:600">Hide how old the data is</h3><p style="margin:0;font-size:16px;line-height:1.6;color:#C4C8CC">Every card shows its source, the time it was fetched and whether the quote is delayed.</p></div>
+</div>
+</div>
+</section>
+
+<!-- What you can ask: table -->
+<section id="ask" style="max-width:1200px;margin:0 auto;padding:88px 24px">
+<h2 style="margin:0 0 32px;font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;font-size:48px;line-height:1.05;letter-spacing:-0.02em">What you can ask</h2>
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;font-size:16px;min-width:720px">
+<thead><tr style="text-align:left;color:#5E636A;font-size:14px"><th style="font-weight:500;padding:0 16px 12px 0">Type this</th><th style="font-weight:500;padding:0 16px 12px">You get</th><th style="font-weight:500;padding:0 0 12px 16px">From</th></tr></thead>
+<tbody>
+<tr style="border-top:1px solid #D9DAD6"><td style="padding:20px 16px 20px 0"><span style="background:#FFFFFF;border:1px solid #D9DAD6;border-radius:8px;padding:8px 12px;white-space:nowrap">What's the price of AAPL?</span></td><td style="padding:20px 16px">Price, daily change and volume</td><td style="padding:20px 0 20px 16px;color:#5E636A">Yahoo Finance</td></tr>
+<tr style="border-top:1px solid #D9DAD6"><td style="padding:20px 16px 20px 0"><span style="background:#FFFFFF;border:1px solid #D9DAD6;border-radius:8px;padding:8px 12px;white-space:nowrap">Technical analysis BBCA.JK</span></td><td style="padding:20px 16px">RSI (14), MACD (12, 26, 9), SMA 20/50/200 and the 20-day range</td><td style="padding:20px 0 20px 16px;color:#5E636A">Calculated from Yahoo Finance daily candles</td></tr>
+<tr style="border-top:1px solid #D9DAD6"><td style="padding:20px 16px 20px 0"><span style="background:#FFFFFF;border:1px solid #D9DAD6;border-radius:8px;padding:8px 12px;white-space:nowrap">News about TSLA</span></td><td style="padding:20px 16px">Recent articles with a link to each source, or a clear "none found"</td><td style="padding:20px 0 20px 16px;color:#5E636A">NewsAPI</td></tr>
+<tr style="border-top:1px solid #D9DAD6;border-bottom:1px solid #D9DAD6"><td style="padding:20px 16px 20px 0"><span style="background:#FFFFFF;border:1px solid #D9DAD6;border-radius:8px;padding:8px 12px;white-space:nowrap">Outlook for MSFT</span></td><td style="padding:20px 16px">A plain-language read of the data and its risks, without a price target</td><td style="padding:20px 0 20px 16px;color:#5E636A">IBM Granite, using the numbers above</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<!-- Closing CTA + footer -->
+<section style="max-width:1200px;margin:0 auto;padding:0 24px 72px">
+<div style="background:#E59A1F;border-radius:16px;padding:48px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:24px">
+<h2 style="margin:0;font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;font-size:40px;line-height:1.05;letter-spacing:-0.02em;max-width:620px">Start with the ticker you hold.</h2>
+<a href="#" style="background:#16181B;color:#F4F4F2;text-decoration:none;font-weight:600;font-size:16px;padding:14px 22px;border-radius:8px">Create a free account</a>
+</div>
+</section>
+<footer style="border-top:1px solid #D9DAD6">
+<div style="max-width:1200px;margin:0 auto;padding:28px 24px;display:flex;flex-wrap:wrap;gap:12px 32px;font-size:14px;color:#5E636A">
+<span style="font-family:'IBM Plex Sans Condensed',sans-serif;font-weight:700;font-size:20px;color:#16181B">StockAI</span>
+<span>Data: Yahoo Finance, NewsAPI. AI: IBM Granite. Quotes may be delayed.</span>
+<span style="flex-basis:100%">Not financial advice. Bukan nasihat keuangan.</span>
+</div>
+</footer>
+
+</div>
+</body>
+</html>

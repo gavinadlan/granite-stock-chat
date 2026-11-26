@@ -51,21 +51,68 @@ export function formatCurrencySymbol(currency: string): string {
   return CURRENCY_MAP[currency]?.symbol || '$';
 }
 
-/**
- * Formats price with currency symbol
- */
-export function formatPrice(price: number, currency: string): string {
-  const symbol = formatCurrencySymbol(currency);
-  return `${symbol}${price.toFixed(2)}`;
+const DASH = '—';
+const MINUS = '\u2212';
+
+/** IDR: id-ID, no decimals ("5.900"). Everything else: en-US, 2 decimals ("1,234.56"). */
+function numberFormat(currency: string, decimals = 2): Intl.NumberFormat {
+  return currency === 'IDR'
+    ? new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 })
+    : new Intl.NumberFormat('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
 
 /**
- * Formats change with currency symbol
+ * The one place signs are added: "+"/"−" (U+2212, as in PriceChange) before an already formatted absolute value.
+ * No sign when the value rounds to zero, so a tiny negative never shows as "−0,00".
  */
-export function formatChange(change: number, currency: string): string {
-  const symbol = formatCurrencySymbol(currency);
-  const prefix = change >= 0 ? '+' : '';
-  return `${prefix}${symbol}${change.toFixed(2)}`;
+function withSign(value: number, absText: string, plus = ''): string {
+  if (!/[1-9]/.test(absText)) return absText;
+  return `${value > 0 ? plus : value < 0 ? MINUS : ''}${absText}`;
+}
+
+type Num = number | null | undefined;
+
+/** "Rp5.900", "$1,234.56", "−$5.00"; null → "—". */
+export function formatPrice(price: Num, currency: string): string {
+  if (price == null) return DASH;
+  return withSign(price, `${formatCurrencySymbol(currency)}${numberFormat(currency).format(Math.abs(price))}`);
+}
+
+/** Signed money change: "+Rp75", "−$1.50", "$0.00"; null → "—". */
+export function formatChange(change: Num, currency: string): string {
+  if (change == null) return DASH;
+  return withSign(change, `${formatCurrencySymbol(currency)}${numberFormat(currency).format(Math.abs(change))}`, '+');
+}
+
+/** Signed percent in the currency's locale, always 2 decimals: "+1,29%" (IDR), "−2.00%" (USD). */
+export function formatPercent(percent: Num, currency: string): string {
+  if (percent == null) return DASH;
+  const locale = currency === 'IDR' ? 'id-ID' : 'en-US';
+  const abs = new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(percent));
+  return withSign(percent, `${abs}%`, '+');
+}
+
+/** Whole-number volume in the currency's locale: "133.232.200" (IDR), "1,234,567" (USD). */
+export function formatVolume(volume: Num, currency: string): string {
+  return volume == null ? DASH : numberFormat(currency, 0).format(volume);
+}
+
+/**
+ * Plain number in the currency's locale with exactly `decimals` digits and no symbol
+ * (ticker strip, indicators): "5.412" (IDR, 0), "89,74" (IDR, 2), "149.30" (USD, 2), "−3.50".
+ */
+export function formatNumber(value: Num, currency: string, decimals = 2): string {
+  if (value == null) return DASH;
+  const abs = new Intl.NumberFormat(currency === 'IDR' ? 'id-ID' : 'en-US', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(Math.abs(value));
+  return withSign(value, abs);
+}
+
+/** Decimals for price-like numbers without a symbol: IDR stocks are whole rupiah, indices and other currencies 2. */
+export function priceDecimals(currency: string, symbol = ''): number {
+  return currency === 'IDR' && !symbol.startsWith('^') ? 0 : 2;
 }
 
 /**

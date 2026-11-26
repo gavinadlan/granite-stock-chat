@@ -11,6 +11,7 @@ StockAI adalah asisten chat pasar saham berbasis AI (IBM Granite) dengan data ha
 
 ## Stack
 - **Frontend**: React 18, Vite, TypeScript, Tailwind, shadcn/Radix, TanStack Query, AWS Amplify (Cognito), React Router.
+- **Desain**: token "Granite" di `frontend/src/index.css` (light & dark), font IBM Plex Sans/Condensed self-host lewat `@fontsource`. Pakai token semantik, jangan `dark:` atau warna Tailwind hardcode; `up`/`down` hanya untuk arah harga. Skala font/radius baru wajib didaftarkan juga di `frontend/src/lib/utils.ts`.
 - **Backend**: AWS Lambda (Node.js 20), Serverless Framework v3, API Gateway, DynamoDB, Cognito, region `us-east-1`.
 - **Data**: Yahoo Finance (chart endpoint), Alpha Vantage, NewsAPI. **AI**: IBM Granite via Replicate.
 
@@ -18,6 +19,9 @@ StockAI adalah asisten chat pasar saham berbasis AI (IBM Granite) dengan data ha
 npm workspaces monorepo (satu `package-lock.json` di root, Node 20 lihat `.nvmrc`):
 ```
 frontend/            React app (src/components, pages, services, hooks, lib)
+                     components/ui = primitif (button, sheet, field, price-change);
+                     components/DataCard = kerangka kartu data chat; FormLayout = halaman form
+                     components/sections = landing (TickerStrip, AnswerPanel, ...); desain: docs/design/landing-v2.html
 backend/             Lambda backend (TypeScript, bundled by serverless-esbuild) + serverless.yml
   src/handlers/      tipis: validasi query → panggil service → response (/v1/* + alias lama s/d S1-10)
   src/services/      logika bisnis (dipakai handler & tool AI di Sprint 2)
@@ -26,7 +30,7 @@ backend/             Lambda backend (TypeScript, bundled by serverless-esbuild) 
   src/lib/           config (env zod, cold start), http (wrapper handler, CORS, error), validation
   test/              Vitest (*.test.ts)
 packages/shared/     @stockai/shared: zod schema + tipe response (frontend & backend)
-docs/                API.md, DEPLOYMENT.md (secrets), legacy/ (panduan lama)
+docs/                API.md, DEPLOYMENT.md (secrets), design/ (mockup final), legacy/ (panduan lama)
 scripts/             skrip dev (legacy/ = skrip deploy lama, dihapus di S5-03)
 roadmap/             Roadmap & prompt eksekusi
 ```

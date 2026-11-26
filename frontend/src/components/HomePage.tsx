@@ -1,31 +1,23 @@
-import { Header } from "./sections/Header"
-import { HeroSection } from "./sections/HeroSection"
-import { FeaturesSection } from "./sections/FeaturesSection"
-import { HowItWorksSection } from "./sections/HowItWorksSection"
-import { TechStackSection } from "./sections/TechStackSection"
-import { AboutSection } from "./sections/AboutSection"
-import { CTASection } from "./sections/CTASection"
-import { Footer } from "./sections/Footer"
+import { Header } from './sections/Header';
+import { TickerStrip } from './sections/TickerStrip';
+import { HeroSection } from './sections/HeroSection';
+import { RulesSection } from './sections/RulesSection';
+import { AskSection } from './sections/AskSection';
+import { CtaSection } from './sections/CtaSection';
+import { Footer } from './sections/Footer';
 
 export default function HomePage() {
-  // Smooth scroll function
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' })
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <Header onScrollToSection={scrollToSection} />
-      <HeroSection onScrollToSection={scrollToSection} />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <TechStackSection />
-      <AboutSection />
-      <CTASection />
+    <div className="min-h-dvh bg-background">
+      <TickerStrip />
+      <Header />
+      <main>
+        <HeroSection />
+        <RulesSection />
+        <AskSection />
+        <CtaSection />
+      </main>
       <Footer />
     </div>
-  )
+  );
 }

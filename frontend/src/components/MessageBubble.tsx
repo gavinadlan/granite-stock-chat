@@ -1,4 +1,5 @@
-import { User, MessageCircle, RotateCcw } from 'lucide-react';
+import { RotateCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { ChatMessage } from '@/services/stockMarketAPI';
 
 interface MessageBubbleProps {
@@ -8,46 +9,29 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, onRetry }: MessageBubbleProps) {
-  return (
-    <div className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} mb-3 sm:mb-4`}>
-      <div className={`flex max-w-[85%] sm:max-w-[80%] ${message.isUser ? 'flex-row-reverse' : 'flex-row'} items-start ${message.isUser ? 'space-x-reverse space-x-2 sm:space-x-4' : 'space-x-2 sm:space-x-4'}`}>
-        {/* Avatar */}
-        <div className={`flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-sm ${
-          message.isUser 
-            ? 'bg-gradient-to-br from-blue-500 to-blue-600' 
-            : 'bg-gradient-to-br from-slate-500 to-slate-600'
-        }`}>
-          {message.isUser ? (
-            <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-          ) : (
-            <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-          )}
-        </div>
+  const { content, error, isUser } = message;
 
-        {/* Message Content */}
-        <div className={`rounded-xl px-3 py-2 sm:px-4 sm:py-3 shadow-sm ${
-          message.isUser 
-            ? 'bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 text-white' 
-            : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100'
-        }`}>
-          <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed break-words">{message.content}</p>
-          {message.error && onRetry && (
-            <button
-              type="button"
-              onClick={() => onRetry(message.error!.retryText)}
-              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-            >
-              <RotateCcw className="h-3 w-3" aria-hidden="true" />
-              Try again
-            </button>
-          )}
-          <p className={`text-[10px] sm:text-xs mt-1.5 sm:mt-2 ${
-            message.isUser ? 'text-blue-100 dark:text-blue-200' : 'text-slate-500 dark:text-slate-400'
-          }`}>
-            {message.timestamp.toLocaleTimeString()}
-          </p>
-        </div>
-      </div>
+  if (isUser) {
+    return (
+      <p className="ml-auto w-fit max-w-[85%] whitespace-pre-wrap rounded-panel bg-muted px-4 py-2.5 [overflow-wrap:anywhere]">
+        <span className="sr-only">You: </span>
+        {content}
+      </p>
+    );
+  }
+
+  return (
+    <div>
+      <p className="whitespace-pre-wrap [overflow-wrap:anywhere]">
+        <span className="sr-only">StockAI: </span>
+        {content}
+      </p>
+      {error && onRetry && (
+        <Button variant="outline" size="sm" className="mt-2" onClick={() => onRetry(error.retryText)}>
+          <RotateCcw className="mr-2 h-4 w-4" aria-hidden="true" />
+          Try again
+        </Button>
+      )}
     </div>
   );
 }

@@ -41,7 +41,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // Show loading spinner while checking authentication or during minimum loading time
   if (isLoading || showLoader) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <BoxLoader />
       </div>
     );

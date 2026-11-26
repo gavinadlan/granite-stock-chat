@@ -1,142 +1,150 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertTriangle, Info, Minus, TrendingDown, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { TechnicalAnalysis } from '@/services/stockMarketAPI';
-import { formatPrice } from '@/lib/currencyUtils';
+import { TechnicalAnalysis, TechnicalSignal } from '@/services/stockMarketAPI';
+import { formatNumber, formatPrice, priceDecimals } from '@/lib/currencyUtils';
+import { cn } from '@/lib/utils';
+import { DataCard, DataCardFooter, DataRow } from './DataCard';
 import { DataSourceBadge } from './DataSourceBadge';
 import { Disclaimer } from './Disclaimer';
-
-interface TechnicalAnalysisCardProps {
-  technicalAnalysis: TechnicalAnalysis;
-}
+import { RsiMeter } from './RsiMeter';
 
 const DASH = '—';
 
-function trendStyle(trend: string) {
-  switch (trend.toLowerCase()) {
-    case 'bullish':
-      return { Icon: TrendingUp, cls: 'text-green-600 dark:text-green-400' };
-    case 'bearish':
-      return { Icon: TrendingDown, cls: 'text-red-600 dark:text-red-400' };
-    default:
-      return { Icon: Minus, cls: 'text-slate-600 dark:text-slate-300' };
-  }
+const SIGNAL_ICON: Record<TechnicalSignal['severity'], typeof Info> = {
+  bullish: TrendingUp,
+  bearish: TrendingDown,
+  info: Info,
+};
+
+const TREND_ICON: Record<string, typeof Info> = { bullish: TrendingUp, bearish: TrendingDown };
+
+interface TechnicalAnalysisCardProps {
+  technicalAnalysis: TechnicalAnalysis;
+  /** `compact`: landing answer panel; one indicator grid, source shown by the panel. */
+  variant?: 'chat' | 'compact';
+  className?: string;
 }
 
-function rsiClass(rsi: number | null) {
-  if (rsi === null) return 'text-slate-500 dark:text-slate-400';
-  if (rsi > 70) return 'text-red-600 dark:text-red-400';
-  if (rsi < 30) return 'text-green-600 dark:text-green-400';
-  return 'text-slate-700 dark:text-slate-200';
-}
-
-const signalClass = {
-  bullish: 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300',
-  bearish: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-  info: 'bg-slate-50 text-slate-700 dark:bg-slate-700/50 dark:text-slate-200',
-} as const;
-
-function Stat({ label, value, className = '' }: { label: string; value: string; className?: string }) {
+function CompactTechnicals({ ta, currency, className }: { ta: TechnicalAnalysis; currency: string; className?: string }) {
+  const n = (v: number | null, decimals: number) => formatNumber(v, currency, decimals);
+  const level = (v: number | null) => n(v, priceDecimals(currency));
+  const range =
+    ta.support === null || ta.resistance === null ? DASH : `${level(ta.support)} to ${level(ta.resistance)}`;
+  const rows: [string, string][] = [
+    ['MACD', n(ta.macd.macd, 2)],
+    ['Signal', n(ta.macd.signal, 2)],
+    ['SMA 20', level(ta.movingAverages.sma20)],
+    ['SMA 50', level(ta.movingAverages.sma50)],
+    ['SMA 200', level(ta.movingAverages.sma200)],
+    ['20-day range', range],
+  ];
   return (
-    <div className="text-center">
-      <p className="text-slate-600 dark:text-slate-400 text-[10px] sm:text-xs">{label}</p>
-      <p className={`font-semibold text-xs sm:text-sm break-all dark:text-white ${className}`}>{value}</p>
-    </div>
+    <DataCard label={`${ta.symbol} indicators`} className={cn('max-w-none', className)}>
+      <header className="flex items-start justify-between gap-3">
+        <h3 className="text-[17px] font-semibold">Indicators</h3>
+        <Badge variant="secondary">Trend: {ta.trend}</Badge>
+      </header>
+      <RsiMeter rsi={ta.rsi} currency={currency} compact />
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-2.5 border-t pt-3.5 text-sm tabular-nums sm:grid-cols-4">
+        {rows.map(([label, value]) => (
+          <div key={label} className="contents">
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="[overflow-wrap:anywhere]">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {ta.warnings?.length > 0 && (
+        <ul className="space-y-1 text-sm text-muted-foreground">
+          {ta.warnings.map((w) => (
+            <li key={w}>{w}</li>
+          ))}
+        </ul>
+      )}
+    </DataCard>
   );
 }
 
-export function TechnicalAnalysisCard({ technicalAnalysis: ta }: TechnicalAnalysisCardProps) {
+export function TechnicalAnalysisCard({ technicalAnalysis: ta, variant = 'chat', className }: TechnicalAnalysisCardProps) {
   const currency = ta.currency || 'USD';
+  if (variant === 'compact') return <CompactTechnicals ta={ta} currency={currency} className={className} />;
   const money = (v: number | null) => (v === null ? DASH : formatPrice(v, currency));
-  const num = (v: number | null, digits = 3) => (v === null ? DASH : v.toFixed(digits));
-  const { Icon, cls } = trendStyle(ta.trend);
+  const num = (v: number | null) => formatNumber(v, currency, 2);
+  const TrendIcon = TREND_ICON[ta.trend] ?? Minus;
 
   return (
-    <Card className="w-full max-w-md mx-auto dark:bg-slate-800 dark:border-slate-700">
-      <CardHeader className="pb-2 p-4 sm:p-6">
-        <CardTitle className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center space-x-2">
-            <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-            <span className="text-base sm:text-lg font-semibold dark:text-white">Technical Analysis</span>
-          </div>
-          <Badge variant="secondary" className="text-[10px] sm:text-xs dark:bg-slate-700 dark:text-slate-200">
-            {ta.symbol}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-3 sm:space-y-4 p-4 sm:p-6 pt-0">
-        {/* RSI */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">RSI (14)</span>
-            <span className={`font-semibold text-xs sm:text-sm ${rsiClass(ta.rsi)}`}>{num(ta.rsi, 1)}</span>
-          </div>
-          {ta.rsi !== null && (
-            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2" aria-hidden="true">
-              <div
-                className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.max(0, Math.min(ta.rsi, 100))}%` }}
-              />
-            </div>
-          )}
+    <DataCard label={`${ta.symbol} technical analysis`}>
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-title font-semibold">{ta.symbol}</h3>
+          <p className="text-sm text-muted-foreground">Technical analysis{ta.currency && ` · ${ta.currency}`}</p>
         </div>
+        <Badge variant="secondary" className="gap-1 capitalize">
+          <TrendIcon className="h-3.5 w-3.5" aria-hidden="true" />
+          {ta.trend}
+        </Badge>
+      </header>
 
-        {/* MACD */}
-        <div className="space-y-2">
-          <h4 className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">MACD (12, 26, 9)</h4>
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-xs sm:text-sm">
-            <Stat label="MACD" value={num(ta.macd.macd)} />
-            <Stat label="Signal" value={num(ta.macd.signal)} />
-            <Stat label="Histogram" value={num(ta.macd.histogram)} />
-          </div>
-        </div>
+      <RsiMeter rsi={ta.rsi} currency={currency} />
 
-        {/* Moving Averages */}
-        <div className="space-y-2">
-          <h4 className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">Moving Averages</h4>
-          <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-xs sm:text-sm">
-            <Stat label="SMA 20" value={money(ta.movingAverages.sma20)} />
-            <Stat label="SMA 50" value={money(ta.movingAverages.sma50)} />
-            <Stat label="SMA 200" value={money(ta.movingAverages.sma200)} />
-          </div>
-        </div>
+      <section className="space-y-1.5 border-t pt-3">
+        <h4 className="font-medium">MACD (12, 26, 9)</h4>
+        <dl className="space-y-1.5">
+          <DataRow label="MACD">{num(ta.macd.macd)}</DataRow>
+          <DataRow label="Signal">{num(ta.macd.signal)}</DataRow>
+          <DataRow label="Histogram">{num(ta.macd.histogram)}</DataRow>
+        </dl>
+      </section>
 
-        {/* Support & Resistance (20-session range) */}
-        <div className="space-y-2">
-          <h4 className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200">20-session range</h4>
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
-            <Stat label="Support (low)" value={money(ta.support)} className="text-green-600 dark:text-green-400" />
-            <Stat label="Resistance (high)" value={money(ta.resistance)} className="text-red-600 dark:text-red-400" />
-          </div>
-        </div>
+      <section className="space-y-1.5 border-t pt-3">
+        <h4 className="font-medium">Moving averages</h4>
+        <dl className="space-y-1.5">
+          <DataRow label="SMA 20">{money(ta.movingAverages.sma20)}</DataRow>
+          <DataRow label="SMA 50">{money(ta.movingAverages.sma50)}</DataRow>
+          <DataRow label="SMA 200">{money(ta.movingAverages.sma200)}</DataRow>
+        </dl>
+      </section>
 
-        {/* Signals */}
-        {ta.signals?.length > 0 && (
+      <section className="space-y-1.5 border-t pt-3">
+        <h4 className="font-medium">20-session range</h4>
+        <dl className="space-y-1.5">
+          <DataRow label="Support (low)">{money(ta.support)}</DataRow>
+          <DataRow label="Resistance (high)">{money(ta.resistance)}</DataRow>
+        </dl>
+      </section>
+
+      {ta.signals?.length > 0 && (
+        <section className="space-y-1.5 border-t pt-3">
+          <h4 className="font-medium">Signals</h4>
           <ul className="space-y-1.5">
-            {ta.signals.map((s) => (
-              <li key={s.id} className={`text-xs sm:text-sm rounded-md px-2.5 py-1.5 ${signalClass[s.severity] ?? signalClass.info}`}>
-                {s.label}
-              </li>
-            ))}
+            {ta.signals.map((s) => {
+              const Icon = SIGNAL_ICON[s.severity] ?? Info;
+              return (
+                <li key={s.id} className="flex items-start gap-2">
+                  <Icon className="mt-1 h-4 w-4 flex-shrink-0 text-muted-foreground" aria-hidden="true" />
+                  {s.label}
+                </li>
+              );
+            })}
           </ul>
-        )}
+        </section>
+      )}
 
-        {/* Trend */}
-        <div className="flex items-center justify-center space-x-2 p-2.5 sm:p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
-          <Icon className={`h-4 w-4 ${cls}`} />
-          <span className={`font-semibold text-xs sm:text-sm ${cls}`}>{ta.trend.toUpperCase()}</span>
-        </div>
+      {ta.warnings?.length > 0 && (
+        <ul className="space-y-1 border-t pt-3 text-sm">
+          {ta.warnings.map((w) => (
+            <li key={w} className="flex items-start gap-2">
+              <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+              {w}
+            </li>
+          ))}
+        </ul>
+      )}
 
-        {ta.warnings?.length > 0 && (
-          <p className="text-[10px] sm:text-xs text-amber-700 dark:text-amber-400">{ta.warnings.join(' · ')}</p>
-        )}
-
-        <div className="space-y-1.5 pt-2 border-t dark:border-slate-700">
-          <DataSourceBadge source={ta.source} asOf={ta.asOf} />
-          <Disclaimer />
-        </div>
-      </CardContent>
-    </Card>
+      <DataCardFooter>
+        {ta.method && <p className="text-sm text-muted-foreground">Method: {ta.method}</p>}
+        <DataSourceBadge source={ta.source} asOf={ta.asOf} />
+        <Disclaimer />
+      </DataCardFooter>
+    </DataCard>
   );
 }

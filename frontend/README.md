@@ -6,9 +6,9 @@ A modern React frontend for the Stock Market AI Assistant, built with Vite, Type
 
 - 🚀 **Stock Prices** - Market data from Yahoo Finance (may be delayed, always labelled with source and time)
 - 🤖 **AI Outlook** - IBM Granite explanations of factors and risks (no price targets)
-- 📊 **Technical Analysis** - RSI, MACD, moving averages, and more
-- 📰 **Market News** - Latest news with sentiment analysis
-- 💬 **Interactive Chat** - Natural language interface for stock queries
+- 📊 **Technical Analysis** - RSI, MACD, moving averages, 20-session support and resistance
+- 📰 **Market News** - Recent articles from NewsAPI with links to the source
+- 💬 **Chat** - Ask about a ticker, e.g. "What's the price of AAPL?"
 - 📱 **Responsive Design** - Works on desktop and mobile
 
 ## Tech Stack
@@ -95,13 +95,11 @@ frontend/
 
 ## API Integration
 
-The frontend integrates with multiple APIs:
+The frontend only calls our backend (`VITE_API_URL`). The backend uses:
 
-1. **AWS Lambda** - Primary backend service
-2. **Yahoo Finance (RapidAPI)** - Stock price data
-3. **IBM Granite (Replicate)** - AI predictions
-4. **Alpha Vantage** - Financial data fallback
-5. **News API** - Market news
+1. **Yahoo Finance** - Stock prices and daily history
+2. **IBM Granite (Replicate)** - AI explanations
+3. **NewsAPI** - Market news
 
 ## Environment Variables
 

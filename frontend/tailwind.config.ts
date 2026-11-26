@@ -52,13 +52,43 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        surface: {
+          raised: "hsl(var(--surface-raised))",
+        },
+        // Price direction only. Never use for status, success or errors.
+        band: "hsl(var(--band))",
+        up: "hsl(var(--up))",
+        down: "hsl(var(--down))",
+      },
+      fontFamily: {
+        sans: ["IBM Plex Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["IBM Plex Sans Condensed", "IBM Plex Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      // Type scale: sm 14, base 16 (Tailwind defaults) + these. Also register new names in lib/utils.ts.
+      fontSize: {
+        title: ["1.25rem", { lineHeight: "1.75rem" }], // 20
+        heading: ["1.75rem", { lineHeight: "2.125rem" }], // 28
+        display: ["2.75rem", { lineHeight: "3rem" }], // 44
+        hero: ["4rem", { lineHeight: "4rem" }], // 64
+        section: ["3rem", { lineHeight: "1.05", letterSpacing: "-0.02em" }], // 48, landing h2 and mobile h1
+        mega: ["5.5rem", { lineHeight: "0.95", letterSpacing: "-0.025em" }], // 88, landing h1 on desktop
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        control: "6px",
+        card: "10px",
+        panel: "16px",
+        // shadcn names mapped onto the same three steps
+        sm: "4px",
+        md: "6px",
+        lg: "10px",
+        xl: "16px",
       },
       keyframes: {
+        // Landing ticker: the track holds the list twice, so -50% is exactly one copy.
+        ticker: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -67,20 +97,11 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        "marquee": {
-          "0%": { transform: "translateX(0%)" },
-          "100%": { transform: "translateX(-50%)" },
-        },
       },
       animation: {
+        ticker: "ticker var(--ticker-duration, 40s) linear infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "marquee": "marquee 30s linear infinite",
-        "pause": "paused",
-      },
-      animationPlayState: {
-        "paused": "paused",
-        "running": "running",
       },
     },
   },

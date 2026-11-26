@@ -1,83 +1,82 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, DollarSign, BarChart3 } from 'lucide-react';
+import { PriceChange } from '@/components/ui/price-change';
 import { StockPrice } from '@/services/stockMarketAPI';
-import { formatPrice, formatChange } from '@/lib/currencyUtils';
+import { formatPrice, formatVolume } from '@/lib/currencyUtils';
+import { cn } from '@/lib/utils';
+import { DataCard, DataCardFooter, DataRow } from './DataCard';
 import { DataSourceBadge } from './DataSourceBadge';
+
+/** Display names for Yahoo exchange codes; unknown codes are shown as they are. */
+const EXCHANGE_NAMES: Record<string, string> = {
+  NMS: 'NASDAQ',
+  NGM: 'NASDAQ',
+  NCM: 'NASDAQ',
+  NYQ: 'NYSE',
+  PCX: 'NYSE Arca',
+  JKT: 'IDX',
+};
 
 interface StockCardProps {
   stockPrice: StockPrice;
+  /** `compact`: landing answer panel; volume and previous close, source shown by the panel. */
+  variant?: 'chat' | 'compact';
+  className?: string;
 }
 
-export function StockCard({ stockPrice }: StockCardProps) {
-  const isPositive = (stockPrice.change ?? 0) >= 0;
-  const changeIcon = isPositive ? TrendingUp : TrendingDown;
-  const changeColor = isPositive ? 'text-green-600' : 'text-red-600';
-  const changeColorDark = isPositive ? 'dark:text-green-400' : 'dark:text-red-400';
-  const bgColor = isPositive ? 'bg-green-50' : 'bg-red-50';
-  const bgColorDark = isPositive ? 'dark:bg-green-900/30' : 'dark:bg-red-900/30';
+export function StockCard({ stockPrice, variant = 'chat', className }: StockCardProps) {
+  const { symbol, name, exchange, currency, price, change, changePercent, volume, marketCap, previousClose } = stockPrice;
+  const parts = [name, exchange && (EXCHANGE_NAMES[exchange] ?? exchange), currency].filter(Boolean);
+
+  if (variant === 'compact') {
+    return (
+      <DataCard label={`${symbol} price`} className={cn('max-w-none', className)}>
+        <header className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="text-[17px] font-semibold">{symbol}</h3>
+            <p className="text-sm text-muted-foreground">{parts.join(', ')}</p>
+          </div>
+          <Badge variant="secondary">{stockPrice.delayed ? 'Delayed' : 'Live'}</Badge>
+        </header>
+        <div className="space-y-2">
+          <p className="font-display text-section font-bold leading-none tabular-nums [overflow-wrap:anywhere]">{formatPrice(price, currency)}</p>
+          <PriceChange change={change} changePercent={changePercent} currency={currency} className="text-[15px] font-semibold" />
+        </div>
+        <dl className="space-y-1.5 border-t pt-3 text-sm">
+          <DataRow label="Volume">{formatVolume(volume, currency)}</DataRow>
+          {previousClose != null && <DataRow label="Previous close">{formatPrice(previousClose, currency)}</DataRow>}
+        </dl>
+      </DataCard>
+    );
+  }
+
+  const subtitle = parts.join(' · ');
 
   return (
-    <Card className="w-full max-w-md mx-auto dark:bg-slate-800 dark:border-slate-700">
-      <CardHeader className="pb-2 p-4 sm:p-6">
-        <CardTitle className="flex items-center justify-between">
-          <span className="text-base sm:text-lg font-semibold dark:text-white">{stockPrice.symbol}</span>
-          <Badge variant="secondary" className="text-[10px] sm:text-xs dark:bg-slate-700 dark:text-slate-200">
-            {stockPrice.delayed ? 'Delayed' : 'Live'}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      
-      <CardContent className="space-y-3 p-4 sm:p-6 pt-0">
-        {/* Price */}
-        <div className="flex items-center space-x-2">
-          <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-slate-600 dark:text-slate-300 flex-shrink-0" />
-          <span className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white break-all">
-            {formatPrice(stockPrice.price, stockPrice.currency)}
-          </span>
+    <DataCard label={`${symbol} price`}>
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="text-title font-semibold">{symbol}</h3>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
+        <Badge variant="secondary">{stockPrice.delayed ? 'Delayed' : 'Live'}</Badge>
+      </header>
 
-        {/* Change */}
-        <div className={`flex items-center space-x-2 ${bgColor} ${bgColorDark} p-2 sm:p-2.5 rounded-lg`}>
-          {changeIcon === TrendingUp ? (
-            <TrendingUp className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${changeColor} ${changeColorDark} flex-shrink-0`} />
-          ) : (
-            <TrendingDown className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${changeColor} ${changeColorDark} flex-shrink-0`} />
-          )}
-          <span className={`font-semibold text-sm sm:text-base ${changeColor} ${changeColorDark} break-all`}>
-            {stockPrice.change === null ? '—' : formatChange(stockPrice.change, stockPrice.currency)}
-          </span>
-          <span className={`text-xs sm:text-sm ${changeColor} ${changeColorDark} whitespace-nowrap`}>
-            {stockPrice.changePercent === null ? '' : `(${isPositive ? '+' : ''}${stockPrice.changePercent.toFixed(2)}%)`}
-          </span>
+      <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
+        <div>
+          <p className="text-heading font-semibold tabular-nums [overflow-wrap:anywhere] sm:text-display">{formatPrice(price, currency)}</p>
+          <PriceChange change={change} changePercent={changePercent} currency={currency} className="font-medium" />
         </div>
+        {/* TODO(S1-06): sparkline goes in this second column once the history endpoint exists. */}
+      </div>
 
-        {/* Additional Info */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
-          <div className="flex items-start space-x-1.5 sm:space-x-2">
-            <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 dark:text-slate-300 flex-shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-slate-600 dark:text-slate-400 text-[10px] sm:text-xs">Volume</p>
-              <p className="font-semibold text-xs sm:text-sm break-all dark:text-slate-100">{stockPrice.volume === null ? '—' : stockPrice.volume.toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="flex items-start space-x-1.5 sm:space-x-2">
-            <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-600 dark:text-slate-300 flex-shrink-0 mt-0.5" />
-            <div className="min-w-0">
-              <p className="text-slate-600 dark:text-slate-400 text-[10px] sm:text-xs">Market Cap</p>
-              <p className="font-semibold text-xs sm:text-sm break-all dark:text-slate-100">{stockPrice.marketCap || 'N/A'}</p>
-            </div>
-          </div>
-        </div>
+      <dl className="space-y-1.5 border-t pt-3">
+        <DataRow label="Volume">{formatVolume(volume, currency)}</DataRow>
+        <DataRow label="Market cap">{marketCap ?? '—'}</DataRow>
+      </dl>
 
-        {/* Last Updated */}
-        <DataSourceBadge
-          source={stockPrice.source}
-          asOf={stockPrice.asOf}
-          delayed={stockPrice.delayed}
-          className="pt-2 border-t dark:border-slate-700"
-        />
-      </CardContent>
-    </Card>
+      <DataCardFooter>
+        <DataSourceBadge source={stockPrice.source} asOf={stockPrice.asOf} />
+      </DataCardFooter>
+    </DataCard>
   );
 }

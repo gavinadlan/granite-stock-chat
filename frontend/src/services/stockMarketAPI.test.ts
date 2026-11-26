@@ -1,7 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('aws-amplify/auth', () => ({ fetchAuthSession: vi.fn().mockResolvedValue({}) }));
 
+// apiClient reads VITE_API_URL at import time, so pin it before importing (overrides any .env.local).
+vi.stubEnv('VITE_API_URL', 'https://api.test');
 const { stockMarketAPI } = await import('./stockMarketAPI');
 
 describe('extractSymbol', () => {
@@ -20,10 +22,16 @@ describe('extractSymbol', () => {
 });
 
 describe('processMessage', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it('returns an honest error with retry info when the API fails', async () => {
-    vi.stubEnv('VITE_API_URL', '');
+    const fetchMock = vi.fn().mockRejectedValue(new Error('network'));
+    vi.stubGlobal('fetch', fetchMock);
     const reply = await stockMarketAPI.processMessage('price of AAPL');
     expect(reply.error?.retryText).toBe('price of AAPL');
     expect(reply.data).toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringMatching(/^https:\/\/api\.test\//), expect.anything());
   });
 });
