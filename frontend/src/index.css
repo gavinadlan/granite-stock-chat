@@ -28,6 +28,7 @@
     --up: 142.4 71.8% 29.2%;
     --down: 17.5 88.3% 40.4%;
     --logo-accent: 37.3 79.2% 51%; /* #E59A1F on the ink bubble */
+    --band: 216 10.2% 9.6%; /* ink: ticker strip and #rules band; their content uses the .dark tokens */
   }
 
   .dark {
@@ -45,6 +46,7 @@
     --ring: 37.3 79.2% 51%;
     --up: 141.9 69.2% 58%;
     --down: 27 96% 61%;
+    --band: 213 9.1% 15.1%; /* #23262A: one step above the ink page so the band still reads as a band */
     --logo-accent: 36.8 100% 36.1%; /* #B87100: the bubble is paper, plain amber is too weak on it */
   }
 }

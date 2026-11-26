@@ -1,35 +1,19 @@
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Disclaimer } from '@/components/Disclaimer';
-import { useAuth } from '@/hooks/useAuth';
-import { cn } from '@/lib/utils';
-import { HeroDemo } from './HeroDemo';
+import { AnswerPanel } from './AnswerPanel';
 
 export function HeroSection() {
-  const { isAuthenticated, isLoading } = useAuth();
-
   return (
-    <div className="mx-auto grid max-w-6xl items-start gap-12 px-4 py-12 sm:px-6 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,480px)] lg:gap-16">
-      <div>
-        <h1 className="text-display font-bold lg:text-hero">Ask about a stock and get an answer with its source.</h1>
-        <p className="mt-6 max-w-[65ch] text-title text-muted-foreground">
-          StockAI answers questions about US and Indonesian stocks with prices, indicators and news, and shows where each number came from and when.
+    <section aria-labelledby="hero-title" className="mx-auto max-w-[1248px] px-4 pb-16 pt-10 sm:px-6 md:pb-[72px] md:pt-14">
+      <div className="mb-10 flex flex-wrap items-end gap-x-16 gap-y-6">
+        <h1 id="hero-title" className="flex-[1_1_560px] font-display text-section font-bold leading-[0.95] md:text-hero lg:text-mega">
+          Ask about any stock.
+          <br />
+          Check every number.
+        </h1>
+        <p className="max-w-[400px] flex-[1_1_320px] text-[18px] leading-[1.55] text-foreground/80">
+          US and Indonesian stocks: prices, indicators and news in a chat. Each answer says where the data came from and how old it is.
         </p>
-        <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2">
-          {/* Hidden, not removed, while auth loads so the layout does not jump. */}
-          <Button size="lg" asChild className={cn('w-full sm:w-auto', isLoading && 'invisible')}>
-            {isAuthenticated ? <Link to="/chat">Open chat</Link> : <Link to="/register">Create an account</Link>}
-          </Button>
-          <a
-            href="#features"
-            className="inline-flex min-h-11 items-center rounded-control font-medium underline underline-offset-4 hover:decoration-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            See what you can ask
-          </a>
-        </div>
-        <Disclaimer short className="mt-6" />
       </div>
-      <HeroDemo />
-    </div>
+      <AnswerPanel />
+    </section>
   );
 }

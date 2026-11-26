@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { stockMarketAPI, ChatMessage } from '@/services/stockMarketAPI';
 import { startsTimeGroup } from '@/lib/time';
 import { Sheet } from '@/components/ui/sheet';
@@ -35,7 +36,9 @@ function MessageData({ data }: { data: NonNullable<ChatMessage['data']> }) {
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [inputValue, setInputValue] = useState('');
+  const [searchParams] = useSearchParams();
+  // Landing page links prefill the composer with ?q=; the user still presses send.
+  const [inputValue, setInputValue] = useState(() => searchParams.get('q') ?? '');
   const [isLoading, setIsLoading] = useState(false);
   const [stocksOpen, setStocksOpen] = useState(false);
   const scroller = useRef<HTMLElement>(null);

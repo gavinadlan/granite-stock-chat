@@ -79,4 +79,14 @@ describe('ChatInterface', () => {
     await waitFor(() => expect(composer()).toHaveFocus());
     expect(processMessage).not.toHaveBeenCalled();
   });
+
+  it('prefills the composer from ?q= without sending', () => {
+    render(
+      <MemoryRouter initialEntries={['/chat?q=News%20about%20TSLA']}>
+        <ChatInterface />
+      </MemoryRouter>,
+    );
+    expect(composer()).toHaveValue('News about TSLA');
+    expect(processMessage).not.toHaveBeenCalled();
+  });
 });

@@ -31,4 +31,9 @@ describe('isIndonesianStock', () => {
     expect(isIndonesianStock('BBCA')).toBe(true);
     expect(isIndonesianStock('INTC')).toBe(false);
   });
+
+  it('leaves index symbols such as ^JKSE untouched', () => {
+    expect(formatSymbol('^JKSE')).toBe('^JKSE');
+    expect(formatSymbol('^jkse')).toBe('^JKSE');
+  });
 });

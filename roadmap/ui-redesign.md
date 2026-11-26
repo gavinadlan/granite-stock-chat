@@ -139,6 +139,24 @@ Commit: feat(chat): full-height chat layout and redesigned data cards [UI-03]
 
 ---
 
+## UI-04 · Landing v2: ticker live & panel jawaban yang berfungsi 🧠
+
+Desain final (disetujui): [`docs/design/landing-v2.html`](../docs/design/landing-v2.html). Angka di mockup adalah snapshot API yang dibekukan; di aplikasi semuanya diambil live dari backend (aturan 2).
+
+### Isi
+1. **TickerStrip** (strip gelap): ^JKSE (label "IHSG"), BBCA.JK, BBRI.JK, BMRI.JK, TLKM.JK, GOTO.JK, NVDA, MSFT, TSLA lewat `getStockPrice` paralel. Simbol gagal disembunyikan; semua gagal → strip hilang. Teks kanan "Delayed, Yahoo Finance, HH:mm WIB" dari `asOf` terbaru. Mobile: scroll horizontal, tanpa marquee. TODO(S1-04): endpoint batch + cache server.
+2. **Header**: logo, "What you can ask" (#ask), "How we handle data" (#rules), Sign in, Sign up (amber); saat login: Open chat + menu akun.
+3. **Hero**: H1 dua baris + paragraf kanan, panel produk (titik status amber, bubble user, ringkasan dari `lib/summarizeTechnicals.ts` (kode, bukan LLM), StockCard & TechnicalAnalysisCard varian `compact`, baris sumber dengan `candlesUsed`). Composer bekerja tanpa login; news/outlook diarahkan ke Sign up.
+4. **#rules**: band gelap "Three things StockAI will not do."
+5. **#ask**: tabel Type this / You get / From; chip membuka `/chat?q=…` (belum login → `/register`).
+6. **CTA** amber + **Footer**.
+
+### Kriteria penerimaan
+- [ ] Tidak ada angka harga/indikator hardcode di komponen landing (`grep`).
+- [ ] Strip & panel menampilkan state jujur saat backend mati.
+- [ ] Ringkasan memakai ambang RSI yang sama dengan backend & RsiMeter (≤30 oversold, ≥70 overbought, dari angka yang dibulatkan).
+- [ ] 375/768/1280 px, light & dark, sesuai mockup; kontras AA; fokus terlihat; `aria-live` di panel.
+
 ## Setelah selesai
 - Update tabel progres di `roadmap/README.md` (tambah baris UI-01..UI-03) dan bagian Stack/Struktur di `CLAUDE.md` bila ada perubahan (font, folder komponen).
 - Deploy frontend (S0-10) supaya situs live ikut berubah.

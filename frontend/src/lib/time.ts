@@ -25,3 +25,35 @@ export function formatRelativeTime(iso: string, now: Date = new Date()): string 
 export function startsTimeGroup(previous: Date | undefined, current: Date): boolean {
   return !previous || current.getTime() - previous.getTime() >= GROUP_GAP_MS;
 }
+
+const wibTime = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+const wibDateTime = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'Asia/Jakarta',
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
+
+const valid = (iso: string) => !Number.isNaN(new Date(iso).getTime());
+
+/** "11:19 WIB" (Jakarta time); null when invalid. */
+export function formatWibTime(iso: string): string | null {
+  return valid(iso) ? `${wibTime.format(new Date(iso))} WIB` : null;
+}
+
+/** "Nov 26, 2026, 11:19 WIB"; null when invalid. */
+export function formatWibDateTime(iso: string): string | null {
+  return valid(iso) ? `${wibDateTime.format(new Date(iso))} WIB` : null;
+}
+
+/** Most recent valid ISO timestamp, or null. */
+export function latestIso(isos: (string | null | undefined)[]): string | null {
+  let best: string | null = null;
+  for (const iso of isos) {
+    if (iso && valid(iso) && (!best || new Date(iso) > new Date(best))) best = iso;
+  }
+  return best;
+}

@@ -56,6 +56,7 @@ const config: Config = {
           raised: "hsl(var(--surface-raised))",
         },
         // Price direction only. Never use for status, success or errors.
+        band: "hsl(var(--band))",
         up: "hsl(var(--up))",
         down: "hsl(var(--down))",
       },
@@ -69,6 +70,8 @@ const config: Config = {
         heading: ["1.75rem", { lineHeight: "2.125rem" }], // 28
         display: ["2.75rem", { lineHeight: "3rem" }], // 44
         hero: ["4rem", { lineHeight: "4rem" }], // 64
+        section: ["3rem", { lineHeight: "1.05", letterSpacing: "-0.02em" }], // 48, landing h2 and mobile h1
+        mega: ["5.5rem", { lineHeight: "0.95", letterSpacing: "-0.025em" }], // 88, landing h1 on desktop
       },
       borderRadius: {
         control: "6px",

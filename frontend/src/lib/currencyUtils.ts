@@ -93,6 +93,19 @@ export function formatVolume(volume: Num, currency: string): string {
 }
 
 /**
+ * Plain number in the currency's locale, no symbol (ticker strip, indicators).
+ * IDR drops trailing zeros up to `decimals` ("5.875", "5.233,14"); other currencies keep exactly `decimals`.
+ */
+export function formatNumber(value: Num, currency: string, decimals = 2): string {
+  if (value == null) return DASH;
+  const options =
+    currency === 'IDR'
+      ? { minimumFractionDigits: 0, maximumFractionDigits: decimals }
+      : { minimumFractionDigits: decimals, maximumFractionDigits: decimals };
+  return new Intl.NumberFormat(currency === 'IDR' ? 'id-ID' : 'en-US', options).format(value);
+}
+
+/**
  * Formats market cap with appropriate suffix
  */
 export function formatMarketCap(marketCap: number): string {

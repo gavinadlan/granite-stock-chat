@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { detectCurrency, formatChange, formatPercent, formatPrice, formatVolume } from './currencyUtils';
+import { detectCurrency, formatChange, formatNumber, formatPercent, formatPrice, formatVolume } from './currencyUtils';
 
 describe('detectCurrency', () => {
   it.each([
@@ -57,5 +57,16 @@ describe('formatVolume', () => {
     expect(formatVolume(133232200, 'IDR')).toBe('133.232.200');
     expect(formatVolume(1234567, 'USD')).toBe('1,234,567');
     expect(formatVolume(null, 'IDR')).toBe('—');
+  });
+});
+
+describe('formatNumber', () => {
+  it('IDR drops trailing zeros, others keep fixed decimals', () => {
+    expect(formatNumber(5875, 'IDR')).toBe('5.875');
+    expect(formatNumber(5233.143, 'IDR')).toBe('5.233,14');
+    expect(formatNumber(5412.75, 'IDR', 1)).toBe('5.412,8');
+    expect(formatNumber(149.3, 'USD')).toBe('149.30');
+    expect(formatNumber(-3.5, 'USD')).toBe('-3.50');
+    expect(formatNumber(null, 'USD')).toBe('—');
   });
 });

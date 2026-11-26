@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { PriceChange } from '@/components/ui/price-change';
 import { StockPrice } from '@/services/stockMarketAPI';
 import { formatPrice, formatVolume } from '@/lib/currencyUtils';
+import { cn } from '@/lib/utils';
 import { DataCard, DataCardFooter, DataRow } from './DataCard';
 import { DataSourceBadge } from './DataSourceBadge';
 
@@ -15,9 +16,40 @@ const EXCHANGE_NAMES: Record<string, string> = {
   JKT: 'IDX',
 };
 
-export function StockCard({ stockPrice }: { stockPrice: StockPrice }) {
-  const { symbol, name, exchange, currency, price, change, changePercent, volume, marketCap } = stockPrice;
-  const subtitle = [name, exchange && (EXCHANGE_NAMES[exchange] ?? exchange), currency].filter(Boolean).join(' · ');
+interface StockCardProps {
+  stockPrice: StockPrice;
+  /** `compact`: landing answer panel; volume and previous close, source shown by the panel. */
+  variant?: 'chat' | 'compact';
+  className?: string;
+}
+
+export function StockCard({ stockPrice, variant = 'chat', className }: StockCardProps) {
+  const { symbol, name, exchange, currency, price, change, changePercent, volume, marketCap, previousClose } = stockPrice;
+  const parts = [name, exchange && (EXCHANGE_NAMES[exchange] ?? exchange), currency].filter(Boolean);
+
+  if (variant === 'compact') {
+    return (
+      <DataCard label={`${symbol} price`} className={cn('max-w-none', className)}>
+        <header className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="text-[17px] font-semibold">{symbol}</h3>
+            <p className="text-sm text-muted-foreground">{parts.join(', ')}</p>
+          </div>
+          <Badge variant="secondary">{stockPrice.delayed ? 'Delayed' : 'Live'}</Badge>
+        </header>
+        <div className="space-y-2">
+          <p className="font-display text-section font-bold leading-none tabular-nums [overflow-wrap:anywhere]">{formatPrice(price, currency)}</p>
+          <PriceChange change={change} changePercent={changePercent} currency={currency} className="text-[15px] font-semibold" />
+        </div>
+        <dl className="space-y-1.5 border-t pt-3 text-sm">
+          <DataRow label="Volume">{formatVolume(volume, currency)}</DataRow>
+          {previousClose != null && <DataRow label="Previous close">{formatPrice(previousClose, currency)}</DataRow>}
+        </dl>
+      </DataCard>
+    );
+  }
+
+  const subtitle = parts.join(' · ');
 
   return (
     <DataCard label={`${symbol} price`}>

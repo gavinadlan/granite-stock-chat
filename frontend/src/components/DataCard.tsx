@@ -1,7 +1,9 @@
+import { cn } from '@/lib/utils';
+
 /** Shared frame for every data card in the chat: one radius, thin border, no shadow. */
-export function DataCard({ label, children }: { label: string; children: React.ReactNode }) {
+export function DataCard({ label, className, children }: { label: string; className?: string; children: React.ReactNode }) {
   return (
-    <article aria-label={label} className="w-full max-w-xl space-y-4 rounded-card border bg-card p-4 text-card-foreground sm:p-5">
+    <article aria-label={label} className={cn('w-full max-w-xl space-y-4 rounded-card border bg-card p-4 text-card-foreground sm:p-5', className)}>
       {children}
     </article>
   );

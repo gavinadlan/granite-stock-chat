@@ -21,6 +21,7 @@ npm workspaces monorepo (satu `package-lock.json` di root, Node 20 lihat `.nvmrc
 frontend/            React app (src/components, pages, services, hooks, lib)
                      components/ui = primitif (button, sheet, field, price-change);
                      components/DataCard = kerangka kartu data chat; FormLayout = halaman form
+                     components/sections = landing (TickerStrip, AnswerPanel, ...); desain: docs/design/landing-v2.html
 backend/             Lambda backend (TypeScript, bundled by serverless-esbuild) + serverless.yml
   src/handlers/      tipis: validasi query → panggil service → response (/v1/* + alias lama s/d S1-10)
   src/services/      logika bisnis (dipakai handler & tool AI di Sprint 2)
@@ -29,7 +30,7 @@ backend/             Lambda backend (TypeScript, bundled by serverless-esbuild) 
   src/lib/           config (env zod, cold start), http (wrapper handler, CORS, error), validation
   test/              Vitest (*.test.ts)
 packages/shared/     @stockai/shared: zod schema + tipe response (frontend & backend)
-docs/                API.md, DEPLOYMENT.md (secrets), legacy/ (panduan lama)
+docs/                API.md, DEPLOYMENT.md (secrets), design/ (mockup final), legacy/ (panduan lama)
 scripts/             skrip dev (legacy/ = skrip deploy lama, dihapus di S5-03)
 roadmap/             Roadmap & prompt eksekusi
 ```

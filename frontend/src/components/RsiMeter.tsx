@@ -1,9 +1,19 @@
+import { formatNumber } from '@/lib/currencyUtils';
 import { RSI_OVERBOUGHT, RSI_OVERSOLD, rsiPosition, rsiZone } from '@/lib/rsi';
+import { cn } from '@/lib/utils';
 
 const ZONE_LABEL = { oversold: 'Oversold', neutral: 'Neutral', overbought: 'Overbought' } as const;
 
+interface RsiMeterProps {
+  rsi: number | null;
+  /** Number locale follows the stock's currency (IDR: "61,98"). */
+  currency?: string;
+  /** Landing panel: two decimals, no zone word, thin ink marker. */
+  compact?: boolean;
+}
+
 /** RSI on a 0–100 scale with the 30/70 zones marked. Neutral colors: RSI is not a price direction. */
-export function RsiMeter({ rsi }: { rsi: number | null }) {
+export function RsiMeter({ rsi, currency = 'USD', compact = false }: RsiMeterProps) {
   if (rsi === null) {
     return (
       <div className="flex items-baseline justify-between gap-4">
@@ -14,14 +24,15 @@ export function RsiMeter({ rsi }: { rsi: number | null }) {
   }
 
   const zone = ZONE_LABEL[rsiZone(rsi)];
-  const value = rsi.toFixed(1);
+  const value = formatNumber(rsi, currency, compact ? 2 : 1);
 
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4">
         <span className="text-muted-foreground">RSI (14)</span>
-        <span className="font-medium tabular-nums">
-          {value} · {zone}
+        <span className={cn('tabular-nums', compact ? 'font-semibold' : 'font-medium')}>
+          {value}
+          {!compact && ` · ${zone}`}
         </span>
       </div>
       <div
@@ -40,7 +51,10 @@ export function RsiMeter({ rsi }: { rsi: number | null }) {
         </div>
         <div
           aria-hidden="true"
-          className="absolute -top-1 h-4 w-2 -translate-x-1/2 rounded-sm border border-foreground bg-primary"
+          className={cn(
+            'absolute -top-1 h-4 -translate-x-1/2 rounded-sm',
+            compact ? 'w-1 bg-foreground' : 'w-2 border border-foreground bg-primary',
+          )}
           style={{ left: `${rsiPosition(rsi)}%` }}
         />
       </div>

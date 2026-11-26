@@ -117,6 +117,7 @@ Sprint <N> selesai. Baca roadmap/<file-sprint>.md, cek setiap task terhadap kode
 | **UI-01** | Fondasi Granite: token, font, warna semantik ([ui-redesign.md](ui-redesign.md)) | 🤖🧠 | – | 🟡 menunggu uji dengan backend & Cognito asli |
 | **UI-02** | Landing page dengan demo harga live, logo baru | 🤖🧠 | – | 🟡 menunggu uji dengan backend & Cognito asli |
 | **UI-03** | Chat & kartu data | 🤖🧠 | – | 🟡 menunggu uji dengan backend & Cognito asli |
+| **UI-04** | Landing v2: ticker live & panel jawaban ([mockup](../docs/design/landing-v2.html)) | 🤖🧠 | – | 🟡 menunggu uji manual |
 | **S1-01** | Backend → TypeScript + esbuild + struktur baru | 🤖🧠 | 6 | ☐ |
 | **S1-02** | HTTP API + Cognito JWT authorizer + stage | 🤝🧠 | 4 | ☐ |
 | **S1-03** | Provider adapter + retry + circuit breaker | 🤖 | 6 | ☐ |
