@@ -84,6 +84,11 @@ const config: Config = {
         xl: "16px",
       },
       keyframes: {
+        // Landing ticker: the track holds the list twice, so -50% is exactly one copy.
+        ticker: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-50%)" },
+        },
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -94,6 +99,7 @@ const config: Config = {
         },
       },
       animation: {
+        ticker: "ticker var(--ticker-duration, 40s) linear infinite",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
