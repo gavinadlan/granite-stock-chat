@@ -77,14 +77,20 @@ export function TickerStrip() {
 
   const latest = latestIso(quotes.map((q) => q.asOf));
   const sources = [...new Set(quotes.map((q) => q.source))].join(', ');
-  const label = [quotes.some((q) => q.delayed) && 'Delayed', sources].filter(Boolean).join(', ');
   const time = latest && formatWibTime(latest);
+  const delayed = quotes.some((q) => q.delayed);
+  // Below sm the source is left out to give the moving quotes room; every card and the footer still name it.
   const note = (
     <p className="flex-none text-muted-foreground">
-      {label}
+      {delayed && 'Delayed'}
+      <span className="hidden sm:inline">
+        {delayed && ', '}
+        {sources}
+      </span>
       {latest && time && (
         <>
-          , <time dateTime={latest}>{time}</time>
+          {delayed ? ', ' : <span className="hidden sm:inline">, </span>}
+          <time dateTime={latest}>{time}</time>
         </>
       )}
     </p>
@@ -122,7 +128,7 @@ export function TickerStrip() {
         <button
           type="button"
           onClick={togglePaused}
-          aria-label={paused ? 'Play ticker' : 'Pause ticker'}
+          aria-label="Pause ticker"
           aria-pressed={paused}
           className="flex h-6 w-6 flex-none items-center justify-center rounded-control text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >

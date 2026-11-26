@@ -78,7 +78,7 @@ describe('answer panel', () => {
     expect(screen.getByText('Fetching data…')).toBeInTheDocument();
     expect(await screen.findByRole('article', { name: 'BBCA.JK price' })).toHaveTextContent('Previous close');
     const indicators = screen.getByRole('article', { name: 'BBCA.JK indicators' });
-    expect(indicators).toHaveTextContent('61,98');
+    expect(indicators).toHaveTextContent('62,0');
     expect(indicators).toHaveTextContent('SMA 501.100');
     expect(indicators).toHaveTextContent('20-day range800 to 1.100');
     expect(indicators).toHaveTextContent('MACD\u22121,50');

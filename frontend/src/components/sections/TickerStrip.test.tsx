@@ -48,18 +48,20 @@ describe('TickerStrip', () => {
     expect(screen.getByTestId('ticker-track')).not.toHaveClass(PAUSED);
 
     fireEvent.click(button);
-    expect(screen.getByRole('button', { name: 'Play ticker' })).toHaveAttribute('aria-pressed', 'true');
+    expect(button).toHaveAttribute('aria-label', 'Pause ticker');
+    expect(button).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByTestId('ticker-track')).toHaveClass(PAUSED);
     expect(sessionStorage.getItem('ticker_paused')).toBe('1');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Play ticker' }));
+    fireEvent.click(button);
+    expect(button).toHaveAttribute('aria-pressed', 'false');
     expect(screen.getByTestId('ticker-track')).not.toHaveClass(PAUSED);
   });
 
   it('starts paused when the visitor paused it earlier in the session', async () => {
     sessionStorage.setItem('ticker_paused', '1');
     render(<TickerStrip />);
-    expect(await screen.findByRole('button', { name: 'Play ticker' })).toHaveAttribute('aria-pressed', 'true');
+    expect(await screen.findByRole('button', { name: 'Pause ticker' })).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('is a static, scrollable strip without a pause button under reduced motion', async () => {
@@ -72,9 +74,12 @@ describe('TickerStrip', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('keeps the delayed note outside the moving track', async () => {
+  it('keeps the delayed note outside the moving track, and drops the source below sm', async () => {
     render(<TickerStrip />);
-    const note = await screen.findByText(/Delayed, Yahoo Finance/);
+    const time = await screen.findByText('10:04 WIB');
+    const note = time.closest('p') as HTMLElement;
+    expect(note).toHaveTextContent('Delayed, Yahoo Finance, 10:04 WIB');
     expect(screen.getByTestId('ticker-track')).not.toContainElement(note);
+    expect(screen.getByText(/Yahoo Finance/, { selector: 'span' })).toHaveClass('hidden', 'sm:inline');
   });
 });

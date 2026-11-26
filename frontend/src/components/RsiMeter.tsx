@@ -6,9 +6,9 @@ const ZONE_LABEL = { oversold: 'Oversold', neutral: 'Neutral', overbought: 'Over
 
 interface RsiMeterProps {
   rsi: number | null;
-  /** Number locale follows the stock's currency (IDR: "61,98"). */
+  /** Number locale follows the stock's currency (IDR: "62,0", USD: "62.0"). */
   currency?: string;
-  /** Landing panel: two decimals, no zone word, thin ink marker. */
+  /** Landing panel: no zone word, thin ink marker. */
   compact?: boolean;
 }
 
@@ -23,8 +23,10 @@ export function RsiMeter({ rsi, currency = 'USD', compact = false }: RsiMeterPro
     );
   }
 
-  const zone = ZONE_LABEL[rsiZone(rsi)];
-  const value = formatNumber(rsi, currency, compact ? 2 : 1);
+  // Zone from the rounded value, same as summarizeTechnicals, so "70" is never called neutral.
+  const rounded = Math.round(rsi);
+  const zone = ZONE_LABEL[rsiZone(rounded)];
+  const value = formatNumber(rsi, currency, 1);
 
   return (
     <div>
@@ -41,7 +43,7 @@ export function RsiMeter({ rsi, currency = 'USD', compact = false }: RsiMeterPro
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={rsiPosition(rsi)}
-        aria-valuetext={`${value}, ${zone.toLowerCase()}`}
+        aria-valuetext={`RSI ${rounded} out of 100, ${zone.toLowerCase()} zone`}
         className="relative mt-3 h-2"
       >
         <div className="flex h-full gap-0.5" aria-hidden="true">
