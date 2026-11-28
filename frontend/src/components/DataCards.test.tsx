@@ -33,7 +33,10 @@ const prediction: Prediction = {
 
 const expectProvenance = (source: string) => {
   expect(screen.getByText(new RegExp(`Source: ${source.replace(/[()+]/g, '\\$&')}`))).toBeInTheDocument();
-  expect(document.querySelector('time')).toHaveAttribute('datetime', asOf);
+  const time = document.querySelector('time');
+  expect(time).toHaveAttribute('datetime', asOf);
+  // Always Jakarta time with its label, whatever the browser's zone (03:04 UTC = 10:04 WIB).
+  expect(time).toHaveTextContent('Jan 2, 2026, 10:04 WIB');
 };
 
 const renderCard = (ui: React.ReactElement) => render(<MemoryRouter>{ui}</MemoryRouter>);
