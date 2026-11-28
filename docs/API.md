@@ -247,6 +247,7 @@ curl "http://localhost:3001/v1/history?symbol=AAPL&range=5d&interval=1h"
 - `t` is the bar open time in epoch seconds (UTC). Bars with missing prices are dropped; candles are ascending.
 - At most 2000 candles. Longer series are downsampled by merging consecutive bars (open/high/low/close kept, volume summed) and `meta.warnings` says so.
 - `exchangeTimezone` is `null` when the provider omits it.
+- `data.interval` is the bar size Yahoo actually served (can be `1mo`/`3mo`, coarser than requested); `meta.warnings` says when it differs. `range=max` is fetched as an explicit period so daily/weekly bars are kept, then downsampled.
 - No candles available returns `503 PROVIDER_UNAVAILABLE`; unknown symbol returns `404 NOT_FOUND`.
 - `Cache-Control: public, max-age=60` for intraday intervals, `300` for `1d`/`1wk`.
 

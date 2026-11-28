@@ -1,6 +1,6 @@
 // Price history (OHLCV candles) straight from Yahoo; no synthetic bars.
 // TODO(S1-04): read through the DynamoDB cache (TTL: intraday 2 min, daily 6 h).
-import type { HistoryResponse } from '@stockai/shared';
+import { HistoryGranularitySchema, type HistoryResponse } from '@stockai/shared';
 import { cleanCandles, downsample } from '../domain/candles';
 import { unavailable } from '../lib/http';
 import type { HistoryQuery } from '../lib/validation';
@@ -18,17 +18,22 @@ export async function history({ symbol, range, interval }: HistoryQuery): Promis
   const meta = result.meta || {};
   const cleaned = cleanCandles(toCandles(result));
   if (!cleaned.length) throw unavailable(`No price history for ${symbol} (range ${range}, interval ${interval})`);
+  const warnings: string[] = [];
+  // Report the bar size Yahoo really served; unknown values keep the requested one.
+  const served = meta.dataGranularity === '60m' ? '1h' : meta.dataGranularity;
+  const actual = HistoryGranularitySchema.safeParse(served).data ?? interval;
+  if (actual !== interval) warnings.push(`Provider returned ${actual} bars instead of the requested ${interval}`);
   const candles = downsample(cleaned, MAX_CANDLES);
-  const warnings = candles.length < cleaned.length
-    ? [`Downsampled ${cleaned.length} candles to ${candles.length} (each bar merges consecutive ${interval} bars)`]
-    : [];
+  if (candles.length < cleaned.length) {
+    warnings.push(`Downsampled ${cleaned.length} candles to ${candles.length} (each bar merges consecutive ${actual} bars)`);
+  }
   return {
     data: {
       symbol: meta.symbol || symbol,
       currency: meta.currency || null,
       exchangeTimezone: meta.exchangeTimezoneName || null,
       range,
-      interval,
+      interval: actual,
       candles,
     },
     meta: {

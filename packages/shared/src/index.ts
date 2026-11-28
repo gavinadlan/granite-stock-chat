@@ -111,6 +111,9 @@ export const HistoryRangeSchema = z.enum(['1d', '5d', '1mo', '3mo', '6mo', '1y',
 export type HistoryRange = z.infer<typeof HistoryRangeSchema>;
 export const HistoryIntervalSchema = z.enum(['1m', '5m', '15m', '1h', '1d', '1wk']);
 export type HistoryInterval = z.infer<typeof HistoryIntervalSchema>;
+/** Bar size actually returned; can be coarser than the requested interval. */
+export const HistoryGranularitySchema = z.enum([...HistoryIntervalSchema.options, '1mo', '3mo']);
+export type HistoryGranularity = z.infer<typeof HistoryGranularitySchema>;
 
 export const HistorySchema = z.object({
   symbol: z.string(),
@@ -118,7 +121,8 @@ export const HistorySchema = z.object({
   /** IANA zone of the exchange, e.g. "America/New_York"; null when the provider omits it. */
   exchangeTimezone: z.string().nullable(),
   range: HistoryRangeSchema,
-  interval: HistoryIntervalSchema,
+  /** Bar size the provider actually served (see meta.warnings when it differs from the request). */
+  interval: HistoryGranularitySchema,
   candles: z.array(CandleSchema),
 });
 export type History = z.infer<typeof HistorySchema>;
