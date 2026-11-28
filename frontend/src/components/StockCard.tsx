@@ -92,7 +92,7 @@ export function StockCard({ stockPrice, variant = 'chat', className }: StockCard
       </dl>
 
       <DataCardFooter>
-        <DataSourceBadge source={stockPrice.source} asOf={stockPrice.asOf} />
+        <DataSourceBadge source={stockPrice.source} asOf={stockPrice.asOf} stale={stockPrice.stale} />
       </DataCardFooter>
     </DataCard>
   );

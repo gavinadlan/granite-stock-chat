@@ -12,6 +12,8 @@ export interface DataProvenance {
   source: string;
   asOf: string;
   delayed?: boolean;
+  /** Old cached data served because the provider failed (backend meta.stale). */
+  stale?: boolean;
 }
 
 export interface StockPrice extends DataProvenance {

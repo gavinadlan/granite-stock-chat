@@ -1,11 +1,23 @@
 // Real articles from NewsAPI or an error. Never fabricated headlines.
 import { createHash } from 'node:crypto';
 import type { NewsItem, NewsResponse } from '@stockai/shared';
+import { cacheMeta, getOrSet } from '../lib/cache';
 import { config } from '../lib/config';
+import { keys } from '../lib/db';
 import { unavailable } from '../lib/http';
 import { searchNews } from '../providers/newsapi';
 
-export async function news({ symbol, query }: { symbol?: string; query?: string }): Promise<NewsResponse> {
+type NewsQuery = { symbol?: string; query?: string };
+
+export async function news(q: NewsQuery): Promise<NewsResponse> {
+  // S: and Q: keep a ticker and a free-text query with the same letters apart.
+  const id = q.symbol ? `S:${q.symbol}` : `Q:${q.query}`;
+  // An empty list is not cached, so new articles show up on the next request.
+  const result = await getOrSet(keys.cache('news', id), (r: NewsResponse) => (r.news.length ? 15 * 60 : 0), () => load(q));
+  return { ...result.value, ...cacheMeta(result) };
+}
+
+async function load({ symbol, query }: NewsQuery): Promise<NewsResponse> {
   const apiKey = config.NEWS_API_KEY;
   if (!apiKey) throw unavailable('News provider is not configured');
 

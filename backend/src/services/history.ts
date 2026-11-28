@@ -1,7 +1,8 @@
-// Price history (OHLCV candles) straight from Yahoo; no synthetic bars.
-// TODO(S1-04): read through the DynamoDB cache (TTL: intraday 2 min, daily 6 h).
+// Price history (OHLCV candles) from Yahoo through the cache; no synthetic bars.
 import { HistoryGranularitySchema, type HistoryResponse } from '@stockai/shared';
 import { cleanCandles, downsample } from '../domain/candles';
+import { cacheMeta, getOrSet } from '../lib/cache';
+import { keys } from '../lib/db';
 import { unavailable } from '../lib/http';
 import type { HistoryQuery } from '../lib/validation';
 import { fetchChart, toCandles } from '../providers/yahoo';
@@ -13,7 +14,16 @@ const YAHOO_INTERVAL: Record<HistoryQuery['interval'], string> = {
   '1m': '1m', '5m': '5m', '15m': '15m', '1h': '60m', '1d': '1d', '1wk': '1wk',
 };
 
-export async function history({ symbol, range, interval }: HistoryQuery): Promise<HistoryResponse> {
+const INTRADAY = new Set<HistoryQuery['interval']>(['1m', '5m', '15m', '1h']);
+
+export async function history(query: HistoryQuery): Promise<HistoryResponse> {
+  const { symbol, range, interval } = query;
+  const ttl = INTRADAY.has(interval) ? 2 * 60 : 6 * 3600;
+  const result = await getOrSet(keys.cache('history', `${symbol}#${range}#${interval}`), ttl, () => load(query));
+  return { data: result.value.data, meta: { ...result.value.meta, ...cacheMeta(result) } };
+}
+
+async function load({ symbol, range, interval }: HistoryQuery): Promise<HistoryResponse> {
   const result = await fetchChart(symbol, { range, interval: YAHOO_INTERVAL[interval] });
   const meta = result.meta || {};
   const cleaned = cleanCandles(toCandles(result));

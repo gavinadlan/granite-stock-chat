@@ -28,6 +28,27 @@ Both paths run the same handler and return the same body and query parameters.
 
 Response shapes are defined as zod schemas in `packages/shared/src/index.ts`.
 
+### Server cache (`meta.cached`, `meta.stale`)
+
+Quote, technicals, news and history are read through a DynamoDB cache (table `stockai-<stage>`, key `CACHE#<kind>#<id>`).
+Provenance fields sit at the top level of quote, technicals and news, and in `meta` for history.
+
+| Field | Meaning |
+|---|---|
+| `cached` | `true` when the body came from the cache instead of the provider. |
+| `stale` | Only present (`true`) when the provider failed and an expired entry was served, at most 24 h past its TTL. |
+| `asOf` | Always the provider's data time, never the time the entry was cached. |
+
+| Data | TTL | Cache key id |
+|---|---|---|
+| Quote | 30 s while the exchange trades (NYSE/Nasdaq, IDX), 15 min when closed; unknown markets 30 s | `AAPL` |
+| History | 2 min for `1m`/`5m`/`15m`/`1h`, 6 h for `1d`/`1wk` | `AAPL#1mo#1d` |
+| Technicals | 5 min | `AAPL` |
+| News | 15 min; empty lists are not cached | `S:AAPL` or `Q:<query>` |
+
+Errors are never cached, and 4xx answers (bad symbol, not found) are never replaced by stale data.
+If DynamoDB is unavailable the request is served from the provider.
+
 ### 1. Stock Price
 
 Get real-time stock price information.

@@ -18,6 +18,8 @@ const EnvSchema = z.object({
   LLM_MODEL: z.string().min(1).default('ibm-granite/granite-3.3-8b-instruct'),
   REPLICATE_API_KEY: optionalSecret,
   NEWS_API_KEY: optionalSecret,
+  // DynamoDB table (serverless.yml). Unset in unit tests: the cache is then skipped.
+  TABLE_NAME: z.string().optional().transform((v) => v || undefined),
 });
 
 export type Config = z.infer<typeof EnvSchema>;

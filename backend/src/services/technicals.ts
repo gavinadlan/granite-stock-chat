@@ -1,10 +1,17 @@
 // Indicators are computed from one year of real daily candles (no random data).
 import type { TechnicalsResponse } from '@stockai/shared';
 import { summarize } from '../domain/indicators';
+import { cacheMeta, getOrSet } from '../lib/cache';
+import { keys } from '../lib/db';
 import { unavailable } from '../lib/http';
 import { getDailyHistory } from '../providers/yahoo';
 
 export async function technicals(symbol: string): Promise<TechnicalsResponse> {
+  const result = await getOrSet(keys.cache('technicals', symbol), 5 * 60, () => load(symbol));
+  return { ...result.value, ...cacheMeta(result) };
+}
+
+async function load(symbol: string): Promise<TechnicalsResponse> {
   const { meta, candles } = await getDailyHistory(symbol, '1y');
   if (candles.length < 30) throw unavailable(`Not enough price history for ${symbol} to compute indicators`);
   const summary = summarize(candles);

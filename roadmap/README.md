@@ -114,14 +114,14 @@ Sprint <N> selesai. Baca roadmap/<file-sprint>.md, cek setiap task terhadap kode
 | **S0-08** | Disclaimer + badge sumber data | 🤖 | 2 | ✅ |
 | **S0-09** | CI dasar + Vitest | 🤖 | 3 | ✅ |
 | **S0-10** | Verifikasi, deploy, tag v0.2.0 | 🤝 | 2 | 🟡 kode selesai, deploy & tag manual |
-| **UI-01** | Fondasi Granite: token, font, warna semantik ([ui-redesign.md](ui-redesign.md)) | 🤖🧠 | – | 🟡 menunggu uji dengan backend & Cognito asli |
-| **UI-02** | Landing page dengan demo harga live, logo baru | 🤖🧠 | – | 🟡 menunggu uji dengan backend & Cognito asli |
-| **UI-03** | Chat & kartu data | 🤖🧠 | – | 🟡 menunggu uji dengan backend & Cognito asli |
-| **UI-04** | Landing v2: ticker live & panel jawaban ([mockup](../docs/design/landing-v2.html)) | 🤖🧠 | – | 🟡 menunggu uji manual |
+| **UI-01** | Fondasi Granite: token, font, warna semantik ([ui-redesign.md](ui-redesign.md)) | 🤖🧠 | – | 🟡 kode di main (PR #3); uji manual dengan backend & Cognito asli belum tercatat |
+| **UI-02** | Landing page dengan demo harga live, logo baru | 🤖🧠 | – | 🟡 kode di main (PR #3); uji manual dengan backend & Cognito asli belum tercatat |
+| **UI-03** | Chat & kartu data | 🤖🧠 | – | 🟡 kode di main (PR #3); uji manual dengan backend & Cognito asli belum tercatat |
+| **UI-04** | Landing v2: ticker live & panel jawaban ([mockup](../docs/design/landing-v2.html)) | 🤖🧠 | – | 🟡 kode di main (PR #3); uji manual belum tercatat |
 | **S1-01** | Backend → TypeScript + esbuild + struktur baru | 🤖🧠 | 6 | ✅ |
 | **S1-02** | HTTP API + Cognito JWT authorizer + stage | 🤝🧠 | 4 | ☐ |
 | **S1-03** | Provider adapter + retry + circuit breaker | 🤖 | 6 | ☐ |
-| **S1-04** | DynamoDB single-table + cache | 🤖 | 4 | ☐ |
+| **S1-04** | DynamoDB single-table + cache | 🤖 | 4 | 🟡 scoped, S1-03 menyusul ([s1-04-cache.md](s1-04-cache.md)); belum di-deploy |
 | **S1-05** | Indikator teknikal asli | 🤖 | 5 | ✅ |
 | **S1-06** | Endpoint history (candle) | 🤖 | 2 | ✅ |
 | **S1-07** | Endpoint news nyata + cache | 🤖 | 3 | ☐ |
@@ -138,7 +138,7 @@ Sprint <N> selesai. Baca roadmap/<file-sprint>.md, cek setiap task terhadap kode
 | **S2-08** | Eval set + script eval | 🤖 | 4 | ☐ |
 | **S2-09** | Kuota per user | 🤖 | 2 | ☐ |
 | **S3-01** | Watchlist | 🤖 | 5 | ☐ |
-| **S3-02** | Chart candlestick + overlay indikator | 🤖 | 5 | 🟡 S3-02a selesai ([s3-02-chart.md](s3-02-chart.md)); overlay/RSI/MACD (S3-02b), ⭐ (S3-01), proyeksi (S1-08) ditunda |
+| **S3-02** | Chart candlestick + overlay indikator | 🤖 | 5 | 🟡 S3-02a merged (PR #6, [s3-02-chart.md](s3-02-chart.md)); overlay/RSI/MACD (S3-02b), ⭐ (S3-01), proyeksi (S1-08) ditunda |
 | **S3-03** | Price alerts + scheduler + email | 🤝🧠 | 8 | ☐ |
 | **S3-04** | Portfolio tracker | 🤖🧠 | 8 | ☐ |
 | **S3-05** | Preferensi user | 🤖 | 3 | ☐ |

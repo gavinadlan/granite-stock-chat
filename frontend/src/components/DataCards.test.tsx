@@ -64,6 +64,14 @@ describe('StockCard', () => {
     expectProvenance('Yahoo Finance');
   });
 
+  it('marks stale cached data honestly, and only when stale', () => {
+    const { unmount } = renderCard(<StockCard stockPrice={{ ...price, stale: true }} />);
+    expect(screen.getByText('Data tertunda (cache)')).toHaveAttribute('title', expect.stringMatching(/provider is unavailable/));
+    unmount();
+    renderCard(<StockCard stockPrice={price} />);
+    expect(screen.queryByText('Data tertunda (cache)')).not.toBeInTheDocument();
+  });
+
   it('shows unknown exchange codes unchanged', () => {
     renderCard(<StockCard stockPrice={{ ...price, exchange: 'XYZ', name: null, delayed: false }} />);
     expect(screen.getByText('XYZ · IDR')).toBeInTheDocument();
