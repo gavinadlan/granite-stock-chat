@@ -27,7 +27,7 @@ function MessageData({ data }: { data: NonNullable<ChatMessage['data']> }) {
           {news.map((item) => (
             <NewsCard key={item.id} newsItem={item} />
           ))}
-          {newsMeta && <DataSourceBadge source={newsMeta.source} asOf={newsMeta.asOf} />}
+          {newsMeta && <DataSourceBadge source={newsMeta.source} asOf={newsMeta.asOf} stale={newsMeta.stale} />}
         </>
       )}
     </div>

@@ -125,7 +125,7 @@ function NewsPanel({ symbol }: { symbol: string }) {
       {news.value.news.map((item) => (
         <NewsCard key={item.id} newsItem={item} />
       ))}
-      <DataSourceBadge source={news.value.source} asOf={news.value.asOf} />
+      <DataSourceBadge source={news.value.source} asOf={news.value.asOf} stale={news.value.stale} />
     </div>
   );
 }
