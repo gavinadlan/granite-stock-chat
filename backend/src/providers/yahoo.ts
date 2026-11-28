@@ -16,6 +16,8 @@ export interface ChartMeta {
   currency?: string;
   exchangeName?: string;
   exchangeTimezoneName?: string;
+  /** Bar size Yahoo actually served, e.g. "1d", "60m", "1mo". */
+  dataGranularity?: string;
   regularMarketPrice?: number;
   regularMarketTime?: number;
   regularMarketDayHigh?: number;
@@ -36,7 +38,10 @@ interface ChartBody {
 }
 
 export async function fetchChart(symbol: string, { range = '1d', interval = '1d' } = {}): Promise<ChartResult> {
-  const url = `${BASE}${encodeURIComponent(symbol)}?range=${range}&interval=${interval}`;
+  // range=max makes Yahoo silently coarsen bars (monthly/quarterly) whatever the
+  // interval; an explicit period keeps the requested granularity.
+  const span = range === 'max' ? `period1=0&period2=${Math.floor(Date.now() / 1000)}` : `range=${range}`;
+  const url = `${BASE}${encodeURIComponent(symbol)}?${span}&interval=${interval}`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   let res: Response;

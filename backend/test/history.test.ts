@@ -103,6 +103,36 @@ describe('GET /v1/history', () => {
     expect(status).toBe(503);
     expect(body.error.code).toBe('PROVIDER_UNAVAILABLE');
   });
+  it('asks Yahoo for an explicit period on range=max (range=max coarsens bars)', async () => {
+    const fetchMock = stubYahoo(chart([1], [1], { dataGranularity: '1d' }));
+    const { body } = await call({ symbol: 'BBCA.JK', range: 'max', interval: '1d' });
+    const url = fetchMock.mock.calls[0][0];
+    expect(url).toMatch(/period1=0&period2=\d+&interval=1d$/);
+    expect(url).not.toContain('range=');
+    expect(body.data.interval).toBe('1d');
+    expect(body.meta.warnings).toEqual([]);
+  });
+  it('reports the coarser granularity Yahoo served and warns', async () => {
+    stubYahoo(chart([1, 2], [1, 2], { dataGranularity: '3mo' }));
+    const { status, body } = await call({ symbol: 'AAPL', range: 'max', interval: '1d' });
+    expect(status).toBe(200);
+    expect(body.data.interval).toBe('3mo');
+    expect(body.meta.warnings).toContain('Provider returned 3mo bars instead of the requested 1d');
+    expect(HistoryResponseSchema.parse(body)).toEqual(body);
+  });
+  it('treats Yahoo 60m as the requested 1h', async () => {
+    stubYahoo(chart([1], [1], { dataGranularity: '60m' }));
+    const { body } = await call({ symbol: 'AAPL', range: '5d', interval: '1h' });
+    expect(body.data.interval).toBe('1h');
+    expect(body.meta.warnings).toEqual([]);
+  });
+  it.each(['5y', '1y', '6mo'])('keeps daily bars for range %s/1d', async (range) => {
+    const fetchMock = stubYahoo(chart([1], [1], { dataGranularity: '1d' }));
+    const { body } = await call({ symbol: 'AAPL', range, interval: '1d' });
+    expect(fetchMock.mock.calls[0][0]).toContain(`range=${range}&interval=1d`);
+    expect(body.data.interval).toBe('1d');
+    expect(body.meta.warnings).toEqual([]);
+  });
   it('rejects unsupported combinations with the allowed ranges', async () => {
     const fetchMock = stubYahoo(chart([1], [1]));
     const { status, body } = await call({ symbol: 'AAPL', range: '1y', interval: '1m' });
