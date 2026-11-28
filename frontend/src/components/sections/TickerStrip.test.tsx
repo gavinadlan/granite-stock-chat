@@ -1,11 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render as rtlRender, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import type { StockPrice } from '@/services/stockMarketAPI';
 
 const getStockPrice = vi.hoisted(() => vi.fn<(symbol: string) => Promise<StockPrice>>());
 vi.mock('@/services/stockMarketAPI', () => ({ stockMarketAPI: { getStockPrice } }));
 
 import { TickerStrip } from './TickerStrip';
+
+const render = (ui: React.ReactElement) => rtlRender(<MemoryRouter>{ui}</MemoryRouter>);
 
 // Test data only.
 const asOf = '2026-01-02T03:04:00Z';
@@ -39,6 +42,17 @@ describe('TickerStrip', () => {
     expect(lists[1]).toHaveAttribute('aria-hidden', 'true');
     expect(within(strip).getAllByRole('listitem')).toHaveLength(9);
     expect(screen.getByTestId('ticker-track')).toHaveClass('animate-ticker');
+  });
+
+  it('links each quote to its detail page; the hidden copy stays out of the tab order', async () => {
+    render(<TickerStrip />);
+    const strip = await screen.findByRole('region', { name: 'Market quotes' });
+    const [visible, hidden] = strip.querySelectorAll('ul');
+    const links = within(visible).getAllByRole('link');
+    expect(links[0]).toHaveAttribute('href', '/stock/%5EJKSE');
+    expect(links.map((a) => a.getAttribute('href'))).toContain('/stock/BBCA.JK');
+    expect(links.every((a) => !a.hasAttribute('tabindex'))).toBe(true);
+    hidden.querySelectorAll('a').forEach((a) => expect(a).toHaveAttribute('tabindex', '-1'));
   });
 
   it('pauses and plays with the button, and remembers it for the session', async () => {

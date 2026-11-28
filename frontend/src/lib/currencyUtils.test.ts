@@ -30,6 +30,11 @@ describe('formatPrice', () => {
     expect(formatPrice(null, 'IDR')).toBe('—');
     expect(formatPrice(undefined, 'USD')).toBe('—');
   });
+  it('indices: points with 2 decimals in the currency locale, no currency symbol', () => {
+    expect(formatPrice(5338.456, 'IDR', '^JKSE')).toBe('5.338,46');
+    expect(formatPrice(6012.3, 'USD', '^GSPC')).toBe('6,012.30');
+    expect(formatPrice(5338.456, 'IDR', 'BBCA.JK')).toBe('Rp5.338');
+  });
 });
 
 describe('formatChange', () => {
@@ -40,6 +45,11 @@ describe('formatChange', () => {
     expect(formatChange(-2, 'USD')).toBe(`${MINUS}$2.00`);
     expect(formatChange(0, 'USD')).toBe('$0.00');
     expect(formatChange(null, 'USD')).toBe('—');
+  });
+  it('indices: signed points without currency', () => {
+    expect(formatChange(28.07, 'IDR', '^JKSE')).toBe('+28,07');
+    expect(formatChange(-12.5, 'USD', '^GSPC')).toBe(`${MINUS}12.50`);
+    expect(formatChange(0.001, 'IDR', '^JKSE')).toBe('0,00');
   });
 });
 

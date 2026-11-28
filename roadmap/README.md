@@ -138,7 +138,7 @@ Sprint <N> selesai. Baca roadmap/<file-sprint>.md, cek setiap task terhadap kode
 | **S2-08** | Eval set + script eval | 🤖 | 4 | ☐ |
 | **S2-09** | Kuota per user | 🤖 | 2 | ☐ |
 | **S3-01** | Watchlist | 🤖 | 5 | ☐ |
-| **S3-02** | Chart candlestick + overlay indikator | 🤖 | 5 | ☐ |
+| **S3-02** | Chart candlestick + overlay indikator | 🤖 | 5 | 🟡 S3-02a selesai ([s3-02-chart.md](s3-02-chart.md)); overlay/RSI/MACD (S3-02b), ⭐ (S3-01), proyeksi (S1-08) ditunda |
 | **S3-03** | Price alerts + scheduler + email | 🤝🧠 | 8 | ☐ |
 | **S3-04** | Portfolio tracker | 🤖🧠 | 8 | ☐ |
 | **S3-05** | Preferensi user | 🤖 | 3 | ☐ |

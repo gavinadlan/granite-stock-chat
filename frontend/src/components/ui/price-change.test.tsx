@@ -20,4 +20,9 @@ describe('PriceChange', () => {
     render(<PriceChange change={-50} changePercent={null} currency="IDR" />);
     expect(screen.getByText('\u2212Rp50')).toBeInTheDocument();
   });
+
+  it('shows an index change in points', () => {
+    render(<PriceChange change={28.07} changePercent={0.54} currency="IDR" symbol="^JKSE" />);
+    expect(screen.getByText('+28,07 (+0,54%)')).toHaveClass('text-up');
+  });
 });

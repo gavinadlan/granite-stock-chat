@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatRelativeTime, formatWibDateTime, formatWibTime, latestIso, startsTimeGroup } from './time';
+import { formatRelativeTime, formatWibDate, formatWibDateTime, formatWibTime, latestIso, startsTimeGroup } from './time';
 
 const now = new Date('2026-11-25T12:00:00Z');
 
@@ -34,6 +34,9 @@ describe('WIB time', () => {
     expect(formatWibTime('2026-11-26T04:19:00Z')).toBe('11:19 WIB');
     expect(formatWibDateTime('2026-11-26T04:19:00Z')).toBe('Nov 26, 2026, 11:19 WIB');
     expect(formatWibTime('nope')).toBeNull();
+    // 20:00 UTC is already the next day in Jakarta.
+    expect(formatWibDate('2026-11-26T20:00:00Z')).toBe('Nov 27, 2026');
+    expect(formatWibDate('nope')).toBeNull();
   });
   it('picks the latest valid timestamp', () => {
     expect(latestIso(['2026-11-26T02:00:00Z', null, 'bad', '2026-11-26T04:59:59Z'])).toBe('2026-11-26T04:59:59Z');

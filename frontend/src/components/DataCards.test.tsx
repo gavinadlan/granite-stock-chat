@@ -1,9 +1,14 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import type { HistoryResponse } from '@stockai/shared';
 import type { Prediction, StockPrice, TechnicalAnalysis } from '@/services/stockMarketAPI';
 import { NewsCard } from './NewsCard';
 import { PredictionCard } from './PredictionCard';
 import { StockCard } from './StockCard';
+
+const getHistory = vi.hoisted(() => vi.fn<() => Promise<HistoryResponse>>());
+vi.mock('@/services/stockMarketAPI', () => ({ stockMarketAPI: { getHistory } }));
 import { TechnicalAnalysisCard } from './TechnicalAnalysisCard';
 
 // Round fixture values: test data only, never shown in the app.
@@ -28,12 +33,28 @@ const prediction: Prediction = {
 
 const expectProvenance = (source: string) => {
   expect(screen.getByText(new RegExp(`Source: ${source.replace(/[()+]/g, '\\$&')}`))).toBeInTheDocument();
-  expect(document.querySelector('time')).toHaveAttribute('datetime', asOf);
+  const time = document.querySelector('time');
+  expect(time).toHaveAttribute('datetime', asOf);
+  // Always Jakarta time with its label, whatever the browser's zone (03:04 UTC = 10:04 WIB).
+  expect(time).toHaveTextContent('Jan 2, 2026, 10:04 WIB');
 };
 
+const renderCard = (ui: React.ReactElement) => render(<MemoryRouter>{ui}</MemoryRouter>);
+const closes = (values: number[]): HistoryResponse => ({
+  data: {
+    symbol: 'BBCA.JK', currency: 'IDR', exchangeTimezone: 'Asia/Jakarta', range: '1mo', interval: '1d',
+    candles: values.map((c, i) => ({ t: i, o: c, h: c, l: c, c, v: null })),
+  },
+  meta: { source: 'Yahoo Finance', asOf, warnings: [] },
+});
+
 describe('StockCard', () => {
+  beforeEach(() => {
+    getHistory.mockReset().mockRejectedValue(new Error('offline'));
+  });
+
   it('shows exchange, currency, change, provenance and honest blanks', () => {
-    render(<StockCard stockPrice={price} />);
+    renderCard(<StockCard stockPrice={price} />);
     expect(screen.getByText('Test Bank · IDX · IDR')).toBeInTheDocument();
     expect(screen.getByText('Rp1.000')).toBeInTheDocument();
     expect(screen.getByText('−Rp10 (−1,00%)')).toHaveClass('text-down');
@@ -44,9 +65,46 @@ describe('StockCard', () => {
   });
 
   it('shows unknown exchange codes unchanged', () => {
-    render(<StockCard stockPrice={{ ...price, exchange: 'XYZ', name: null, delayed: false }} />);
+    renderCard(<StockCard stockPrice={{ ...price, exchange: 'XYZ', name: null, delayed: false }} />);
     expect(screen.getByText('XYZ · IDR')).toBeInTheDocument();
     expect(screen.getByText('Live')).toBeInTheDocument();
+  });
+
+  it('links the chat card to the detail page and draws a neutral 1M sparkline', async () => {
+    getHistory.mockResolvedValue(closes([10, 12, 11]));
+    const { container } = renderCard(<StockCard stockPrice={price} />);
+    expect(screen.getByRole('link', { name: 'BBCA.JK, open chart' })).toHaveAttribute('href', '/stock/BBCA.JK');
+    expect(await screen.findByText('1M')).toBeInTheDocument();
+    expect(getHistory).toHaveBeenCalledWith('BBCA.JK', '1mo', '1d');
+    const spark = container.querySelector('svg path')?.closest('[aria-hidden="true"]');
+    expect(spark).toHaveClass('text-muted-foreground');
+  });
+
+  it('encodes index symbols in the link', () => {
+    renderCard(<StockCard stockPrice={{ ...price, symbol: '^JKSE' }} />);
+    expect(screen.getByRole('link', { name: '^JKSE, open chart' })).toHaveAttribute('href', '/stock/%5EJKSE');
+  });
+
+  it('shows an index in points, without a currency symbol', () => {
+    renderCard(<StockCard stockPrice={{ ...price, symbol: '^JKSE', previousClose: 1010 }} variant="compact" />);
+    expect(screen.getByText('1.000,00')).toBeInTheDocument();
+    expect(screen.getByText('\u221210,00 (\u22121,00%)')).toHaveClass('text-down');
+    expect(screen.getByText('Previous close').nextSibling).toHaveTextContent('1.010,00');
+    expect(screen.queryByText(/Rp/)).not.toBeInTheDocument();
+  });
+
+  it('keeps the card without a sparkline when history fails', async () => {
+    renderCard(<StockCard stockPrice={price} />);
+    await vi.waitFor(() => expect(getHistory).toHaveBeenCalled());
+    expect(screen.queryByText('1M')).not.toBeInTheDocument();
+    expect(screen.getByText('Rp1.000')).toBeInTheDocument();
+  });
+
+  it('has no link or sparkline in the compact and detail variants', () => {
+    renderCard(<StockCard stockPrice={price} variant="compact" />);
+    renderCard(<StockCard stockPrice={price} variant="detail" />);
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
+    expect(getHistory).not.toHaveBeenCalled();
   });
 });
 
@@ -65,7 +123,10 @@ describe('TechnicalAnalysisCard', () => {
     expect(screen.getByText('SMA200 unavailable')).toBeInTheDocument();
     expect(screen.getByText('Method: RSI(14, Wilder)')).toBeInTheDocument();
     expect(screen.getByText(/bukan nasihat keuangan/i)).toBeInTheDocument();
-    expectProvenance('Yahoo Finance (daily candles)');
+    // Daily candles: the date only, not the bar's open time, and "daily candles" said once.
+    const source = screen.getByText(/^Source: Yahoo Finance/);
+    expect(source).toHaveTextContent(/^Source: Yahoo Finance · Jan 2, 2026 · daily candles$/);
+    expect(source.querySelector('time')).toHaveAttribute('datetime', asOf);
   });
 
   it('shows a dash and no meter without RSI data', () => {
