@@ -26,7 +26,7 @@ backend/             Lambda backend (TypeScript, bundled by serverless-esbuild) 
   src/handlers/      tipis: validasi query → panggil service → response (/v1/* + alias lama s/d S1-10)
   src/services/      logika bisnis (dipakai handler & tool AI di Sprint 2)
   src/providers/     klien Yahoo chart, NewsAPI, Replicate
-  src/domain/        fungsi murni (indicators/)
+  src/domain/        fungsi murni (indicators/, candles.ts)
   src/lib/           config (env zod, cold start), http (wrapper handler, CORS, error), validation
   test/              Vitest (*.test.ts)
 packages/shared/     @stockai/shared: zod schema + tipe response (frontend & backend)

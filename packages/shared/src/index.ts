@@ -96,6 +96,36 @@ export type Projection = z.infer<typeof ProjectionSchema>;
 export const ProjectionResponseSchema = ProjectionSchema.merge(DataMetaSchema);
 export type ProjectionResponse = z.infer<typeof ProjectionResponseSchema>;
 
+/** OHLCV candle; t is the bar open time in epoch seconds (UTC). */
+export const CandleSchema = z.object({
+  t: z.number(),
+  o: z.number(),
+  h: z.number(),
+  l: z.number(),
+  c: z.number(),
+  v: z.number().nullable(),
+});
+export type Candle = z.infer<typeof CandleSchema>;
+
+export const HistoryRangeSchema = z.enum(['1d', '5d', '1mo', '3mo', '6mo', '1y', '5y', 'max']);
+export type HistoryRange = z.infer<typeof HistoryRangeSchema>;
+export const HistoryIntervalSchema = z.enum(['1m', '5m', '15m', '1h', '1d', '1wk']);
+export type HistoryInterval = z.infer<typeof HistoryIntervalSchema>;
+
+export const HistorySchema = z.object({
+  symbol: z.string(),
+  currency: z.string().nullable(),
+  /** IANA zone of the exchange, e.g. "America/New_York"; null when the provider omits it. */
+  exchangeTimezone: z.string().nullable(),
+  range: HistoryRangeSchema,
+  interval: HistoryIntervalSchema,
+  candles: z.array(CandleSchema),
+});
+export type History = z.infer<typeof HistorySchema>;
+// First endpoint on the `{ data, meta }` envelope; the others follow in S1-04.
+export const HistoryResponseSchema = z.object({ data: HistorySchema, meta: DataMetaSchema });
+export type HistoryResponse = z.infer<typeof HistoryResponseSchema>;
+
 export const HealthResponseSchema = z.object({
   status: z.literal('ok'),
   stage: z.string(),
