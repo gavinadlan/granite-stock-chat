@@ -118,12 +118,12 @@ Sprint <N> selesai. Baca roadmap/<file-sprint>.md, cek setiap task terhadap kode
 | **UI-02** | Landing page dengan demo harga live, logo baru | 🤖🧠 | – | 🟡 menunggu uji dengan backend & Cognito asli |
 | **UI-03** | Chat & kartu data | 🤖🧠 | – | 🟡 menunggu uji dengan backend & Cognito asli |
 | **UI-04** | Landing v2: ticker live & panel jawaban ([mockup](../docs/design/landing-v2.html)) | 🤖🧠 | – | 🟡 menunggu uji manual |
-| **S1-01** | Backend → TypeScript + esbuild + struktur baru | 🤖🧠 | 6 | ☐ |
+| **S1-01** | Backend → TypeScript + esbuild + struktur baru | 🤖🧠 | 6 | ✅ |
 | **S1-02** | HTTP API + Cognito JWT authorizer + stage | 🤝🧠 | 4 | ☐ |
 | **S1-03** | Provider adapter + retry + circuit breaker | 🤖 | 6 | ☐ |
 | **S1-04** | DynamoDB single-table + cache | 🤖 | 4 | ☐ |
-| **S1-05** | Indikator teknikal asli | 🤖 | 5 | ☐ |
-| **S1-06** | Endpoint history (candle) | 🤖 | 2 | ☐ |
+| **S1-05** | Indikator teknikal asli | 🤖 | 5 | ✅ |
+| **S1-06** | Endpoint history (candle) | 🤖 | 2 | ✅ |
 | **S1-07** | Endpoint news nyata + cache | 🤖 | 3 | ☐ |
 | **S1-08** | Proyeksi kuantitatif (ganti prediksi acak) | 🤖 | 4 | ☐ |
 | **S1-09** | Observability (Powertools, alarm, budget) | 🤝 | 3 | ☐ |

@@ -127,6 +127,17 @@ functions:
     timeout: 15
     memorySize: 256
 
+  history:
+    handler: src/handlers/history.handler
+    events:
+      # New route, no legacy alias.
+      - http:
+          path: /v1/history
+          method: get
+          cors: *cors
+    timeout: 15
+    memorySize: 256
+
   news:
     handler: src/handlers/news.handler
     events:

@@ -15,6 +15,7 @@ export interface ChartMeta {
   shortName?: string;
   currency?: string;
   exchangeName?: string;
+  exchangeTimezoneName?: string;
   regularMarketPrice?: number;
   regularMarketTime?: number;
   regularMarketDayHigh?: number;

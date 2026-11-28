@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { HistoryIntervalSchema, HistoryRangeSchema, type HistoryInterval, type HistoryRange } from '@stockai/shared';
 
 /** Ticker symbol, e.g. AAPL, BBCA.JK, BRK-B, ^GSPC, EURUSD=X */
 export const SymbolSchema = z
@@ -35,3 +36,30 @@ export const NewsQuerySchema = z
     query: z.string().trim().min(2).max(100).optional(),
   })
   .refine((q) => q.symbol || q.query, { message: 'symbol or query is required' });
+
+// Longest range Yahoo serves for each intraday interval; 1d and 1wk accept any range.
+const RANGE_ORDER: HistoryRange[] = ['1d', '5d', '1mo', '3mo', '6mo', '1y', '5y', 'max'];
+const MAX_RANGE: Partial<Record<HistoryInterval, HistoryRange>> = { '1m': '5d', '5m': '1mo', '15m': '1mo', '1h': '1y' };
+
+export const allowedRanges = (interval: HistoryInterval): HistoryRange[] => {
+  const max = MAX_RANGE[interval];
+  return max ? RANGE_ORDER.slice(0, RANGE_ORDER.indexOf(max) + 1) : RANGE_ORDER;
+};
+
+export const HistoryQuerySchema = z
+  .object({
+    symbol: SymbolSchema,
+    range: z.string().trim().toLowerCase().pipe(HistoryRangeSchema).optional().default('1mo'),
+    interval: z.string().trim().toLowerCase().pipe(HistoryIntervalSchema).optional().default('1d'),
+  })
+  .superRefine((q, ctx) => {
+    const ok = allowedRanges(q.interval);
+    if (!ok.includes(q.range)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['range'],
+        message: `interval ${q.interval} supports range ${ok.join(', ')} (got ${q.range})`,
+      });
+    }
+  });
+export type HistoryQuery = z.output<typeof HistoryQuerySchema>;

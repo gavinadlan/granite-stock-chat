@@ -210,6 +210,48 @@ curl "http://localhost:3001/market-news?symbol=AAPL"
 
 ---
 
+### 5. Price History (candles)
+
+Public endpoint (no auth). Returns OHLCV candles from Yahoo Finance.
+
+**Endpoint**: `GET /v1/history`
+
+**Parameters**:
+- `symbol` (required): Stock symbol, e.g. `AAPL`, `BBCA.JK`
+- `range` (optional, default `1mo`): `1d`, `5d`, `1mo`, `3mo`, `6mo`, `1y`, `5y`, `max`
+- `interval` (optional, default `1d`): `1m`, `5m`, `15m`, `1h`, `1d`, `1wk`
+
+Allowed combinations follow Yahoo limits: `1m` up to `5d`, `5m`/`15m` up to `1mo`, `1h` up to `1y`; `1d` and `1wk` accept any range. Other combinations return `400 BAD_REQUEST` naming the allowed ranges.
+
+**Example Request**:
+```bash
+curl "http://localhost:3001/v1/history?symbol=AAPL&range=5d&interval=1h"
+```
+
+**Example Response** (values illustrative):
+```json
+{
+  "data": {
+    "symbol": "AAPL",
+    "currency": "USD",
+    "exchangeTimezone": "America/New_York",
+    "range": "5d",
+    "interval": "1h",
+    "candles": [{ "t": 1732804200, "o": 234.1, "h": 235.0, "l": 233.8, "c": 234.6, "v": 1200000 }]
+  },
+  "meta": { "source": "Yahoo Finance", "asOf": "2026-11-27T20:30:00.000Z", "delayed": true, "warnings": [] }
+}
+```
+
+**Notes**:
+- `t` is the bar open time in epoch seconds (UTC). Bars with missing prices are dropped; candles are ascending.
+- At most 2000 candles. Longer series are downsampled by merging consecutive bars (open/high/low/close kept, volume summed) and `meta.warnings` says so.
+- `exchangeTimezone` is `null` when the provider omits it.
+- No candles available returns `503 PROVIDER_UNAVAILABLE`; unknown symbol returns `404 NOT_FOUND`.
+- `Cache-Control: public, max-age=60` for intraday intervals, `300` for `1d`/`1wk`.
+
+---
+
 ## Error Responses
 
 All endpoints return appropriate HTTP status codes and error messages.

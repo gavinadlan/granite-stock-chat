@@ -1,7 +1,8 @@
 // Handlers return exactly the shapes declared in @stockai/shared (no extra or missing fields).
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { HealthResponseSchema, QuoteResponseSchema, TechnicalsResponseSchema } from '@stockai/shared';
+import { HealthResponseSchema, HistoryResponseSchema, QuoteResponseSchema, TechnicalsResponseSchema } from '@stockai/shared';
 import { handler as health } from '../src/handlers/health';
+import { handler as history } from '../src/handlers/history';
 import { handler as quote } from '../src/handlers/quote';
 import { handler as technicals } from '../src/handlers/technicals';
 
@@ -39,6 +40,13 @@ describe('response contracts', () => {
     const { status, body } = await call(technicals, 'AAPL');
     expect(status).toBe(200);
     expect(TechnicalsResponseSchema.parse(body)).toEqual(body);
+  });
+  it('history', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(chart))));
+    const { status, body } = await call(history, 'AAPL');
+    expect(status).toBe(200);
+    expect(HistoryResponseSchema.parse(body)).toEqual(body);
+    expect(body.data.candles).toHaveLength(n);
   });
   it('health', async () => {
     const { body } = await call(health);
