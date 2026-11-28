@@ -17,6 +17,7 @@ import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { ApiError } from '@/services/apiClient';
 import { stockMarketAPI } from '@/services/stockMarketAPI';
 import {
+  candleName,
   CHART_RANGES,
   chartSummary,
   DEFAULT_CHART_RANGE,
@@ -182,6 +183,8 @@ export function PriceChart({ symbol }: { symbol: string }) {
     ? chartSummary(history.data.symbol, label, candles, currency)
     : `${symbol} price chart, ${label}: ${state.status === 'error' ? 'unavailable' : 'loading'}`;
   const lastTen = candles.slice(-10).reverse();
+  // Daily and longer bars: the date matters, the bar's open time does not.
+  const bars = history ? candleName(history.data.interval) : null;
 
   return (
     <section aria-label={`${symbol} price chart`} className="space-y-3 rounded-card border bg-card p-4 text-card-foreground sm:p-5">
@@ -248,7 +251,10 @@ export function PriceChart({ symbol }: { symbol: string }) {
           {history.meta.warnings?.map((w) => <p key={w}>{w}</p>)}
           <p>
             Source: {history.meta.source}
-            {history.meta.delayed && ', delayed'} · {formatWibDateTime(history.meta.asOf) ?? history.meta.asOf}
+            {history.meta.delayed && ', delayed'} ·{' '}
+            {bars && candles.length
+              ? `${formatBarTime(candles[candles.length - 1].t, tz, false)} · ${bars} candles`
+              : formatWibDateTime(history.meta.asOf) ?? history.meta.asOf}
           </p>
           {lastTen.length > 0 && (
             <details>

@@ -142,7 +142,8 @@ export function TechnicalAnalysisCard({ technicalAnalysis: ta, variant = 'chat',
 
       <DataCardFooter>
         {ta.method && <p className="text-sm text-muted-foreground">Method: {ta.method}</p>}
-        <DataSourceBadge source={ta.source} asOf={ta.asOf} />
+        {/* Indicators come from daily candles; the badge says so, so drop the backend's own "(daily candles)" suffix. */}
+        <DataSourceBadge source={ta.source.replace(/\s*\(daily candles\)$/, '')} asOf={ta.asOf} candles="daily" />
         <Disclaimer />
       </DataCardFooter>
     </DataCard>

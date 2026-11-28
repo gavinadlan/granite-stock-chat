@@ -123,7 +123,10 @@ describe('TechnicalAnalysisCard', () => {
     expect(screen.getByText('SMA200 unavailable')).toBeInTheDocument();
     expect(screen.getByText('Method: RSI(14, Wilder)')).toBeInTheDocument();
     expect(screen.getByText(/bukan nasihat keuangan/i)).toBeInTheDocument();
-    expectProvenance('Yahoo Finance (daily candles)');
+    // Daily candles: the date only, not the bar's open time, and "daily candles" said once.
+    const source = screen.getByText(/^Source: Yahoo Finance/);
+    expect(source).toHaveTextContent(/^Source: Yahoo Finance · Jan 2, 2026 · daily candles$/);
+    expect(source.querySelector('time')).toHaveAttribute('datetime', asOf);
   });
 
   it('shows a dash and no meter without RSI data', () => {

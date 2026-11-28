@@ -1,5 +1,5 @@
 // Pure helpers for the price chart and sparkline. Every number they print comes from the candles passed in.
-import type { Candle, HistoryInterval, HistoryRange } from '@stockai/shared';
+import type { Candle, HistoryGranularity, HistoryInterval, HistoryRange } from '@stockai/shared';
 import { formatPrice } from './currencyUtils';
 
 export const CHART_RANGES = [
@@ -82,6 +82,13 @@ export function formatTick(t: number, tz: string, kind: TickKind): string {
 export function sessionLabel(candles: Candle[], tz: string): string | null {
   const last = candles[candles.length - 1];
   return last ? `Session of ${dtf('en-US', { timeZone: tz, weekday: 'short', month: 'short', day: 'numeric' }).format(date(last.t))}` : null;
+}
+
+const CANDLE_NAMES: Partial<Record<HistoryGranularity, string>> = { '1d': 'daily', '1wk': 'weekly', '1mo': 'monthly', '3mo': 'quarterly' };
+
+/** "daily", "weekly", ... for bars of a day or longer; null for intraday bars, which keep their time. */
+export function candleName(interval: HistoryGranularity): string | null {
+  return CANDLE_NAMES[interval] ?? null;
 }
 
 /** Text alternative for the chart canvas, built from the data. */

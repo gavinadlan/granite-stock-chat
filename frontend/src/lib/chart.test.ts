@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Candle } from '@stockai/shared';
 import {
-  CHART_RANGES, chartSummary, formatBarTime, formatTick, isIntraday, rangeQuery, safeTimeZone, sessionLabel, sparklinePath, timeZoneLabel,
+  candleName, CHART_RANGES, chartSummary, formatBarTime, formatTick, isIntraday, rangeQuery, safeTimeZone, sessionLabel, sparklinePath, timeZoneLabel,
 } from './chart';
 
 // Test data only.
@@ -49,6 +49,16 @@ describe('time zones', () => {
     expect(sessionLabel([bar(FRI - 3600, 1, 1, 1, 1), bar(FRI, 1, 1, 1, 1)], 'Asia/Jakarta')).toBe('Session of Fri, Nov 27');
     expect(sessionLabel([bar(late, 1, 1, 1, 1)], 'Asia/Jakarta')).toBe('Session of Sat, Nov 28');
     expect(sessionLabel([], 'UTC')).toBeNull();
+  });
+});
+
+describe('candleName', () => {
+  it('names daily and longer bars, and leaves intraday bars to their time', () => {
+    expect(candleName('1d')).toBe('daily');
+    expect(candleName('1wk')).toBe('weekly');
+    expect(candleName('3mo')).toBe('quarterly');
+    expect(candleName('5m')).toBeNull();
+    expect(candleName('1h')).toBeNull();
   });
 });
 

@@ -85,6 +85,15 @@ describe('PriceChart', () => {
     expect(screen.queryByText(/Rp/)).not.toBeInTheDocument();
   });
 
+  it('dates daily candles without an open time, and keeps the time for intraday bars', async () => {
+    const h = history();
+    getHistory.mockResolvedValueOnce(h).mockResolvedValueOnce({ ...h, data: { ...h.data, range: '1d', interval: '5m' } });
+    render(<PriceChart symbol="BBCA.JK" />);
+    expect(await screen.findByText('Source: Yahoo Finance, delayed · Nov 27, 2026 · daily candles')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('radio', { name: '1D' }));
+    expect(await screen.findByText('Source: Yahoo Finance, delayed · Nov 27, 2026, 16:00 WIB')).toBeInTheDocument();
+  });
+
   it('names the session of the last candle for 1D', async () => {
     render(<PriceChart symbol="BBCA.JK" />);
     fireEvent.click(screen.getByRole('radio', { name: '1D' }));

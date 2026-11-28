@@ -37,6 +37,8 @@ const wibDateTime = new Intl.DateTimeFormat('en-US', {
   hourCycle: 'h23',
 });
 
+const wibDate = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Jakarta', month: 'short', day: 'numeric', year: 'numeric' });
+
 const valid = (iso: string) => !Number.isNaN(new Date(iso).getTime());
 
 /** "11:19 WIB" (Jakarta time); null when invalid. */
@@ -47,6 +49,11 @@ export function formatWibTime(iso: string): string | null {
 /** "Nov 26, 2026, 11:19 WIB"; null when invalid. */
 export function formatWibDateTime(iso: string): string | null {
   return valid(iso) ? `${wibDateTime.format(new Date(iso))} WIB` : null;
+}
+
+/** "Nov 26, 2026" (Jakarta date) for daily data, where the bar's open time means nothing to the reader; null when invalid. */
+export function formatWibDate(iso: string): string | null {
+  return valid(iso) ? wibDate.format(new Date(iso)) : null;
 }
 
 /** Most recent valid ISO timestamp, or null. */
