@@ -29,7 +29,8 @@ backend/             Lambda backend (TypeScript, bundled by serverless-esbuild) 
   src/services/      logika bisnis (dipakai handler & tool AI di Sprint 2)
   src/providers/     klien Yahoo chart, NewsAPI, Replicate
   src/domain/        fungsi murni (indicators/, candles.ts)
-  src/lib/           config (env zod, cold start), http (wrapper handler, CORS, error), validation
+  src/lib/           config (env zod, cold start), http (wrapper handler, CORS, error), validation,
+                     db (DynamoDB stockai-<stage> + key builders), cache (getOrSet read-through), market-hours
   test/              Vitest (*.test.ts)
 packages/shared/     @stockai/shared: zod schema + tipe response (frontend & backend)
 docs/                API.md, DEPLOYMENT.md (secrets), design/ (mockup final), legacy/ (panduan lama)
