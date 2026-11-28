@@ -17,6 +17,10 @@ export const DataMetaSchema = z.object({
   delayed: z.boolean().optional(),
   /** Caveats about the data, e.g. not enough history for an indicator. */
   warnings: z.array(z.string()).optional(),
+  /** Served from the backend cache; asOf is still the provider's data time. */
+  cached: z.boolean().optional(),
+  /** Expired cache entry served because the provider failed (at most 24 h past its TTL). */
+  stale: z.boolean().optional(),
 });
 export type DataMeta = z.infer<typeof DataMetaSchema>;
 

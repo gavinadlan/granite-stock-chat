@@ -78,6 +78,9 @@ async function load<T>(key: Key, ttl: Ttl<T>, loader: () => Promise<T>, staleWhi
   return { value, cached: false, stale: false };
 }
 
+/** Response meta fields for a cached result: `stale` only when true. */
+export const cacheMeta = ({ cached, stale }: Cached<unknown>) => ({ cached, ...(stale && { stale: true }) });
+
 /** Value for `key` from the table, else from `loader` (stored for `ttl` seconds). Parallel calls share one load. */
 export function getOrSet<T>(key: Key, ttl: Ttl<T>, loader: () => Promise<T>, { staleWhileError = true } = {}): Promise<Cached<T>> {
   const id = `${key.PK}|${key.SK}`;
