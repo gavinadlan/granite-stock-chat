@@ -91,7 +91,7 @@ export function chartSummary(symbol: string, label: ChartRange, candles: Candle[
   const last = candles[candles.length - 1];
   const high = Math.max(...candles.map((c) => c.h));
   const low = Math.min(...candles.map((c) => c.l));
-  const p = (v: number) => formatPrice(v, currency);
+  const p = (v: number) => formatPrice(v, currency, symbol);
   return `${symbol} price chart, ${label}: from ${p(first.o)} to ${p(last.c)}, high ${p(high)}, low ${p(low)}, ${candles.length} candles`;
 }
 

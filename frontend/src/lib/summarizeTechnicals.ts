@@ -3,7 +3,7 @@ import { formatPercent, formatPrice } from './currencyUtils';
 import { RSI_OVERBOUGHT, RSI_OVERSOLD } from './rsi';
 
 function priceSentence(q: StockPrice): string {
-  const base = `${q.symbol} is trading at ${formatPrice(q.price, q.currency)}`;
+  const base = `${q.symbol} is trading at ${formatPrice(q.price, q.currency, q.symbol)}`;
   const pct = q.changePercent;
   if (pct == null) return `${base}.`;
   if (pct === 0) return `${base}, unchanged today.`;

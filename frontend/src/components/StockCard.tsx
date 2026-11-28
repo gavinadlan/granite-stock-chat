@@ -43,12 +43,12 @@ export function StockCard({ stockPrice, variant = 'chat', className }: StockCard
           <Badge variant="secondary">{stockPrice.delayed ? 'Delayed' : 'Live'}</Badge>
         </header>
         <div className="space-y-2">
-          <p className="font-display text-section font-bold leading-none tabular-nums [overflow-wrap:anywhere]">{formatPrice(price, currency)}</p>
-          <PriceChange change={change} changePercent={changePercent} currency={currency} className="text-[15px] font-semibold" />
+          <p className="font-display text-section font-bold leading-none tabular-nums [overflow-wrap:anywhere]">{formatPrice(price, currency, symbol)}</p>
+          <PriceChange change={change} changePercent={changePercent} currency={currency} symbol={symbol} className="text-[15px] font-semibold" />
         </div>
         <dl className="space-y-1.5 border-t pt-3 text-sm">
           <DataRow label="Volume">{formatVolume(volume, currency)}</DataRow>
-          {previousClose != null && <DataRow label="Previous close">{formatPrice(previousClose, currency)}</DataRow>}
+          {previousClose != null && <DataRow label="Previous close">{formatPrice(previousClose, currency, symbol)}</DataRow>}
         </dl>
       </DataCard>
     );
@@ -80,8 +80,8 @@ export function StockCard({ stockPrice, variant = 'chat', className }: StockCard
 
       <div className="grid gap-4 sm:grid-cols-[auto_1fr]">
         <div>
-          <p className="text-heading font-semibold tabular-nums [overflow-wrap:anywhere] sm:text-display">{formatPrice(price, currency)}</p>
-          <PriceChange change={change} changePercent={changePercent} currency={currency} className="font-medium" />
+          <p className="text-heading font-semibold tabular-nums [overflow-wrap:anywhere] sm:text-display">{formatPrice(price, currency, symbol)}</p>
+          <PriceChange change={change} changePercent={changePercent} currency={currency} symbol={symbol} className="font-medium" />
         </div>
         {variant === 'chat' && <Sparkline symbol={symbol} />}
       </div>

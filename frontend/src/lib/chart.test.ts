@@ -60,6 +60,11 @@ describe('chartSummary', () => {
   it('uses the currency locale', () => {
     expect(chartSummary('BBCA.JK', '1D', [bar(1, 9800, 9900, 9750, 9875)], 'IDR')).toContain('from Rp9.800 to Rp9.875');
   });
+  it('describes an index in points', () => {
+    expect(chartSummary('^JKSE', '6M', [bar(1, 5300.5, 5400, 5200.25, 5338.46)], 'IDR')).toBe(
+      '^JKSE price chart, 6M: from 5.300,50 to 5.338,46, high 5.400,00, low 5.200,25, 1 candles',
+    );
+  });
   it('says so when there is no data', () => {
     expect(chartSummary('AAPL', '1Y', [], 'USD')).toBe('AAPL price chart, 1Y: no data');
   });

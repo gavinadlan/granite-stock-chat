@@ -72,15 +72,24 @@ function withSign(value: number, absText: string, plus = ''): string {
 
 type Num = number | null | undefined;
 
-/** "Rp5.900", "$1,234.56", "−$5.00"; null → "—". */
-export function formatPrice(price: Num, currency: string): string {
+/** Index symbols (^JKSE, ^GSPC) are quoted in points, not money. */
+export const isIndexSymbol = (symbol = '') => symbol.startsWith('^');
+
+/** Points for an index: 2 decimals in the currency's locale, no currency symbol ("5.338,46", "6,012.30"). */
+const points = (value: number, currency: string) =>
+  new Intl.NumberFormat(currency === 'IDR' ? 'id-ID' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Math.abs(value));
+
+/** "Rp5.900", "$1,234.56", "−$5.00"; indices in points ("5.338,46"); null → "—". */
+export function formatPrice(price: Num, currency: string, symbol = ''): string {
   if (price == null) return DASH;
+  if (isIndexSymbol(symbol)) return withSign(price, points(price, currency));
   return withSign(price, `${formatCurrencySymbol(currency)}${numberFormat(currency).format(Math.abs(price))}`);
 }
 
-/** Signed money change: "+Rp75", "−$1.50", "$0.00"; null → "—". */
-export function formatChange(change: Num, currency: string): string {
+/** Signed money change: "+Rp75", "−$1.50", "$0.00"; indices in points ("+28,07"); null → "—". */
+export function formatChange(change: Num, currency: string, symbol = ''): string {
   if (change == null) return DASH;
+  if (isIndexSymbol(symbol)) return withSign(change, points(change, currency), '+');
   return withSign(change, `${formatCurrencySymbol(currency)}${numberFormat(currency).format(Math.abs(change))}`, '+');
 }
 
@@ -112,7 +121,7 @@ export function formatNumber(value: Num, currency: string, decimals = 2): string
 
 /** Decimals for price-like numbers without a symbol: IDR stocks are whole rupiah, indices and other currencies 2. */
 export function priceDecimals(currency: string, symbol = ''): number {
-  return currency === 'IDR' && !symbol.startsWith('^') ? 0 : 2;
+  return currency === 'IDR' && !isIndexSymbol(symbol) ? 0 : 2;
 }
 
 /**

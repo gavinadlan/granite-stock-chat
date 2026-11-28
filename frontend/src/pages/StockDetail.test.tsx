@@ -50,6 +50,10 @@ describe('StockDetail', () => {
     expect(document.title).toBe('^JKSE price chart · StockAI');
     expect(screen.getByTestId('where')).toHaveTextContent('/stock/%5EJKSE');
     expect(screen.getByRole('link', { name: 'Ask AI about this stock' })).toHaveAttribute('href', '/chat?q=Technical%20analysis%20%5EJKSE');
+    // Index header in points: no "$" in front of the level or the change.
+    expect(await screen.findAllByText('100.00')).not.toHaveLength(0);
+    expect(screen.getAllByText('+1.00 (+1.00%)')).not.toHaveLength(0);
+    expect(screen.queryByText(/\$100/)).not.toBeInTheDocument();
   });
 
   it('replaces a non-canonical URL: /stock/bbca → /stock/BBCA.JK', async () => {

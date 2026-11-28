@@ -190,8 +190,8 @@ export default function StockDetail() {
                 {quote.status === 'ready' && (
                   <>
                     <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <span className="text-display font-semibold tabular-nums [overflow-wrap:anywhere]">{formatPrice(quote.value.price, quote.value.currency)}</span>
-                      <PriceChange change={quote.value.change} changePercent={quote.value.changePercent} currency={quote.value.currency} className="font-medium" />
+                      <span className="text-display font-semibold tabular-nums [overflow-wrap:anywhere]">{formatPrice(quote.value.price, quote.value.currency, quote.value.symbol)}</span>
+                      <PriceChange change={quote.value.change} changePercent={quote.value.changePercent} currency={quote.value.currency} symbol={quote.value.symbol} className="font-medium" />
                       <Badge variant="secondary">{quote.value.delayed ? 'Delayed' : 'Live'}</Badge>
                     </p>
                     <p className="text-sm text-muted-foreground">

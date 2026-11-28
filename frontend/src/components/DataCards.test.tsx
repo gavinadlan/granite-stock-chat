@@ -82,6 +82,14 @@ describe('StockCard', () => {
     expect(screen.getByRole('link', { name: '^JKSE, open chart' })).toHaveAttribute('href', '/stock/%5EJKSE');
   });
 
+  it('shows an index in points, without a currency symbol', () => {
+    renderCard(<StockCard stockPrice={{ ...price, symbol: '^JKSE', previousClose: 1010 }} variant="compact" />);
+    expect(screen.getByText('1.000,00')).toBeInTheDocument();
+    expect(screen.getByText('\u221210,00 (\u22121,00%)')).toHaveClass('text-down');
+    expect(screen.getByText('Previous close').nextSibling).toHaveTextContent('1.010,00');
+    expect(screen.queryByText(/Rp/)).not.toBeInTheDocument();
+  });
+
   it('keeps the card without a sparkline when history fails', async () => {
     renderCard(<StockCard stockPrice={price} />);
     await vi.waitFor(() => expect(getHistory).toHaveBeenCalled());

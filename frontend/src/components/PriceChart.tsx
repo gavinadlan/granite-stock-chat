@@ -209,10 +209,10 @@ export function PriceChart({ symbol }: { symbol: string }) {
         {shown && (
           <dl className="flex flex-wrap gap-x-3 gap-y-0.5 text-sm tabular-nums" aria-live="off">
             {[
-              ['O', formatPrice(shown.o, currency)],
-              ['H', formatPrice(shown.h, currency)],
-              ['L', formatPrice(shown.l, currency)],
-              ['C', formatPrice(shown.c, currency)],
+              ['O', formatPrice(shown.o, currency, symbol)],
+              ['H', formatPrice(shown.h, currency, symbol)],
+              ['L', formatPrice(shown.l, currency, symbol)],
+              ['C', formatPrice(shown.c, currency, symbol)],
               ['V', formatVolume(shown.v, currency)],
             ].map(([k, v]) => (
               <div key={k} className="flex gap-1">
@@ -269,10 +269,10 @@ export function PriceChart({ symbol }: { symbol: string }) {
                     {lastTen.map((k) => (
                       <tr key={k.t} className="border-t">
                         <td className="py-1 pr-3">{formatBarTime(k.t, tz, intraday)}</td>
-                        <td className="py-1 pr-3">{formatPrice(k.o, currency)}</td>
-                        <td className="py-1 pr-3">{formatPrice(k.h, currency)}</td>
-                        <td className="py-1 pr-3">{formatPrice(k.l, currency)}</td>
-                        <td className="py-1 pr-3">{formatPrice(k.c, currency)}</td>
+                        <td className="py-1 pr-3">{formatPrice(k.o, currency, symbol)}</td>
+                        <td className="py-1 pr-3">{formatPrice(k.h, currency, symbol)}</td>
+                        <td className="py-1 pr-3">{formatPrice(k.l, currency, symbol)}</td>
+                        <td className="py-1 pr-3">{formatPrice(k.c, currency, symbol)}</td>
                         <td className="py-1 pr-3">{formatVolume(k.v, currency)}</td>
                       </tr>
                     ))}

@@ -76,6 +76,15 @@ describe('PriceChart', () => {
     expect(screen.getAllByRole('row')).toHaveLength(3);
   });
 
+  it('shows an index in points in the legend, table and label', async () => {
+    const h = history();
+    getHistory.mockResolvedValue({ ...h, data: { ...h.data, symbol: '^JKSE' } });
+    render(<PriceChart symbol="^JKSE" />);
+    expect(await screen.findByRole('img', { name: '^JKSE price chart, 6M: from 100,00 to 118,00, high 120,00, low 90,00, 2 candles' })).toBeInTheDocument();
+    expect(screen.getByText('C').nextSibling).toHaveTextContent('118,00');
+    expect(screen.queryByText(/Rp/)).not.toBeInTheDocument();
+  });
+
   it('names the session of the last candle for 1D', async () => {
     render(<PriceChart symbol="BBCA.JK" />);
     fireEvent.click(screen.getByRole('radio', { name: '1D' }));

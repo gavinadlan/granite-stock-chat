@@ -27,7 +27,7 @@ interface TechnicalAnalysisCardProps {
 
 function CompactTechnicals({ ta, currency, className }: { ta: TechnicalAnalysis; currency: string; className?: string }) {
   const n = (v: number | null, decimals: number) => formatNumber(v, currency, decimals);
-  const level = (v: number | null) => n(v, priceDecimals(currency));
+  const level = (v: number | null) => n(v, priceDecimals(currency, ta.symbol));
   const range =
     ta.support === null || ta.resistance === null ? DASH : `${level(ta.support)} to ${level(ta.resistance)}`;
   const rows: [string, string][] = [
@@ -67,7 +67,7 @@ function CompactTechnicals({ ta, currency, className }: { ta: TechnicalAnalysis;
 export function TechnicalAnalysisCard({ technicalAnalysis: ta, variant = 'chat', className }: TechnicalAnalysisCardProps) {
   const currency = ta.currency || 'USD';
   if (variant === 'compact') return <CompactTechnicals ta={ta} currency={currency} className={className} />;
-  const money = (v: number | null) => (v === null ? DASH : formatPrice(v, currency));
+  const money = (v: number | null) => (v === null ? DASH : formatPrice(v, currency, ta.symbol));
   const num = (v: number | null) => formatNumber(v, currency, 2);
   const TrendIcon = TREND_ICON[ta.trend] ?? Minus;
 
