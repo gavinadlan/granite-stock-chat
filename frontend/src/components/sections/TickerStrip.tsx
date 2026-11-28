@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Pause, Play } from 'lucide-react';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { stockMarketAPI, StockPrice } from '@/services/stockMarketAPI';
@@ -22,8 +23,15 @@ function QuoteList({ quotes, hidden = false }: { quotes: StockPrice[]; hidden?: 
         const color = pct == null || pct === 0 ? 'text-muted-foreground' : pct > 0 ? 'text-up' : 'text-down';
         return (
           <li key={q.symbol}>
-            <span className="font-semibold">{tickerLabel(q.symbol)}</span> {formatNumber(q.price, q.currency, priceDecimals(q.currency, q.symbol))}{' '}
-            <span className={color}>{formatPercent(pct, q.currency)}</span>
+            {/* The hidden copy is out of the tab order so focus never lands on an aria-hidden link. */}
+            <Link
+              to={`/stock/${encodeURIComponent(q.symbol)}`}
+              tabIndex={hidden ? -1 : undefined}
+              className="rounded-control hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <span className="font-semibold">{tickerLabel(q.symbol)}</span> {formatNumber(q.price, q.currency, priceDecimals(q.currency, q.symbol))}{' '}
+              <span className={color}>{formatPercent(pct, q.currency)}</span>
+            </Link>
           </li>
         );
       })}

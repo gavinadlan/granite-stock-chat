@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/useAuth';
@@ -11,6 +12,9 @@ import NotFound from './pages/NotFound';
 import { UserProfile } from '@/components/UserProfile';
 import { SettingsPage } from '@/components/SettingsPage';
 import '@/lib/aws-config'; // Initialize AWS Amplify
+
+// Public; lazy so the chart library stays out of the landing and chat bundle.
+const StockDetail = lazy(() => import('./pages/StockDetail'));
 
 function App() {
   return (
@@ -45,6 +49,14 @@ function App() {
                   <SettingsPage />
                 </ProtectedRoute>
               } 
+            />
+            <Route
+              path="/stock/:symbol"
+              element={
+                <Suspense fallback={null}>
+                  <StockDetail />
+                </Suspense>
+              }
             />
             <Route path="*" element={<NotFound />} />
           </Routes>

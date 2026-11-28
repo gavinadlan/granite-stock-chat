@@ -22,6 +22,8 @@ frontend/            React app (src/components, pages, services, hooks, lib)
                      components/ui = primitif (button, sheet, field, price-change);
                      components/DataCard = kerangka kartu data chat; FormLayout = halaman form
                      components/sections = landing (TickerStrip, AnswerPanel, ...); desain: docs/design/landing-v2.html
+                     components/PriceChart = chart candlestick (lightweight-charts v5, lazy); lib/chart.ts = helper murni chart/sparkline
+                     pages/StockDetail = /stock/:symbol (publik, lazy)
 backend/             Lambda backend (TypeScript, bundled by serverless-esbuild) + serverless.yml
   src/handlers/      tipis: validasi query → panggil service → response (/v1/* + alias lama s/d S1-10)
   src/services/      logika bisnis (dipakai handler & tool AI di Sprint 2)

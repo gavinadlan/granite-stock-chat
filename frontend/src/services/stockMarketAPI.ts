@@ -2,6 +2,7 @@
 // All data comes from our backend (see apiClient.ts). When data is unavailable
 // we say so; we never fabricate prices, indicators, predictions or news.
 // The keyword router is replaced by the LLM orchestrator in Sprint 2 (S2-06).
+import type { HistoryInterval, HistoryRange, HistoryResponse } from '@stockai/shared';
 import { apiGet, ApiError } from './apiClient';
 import { formatSymbol } from '@/lib/symbolUtils';
 import { API_CONSTANTS } from '@/lib/constants';
@@ -122,6 +123,11 @@ class StockMarketAPI {
       asOf: p.asOf,
       lastUpdated: p.asOf,
     };
+  }
+
+  /** OHLCV candles in the `{ data, meta }` envelope; meta.warnings notes downsampling or coarser bars. */
+  getHistory(symbol: string, range: HistoryRange, interval: HistoryInterval): Promise<HistoryResponse> {
+    return apiGet<HistoryResponse>('/v1/history', { symbol: formatSymbol(symbol), range, interval });
   }
 
   getTechnicalAnalysis(symbol: string): Promise<TechnicalAnalysis> {

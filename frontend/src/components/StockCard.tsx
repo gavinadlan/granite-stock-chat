@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { PriceChange } from '@/components/ui/price-change';
 import { StockPrice } from '@/services/stockMarketAPI';
@@ -5,6 +6,7 @@ import { formatPrice, formatVolume } from '@/lib/currencyUtils';
 import { cn } from '@/lib/utils';
 import { DataCard, DataCardFooter, DataRow } from './DataCard';
 import { DataSourceBadge } from './DataSourceBadge';
+import { Sparkline } from './Sparkline';
 
 /** Display names for Yahoo exchange codes; unknown codes are shown as they are. */
 const EXCHANGE_NAMES: Record<string, string> = {
@@ -18,8 +20,11 @@ const EXCHANGE_NAMES: Record<string, string> = {
 
 interface StockCardProps {
   stockPrice: StockPrice;
-  /** `compact`: landing answer panel; volume and previous close, source shown by the panel. */
-  variant?: 'chat' | 'compact';
+  /**
+   * `chat`: links to the detail page and shows a 1M sparkline. `detail`: same card on /stock/:symbol, without both.
+   * `compact`: landing answer panel; volume and previous close, source shown by the panel.
+   */
+  variant?: 'chat' | 'detail' | 'compact';
   className?: string;
 }
 
@@ -55,7 +60,19 @@ export function StockCard({ stockPrice, variant = 'chat', className }: StockCard
     <DataCard label={`${symbol} price`}>
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-title font-semibold">{symbol}</h3>
+          <h3 className="text-title font-semibold">
+            {variant === 'chat' ? (
+              <Link
+                to={`/stock/${encodeURIComponent(symbol)}`}
+                aria-label={`${symbol}, open chart`}
+                className="rounded-control underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {symbol}
+              </Link>
+            ) : (
+              symbol
+            )}
+          </h3>
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
         <Badge variant="secondary">{stockPrice.delayed ? 'Delayed' : 'Live'}</Badge>
@@ -66,7 +83,7 @@ export function StockCard({ stockPrice, variant = 'chat', className }: StockCard
           <p className="text-heading font-semibold tabular-nums [overflow-wrap:anywhere] sm:text-display">{formatPrice(price, currency)}</p>
           <PriceChange change={change} changePercent={changePercent} currency={currency} className="font-medium" />
         </div>
-        {/* TODO(S1-06): sparkline goes in this second column once the history endpoint exists. */}
+        {variant === 'chat' && <Sparkline symbol={symbol} />}
       </div>
 
       <dl className="space-y-1.5 border-t pt-3">
