@@ -13,6 +13,8 @@ provider:
     # Replicate model id; verify the latest IBM Granite instruct model at replicate.com/ibm-granite
     LLM_MODEL: ${env:LLM_MODEL, 'ibm-granite/granite-3.3-8b-instruct'}
     ALLOWED_ORIGINS: ${self:custom.allowedOrigins.${sls:stage}}
+    # Single table for cache now, user data from Sprint 2 (design: roadmap/sprint-1-backend-data.md S1-04).
+    TABLE_NAME: !Ref StockAiTable
     # Secrets are resolved at deploy time from SSM Parameter Store.
     # See docs/DEPLOYMENT.md#1-secrets. Never hardcode values here.
     # Each key is injected only into the function that uses it (see `functions:` below).
@@ -25,6 +27,17 @@ provider:
             - logs:CreateLogStream
             - logs:PutLogEvents
           Resource: "*"
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Query
+            - dynamodb:BatchGetItem
+          Resource:
+            - !GetAtt StockAiTable.Arn
+            - !Join ['/', [!GetAtt StockAiTable.Arn, 'index', '*']]
 
 custom:
   # Comma-separated origins allowed to call the API (validated in src/lib/config.ts, checked in src/lib/http.ts).
@@ -32,6 +45,10 @@ custom:
   allowedOrigins:
     dev: http://localhost:5173,http://localhost:8080,https://stockai.gavinadlan.my.id
     prod: https://stockai.gavinadlan.my.id
+  # Point-in-time recovery costs extra; only prod holds data worth restoring.
+  pitr:
+    dev: false
+    prod: true
   # Same list for API Gateway preflight (OPTIONS) responses.
   corsOrigins:
     dev:
@@ -203,8 +220,45 @@ resources:
           - ALLOW_REFRESH_TOKEN_AUTH
         PreventUserExistenceErrors: ENABLED
 
+    # Single table (PK/SK + GSI1). Retain: later sprints store user data here, a deploy must never drop it.
+    StockAiTable:
+      Type: AWS::DynamoDB::Table
+      DeletionPolicy: Retain
+      UpdateReplacePolicy: Retain
+      Properties:
+        TableName: stockai-${sls:stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+          - AttributeName: GSI1PK
+            AttributeType: S
+          - AttributeName: GSI1SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: GSI1
+            KeySchema:
+              - AttributeName: GSI1PK
+                KeyType: HASH
+              - AttributeName: GSI1SK
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        TimeToLiveSpecification:
+          AttributeName: ttl
+          Enabled: true
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: ${self:custom.pitr.${sls:stage}}
+
     # Legacy table from the removed auth Lambda. Kept with Retain so a deploy can
-    # never delete data. Remove (and delete manually if empty) in S1-04.
+    # never delete data. Removing it is a separate manual step: check it is empty first (see S1-04a).
     UserTable:
       Type: AWS::DynamoDB::Table
       DeletionPolicy: Retain
